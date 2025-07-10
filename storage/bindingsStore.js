@@ -1,35 +1,39 @@
 // storage/bindingsStore.js
-const {loadBindings, saveBindings} = require('../utils/fileStorage');
+const db = require('./database');
 
-let bindings = loadBindings();
+// Prepared statements
+const stmtAll = db.prepare('SELECT steamId, discordId, name FROM bindings');
+const stmtBySteam = db.prepare('SELECT discordId, name FROM bindings WHERE steamId = ?');
+const stmtByDiscord = db.prepare('SELECT steamId FROM bindings WHERE discordId = ?');
+const stmtUpsert = db.prepare(`INSERT OR REPLACE INTO bindings (steamId, discordId, name)
+    VALUES (?, ?, ?)`);
+const stmtDelete = db.prepare('DELETE FROM bindings WHERE steamId = ?');
 
+// Alle Bindings abrufen
 function getBindings() {
-    return bindings;
+    const rows = stmtAll.all();
+    return Object.fromEntries(rows.map(r => [r.steamId, { discordId: r.discordId, name: r.name }]));
 }
-
-function getBinding(steamid) {
-    return bindings[steamid];
+function getBinding(steamId) {
+    const row = stmtBySteam.get(steamId);
+    return row ? { discordId: row.discordId, name: row.name } : null;
 }
 
 function getSteamIdByDiscordId(discordId) {
-    const bindingEntry = Object.entries(bindings).find(([, entry]) => entry.discordId === discordId);
-    return bindingEntry?.[0] || null;
+    const row = stmtByDiscord.get(discordId);
+    return row?.steamId || null;
 }
 
 function setBinding(steamId, data) {
-    bindings[steamId] = data;
-    saveBindings(bindings);
+    stmtUpsert.run(steamId, data.discordId, data.name);
 }
 
 function deleteBinding(steamId) {
-    if (bindings[steamId]) {
-        delete bindings[steamId];
-        saveBindings(bindings);
-    }
+    stmtDelete.run(steamId);
 }
 
 function reloadBindings() {
-    bindings = loadBindings();
+    // Datenbank speichert bereits permanent
 }
 
 module.exports = {
