@@ -11,7 +11,7 @@ const statsRoutes = require('./routes/stats');
 const statusRoutes = require('./routes/status');
 
 
-const config = require('./config.json');
+const config = require('./config');
 const app = express();
 const port = 3000;
 

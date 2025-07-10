@@ -1,6 +1,6 @@
 // discord/buttonHandlers.js
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const config = require('../config.json');
+const config = require('../config');
 const { client, getGuild } = require('./client');
 
 // Button-Nachricht einmalig senden
