@@ -24,7 +24,18 @@ const stmtUpsert = db.prepare(`INSERT INTO stats (steamId, name, kills, deaths, 
 const stmtDeleteAll = db.prepare('DELETE FROM stats');
 
 function getStats() {
-    return stmtAll.all();
+    return stmtAll.all().map(stat => {
+        const kdRatio = stat.deaths > 0 ? (stat.kills / stat.deaths).toFixed(2) : stat.kills.toFixed(2);
+
+        const totalGames = stat.wins + stat.losses;
+        const winrate = totalGames ? (stat.wins / totalGames) * 100 : 0;
+
+        return {
+            ...stat,
+            kdRatio,
+            winrate
+        }
+    });
 }
 
 function ensureStatsEntry(steamId) {
@@ -33,12 +44,6 @@ function ensureStatsEntry(steamId) {
         stmtInsert.run(steamId, getNameBySteamId(steamId));
     }
     return stmtSelect.get(steamId);
-}
-
-function incrementStat(steamId, field) {
-    if (!stmtIncrement[field]) return;
-    ensureStatsEntry(steamId);
-    stmtIncrement[field].run(steamId);
 }
 
 function addKill(steamId) {

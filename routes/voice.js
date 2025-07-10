@@ -25,7 +25,7 @@ router.get('/voice', async (req, res) => {
                     discordId: member.id,
                     muted: state.serverMute,
                     avatarUrl: member.user.avatar
-                        ? `https://cdn.discordapp.com/avatars/${member.id}/${member.user.avatar}.webp`
+                        ? member.user.avatarURL()
                         : 'https://cdn.discordapp.com/embed/avatars/0.png',
                 };
             })

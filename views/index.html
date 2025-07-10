@@ -145,15 +145,10 @@
             const stats = await res.json();
             const statsBody = document.getElementById('statsBody');
 
-            if (stats.length === 0) {
-                statsBody.innerHTML = '<p class="text-slate-400">Noch keine Statistiken vorhanden.</p>';
-                return;
-            }
+            if (!stats.length) return;
 
             stats.sort((a, b) => {
-                const kdA = a.deaths > 0 ? a.kills / a.deaths : a.kills;
-                const kdB = b.deaths > 0 ? b.kills / b.deaths : b.kills;
-                if (kdB !== kdA) return kdB - kdA;
+                if (b.kdRatio !== a.kdRatio) return b.kdRatio - a.kdRatio;
                 return b.kills - a.kills;
             });
 

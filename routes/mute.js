@@ -3,15 +3,16 @@ const express = require('express');
 const router = express.Router();
 const {getGuild} = require('../discord/client');
 const {getBinding} = require('../storage/bindingsStore');
+const {updateStatsMessage} = require('../discord/statsAnnouncer');
 
 const mutedUsers = new Set();
 
 // Spieler muten per SteamID
 router.post('/mute', async (req, res) => {
-    const {steamid} = req.body;
-    if (!steamid) return res.status(400).send('SteamID fehlt');
+    const {steamId} = req.body;
+    if (!steamId) return res.status(400).send('SteamID fehlt');
 
-    const binding = getBinding(steamid);
+    const binding = getBinding(steamId);
     if (!binding) return res.status(404).send('SteamID nicht gefunden');
 
     return muteMember(binding.discordId, true, res);
@@ -19,10 +20,10 @@ router.post('/mute', async (req, res) => {
 
 // Spieler entmuten per SteamID
 router.post('/unmute', async (req, res) => {
-    const {steamid} = req.body;
-    if (!steamid) return res.status(400).send('SteamID fehlt');
+    const {steamId} = req.body;
+    if (!steamId) return res.status(400).send('SteamID fehlt');
 
-    const binding = getBinding(steamid);
+    const binding = getBinding(steamId);
     if (!binding) return res.status(404).send('SteamID nicht gefunden');
 
     return muteMember(binding.discordId, false, res);
@@ -55,6 +56,8 @@ router.post('/unmuteAll', async (req, res) => {
         console.error('Fehler beim Entmuten aller:', err);
         res.status(500).send('Fehler');
     }
+
+    updateStatsMessage();
 });
 
 // Hilfsfunktion

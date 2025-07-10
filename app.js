@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const {client, loadGuild} = require('./discord/client');
 const {setupButtonInteraction} = require('./discord/buttonHandlers');
+const {updateStatsMessage} = require('./discord/statsAnnouncer');
 
 const bindingsRoutes = require('./routes/bindings');
 const voiceRoutes = require('./routes/voice');
@@ -38,10 +39,12 @@ client.once('ready', async () => {
     await loadGuild();
     setupButtonInteraction();
     console.log(`✅  Bot ist bereit als ${client.user.tag}`);
-    
+
     app.listen(port, () =>
         console.log(`🌐 Dashboard läuft auf http://localhost:${port}`)
     );
+
+    updateStatsMessage();
 
     // Optional: Button einmalig posten
     // const { createUnmuteButton } = require('./discord/buttonHandlers');
