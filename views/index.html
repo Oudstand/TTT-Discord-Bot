@@ -1,78 +1,96 @@
 <!DOCTYPE html>
 <html lang="de">
-    <head>
-        <meta charset="UTF-8" />
-        <title>TTT Dashboard</title>
-        <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://unpkg.com/lucide@latest"></script>
-        <script>
-            window.onload = () => {
-                lucide.createIcons();
-            };
-        </script>
-    </head>
-    <body class="bg-slate-900 text-white min-h-screen font-sans">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold">TTT Dashboard</h1>
-                <span id="status" class="text-sm text-gray-300">🔄 Lade...</span>
-            </div>
+<head>
+    <meta charset="UTF-8"/>
+    <title>TTT Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        window.onload = () => {
+            lucide.createIcons();
+        };
+    </script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen font-sans">
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">TTT Dashboard</h1>
+        <span id="status" class="text-sm text-gray-300">🔄 Lade...</span>
+    </div>
 
-            <form id="bindingForm" class="bg-slate-800 p-4 rounded-2xl shadow-md mb-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input name="name" placeholder="Name" class="bg-slate-700 text-white p-2 rounded-lg" required />
-                    <input name="steamId" placeholder="SteamID64" class="bg-slate-700 text-white p-2 rounded-lg" required />
-                    <input name="discordId" placeholder="Discord-ID" class="bg-slate-700 text-white p-2 rounded-lg" required />
-                </div>
-                <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md">
-                    <i data-lucide="save" class="inline w-4 h-4 mr-1"></i> Speichern
-                </button>
-            </form>
-
-            <div class="mb-6">
-                <input id="search" placeholder="🔍 Suche..." class="w-full bg-slate-800 p-2 rounded-lg text-white" />
-            </div>
-
-            <div id="bindingsList" class="space-y-2 mb-8"></div>
-
-            <div class="mb-8">
-                <h2 class="text-xl font-semibold mb-2">🎙️ Spieler im Voice</h2>
-                <div id="voiceList" class="space-y-2 text-sm"></div>
-            </div>
-
-            <footer class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 py-4">
-                <button
-                    class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 mx-auto"
-                    onclick="endRound()"
-                >
-                    <i class="w-5 h-5" data-lucide="stop-circle"></i> Runde beenden
-                </button>
-            </footer>
+    <form id="bindingForm" class="bg-slate-800 p-4 rounded-2xl shadow-md mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input name="name" placeholder="Name" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+            <input name="steamId" placeholder="SteamID64" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+            <input name="discordId" placeholder="Discord-ID" class="bg-slate-700 text-white p-2 rounded-lg" required/>
         </div>
+        <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md">
+            <i data-lucide="save" class="inline w-4 h-4 mr-1"></i> Speichern
+        </button>
+    </form>
 
-        <script>
-            let currentEdit = null;
+    <div class="mb-6">
+        <input id="search" placeholder="🔍 Suche..." class="w-full bg-slate-800 p-2 rounded-lg text-white"/>
+    </div>
 
-            async function loadStatus() {
-                const res = await fetch('/api/status');
-                const data = await res.json();
-                document.getElementById('status').textContent = `🟢 Verbunden als: ${data.tag}`;
-            }
+    <div id="bindingsList" class="space-y-2 mb-8"></div>
 
-            async function loadBindings() {
-                const res = await fetch('/api/bindings');
-                const data = await res.json();
-                const list = document.getElementById('bindingsList');
-                const search = document.getElementById('search').value.toLowerCase();
-                list.innerHTML = '';
-                data
-                    .filter(info => info.name.toLowerCase().includes(search) || info.steamId.includes(search))
-                    .sort((a, b) => a.name.localeCompare(b.name))
-                    .forEach(info => {
-                            const div = document.createElement('div');
-                            div.className = 'flex justify-between items-center bg-slate-800 p-3 rounded-xl shadow-md';
-                            div.innerHTML = `
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-2">🎙️ Spieler im Voice</h2>
+        <div id="voiceList" class="space-y-2 text-sm"></div>
+    </div>
+
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold mb-2">📈 Statistiken</h2>
+        <table class="min-w-full text-sm" id="statsTable">
+            <thead>
+            <tr class="text-left">
+                <th class="p-2">Name</th>
+                <th class="p-2 text-right">Kills</th>
+                <th class="p-2 text-right">Deaths</th>
+                <th class="p-2 text-right">K/D</th>
+                <th class="p-2 text-right">Wins</th>
+                <th class="p-2 text-right">Losses</th>
+                <th class="p-2 text-right">Winrate</th>
+            </tr>
+            </thead>
+            <tbody id="statsBody"></tbody>
+        </table>
+    </div>
+
+    <footer class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 py-4">
+        <button
+                class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 mx-auto"
+                onclick="endRound()"
+        >
+            <i class="w-5 h-5" data-lucide="stop-circle"></i> Runde beenden
+        </button>
+    </footer>
+</div>
+
+<script>
+    let currentEdit = null;
+
+    async function loadStatus() {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        document.getElementById('status').textContent = `🟢 Verbunden als: ${data.tag}`;
+    }
+
+    async function loadBindings() {
+        const res = await fetch('/api/bindings');
+        const data = await res.json();
+        const list = document.getElementById('bindingsList');
+        const search = document.getElementById('search').value.toLowerCase();
+        list.innerHTML = '';
+        data
+            .filter(info => info.name.toLowerCase().includes(search) || info.steamId.includes(search))
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .forEach(info => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-slate-800 p-3 rounded-xl shadow-md';
+                div.innerHTML = `
                               <span>
                                 ${info.name} –
                                 Steam: <a href="https://steamcommunity.com/profiles/${info.steamId}" target="_blank" class="text-blue-400 underline">${info.steamId}</a> –
@@ -87,89 +105,112 @@
                                   <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                               </div>`;
-                            list.appendChild(div);
-                            lucide.createIcons();
-                    });
-            }
+                list.appendChild(div);
+                lucide.createIcons();
+            });
+    }
 
-            async function loadVoiceList() {
-                const res = await fetch('/api/voice');
-                const data = await res.json();
-                const list = document.getElementById('voiceList');
-                list.innerHTML = '';
-                data.forEach((p) => {
-                    const div = document.createElement('div');
-                    const color = p.muted ? 'bg-red-800' : 'bg-green-800';
-                    const button = p.muted
-                        ? `<button onclick="unmute('${p.discordId}')" class="text-white hover:text-white/80" title="Entmuten">
+    async function loadVoiceList() {
+        const res = await fetch('/api/voice');
+        const data = await res.json();
+        const list = document.getElementById('voiceList');
+        list.innerHTML = '';
+        data.forEach((p) => {
+            const div = document.createElement('div');
+            const color = p.muted ? 'bg-red-800' : 'bg-green-800';
+            const button = p.muted
+                ? `<button onclick="unmute('${p.discordId}')" class="text-white hover:text-white/80" title="Entmuten">
                           <i data-lucide="mic" class="w-5 h-5"></i></button>`
-                        : `<button onclick="mute('${p.discordId}')" class="text-white hover:text-white/80" title="Muten">
+                : `<button onclick="mute('${p.discordId}')" class="text-white hover:text-white/80" title="Muten">
                           <i data-lucide="mic-off" class="w-5 h-5"></i></button>`;
-                    div.className = `flex items-center justify-between ${color} p-3 rounded-xl shadow-md`;
-                    div.innerHTML = `
+            div.className = `flex items-center justify-between ${color} p-3 rounded-xl shadow-md`;
+            div.innerHTML = `
                         <div class="flex items-center gap-3">
                           <img src="${p.avatarUrl}" class="w-10 h-10 rounded-full ring-2 ring-white/20" />
                           <span>${p.name}</span>
                         </div>
                         ${button}`;
-                    list.appendChild(div);
-                    lucide.createIcons();
-                });
-            }
+            list.appendChild(div);
+            lucide.createIcons();
+        });
+    }
 
-            async function mute(discordId) {
-                await fetch('/api/mute/' + discordId, {method: 'POST'});
-                loadVoiceList();
-            }
-
-            async function unmute(discordId) {
-                await fetch('/api/unmute/' + discordId, {method: 'POST'});
-                loadVoiceList();
-            }
-
-            async function endRound() {
-                await fetch('/api/unmuteAll', {method: 'POST'});
-                loadVoiceList();
-            }
-
-            async function deleteBinding(steamId) {
-                if (confirm('Wirklich löschen?')) {
-                    await fetch('/api/bindings/' + steamId, {method: 'DELETE'});
-                    loadBindings();
-                }
-            }
-
-            function editBinding(steamId) {
-                fetch('/api/bindings/' + steamId)
-                    .then((res) => res.json())
-                    .then((data) => {
-                        document.querySelector('[name="name"]').value = data.name;
-                        document.querySelector('[name="steamId"]').value = steamId;
-                        document.querySelector('[name="discordId"]').value = data.discordId;
-                        currentEdit = steamId;
-                    });
-            }
-
-            document.getElementById('bindingForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const form = new FormData(e.target);
-                const payload = Object.fromEntries(form.entries());
-                await fetch('/api/bindings', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload),
-                });
-                e.target.reset();
-                currentEdit = null;
-                loadBindings();
+    async function loadStats() {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        const body = document.getElementById('statsBody');
+        body.innerHTML = '';
+        data
+            .sort((a, b) => b.kills - a.kills)
+            .forEach((s) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                            <td class="p-2">${s.name}</td>
+                            <td class="p-2 text-right">${s.kills}</td>
+                            <td class="p-2 text-right">${s.deaths}</td>
+                            <td class="p-2 text-right">${s.kdRatio}</td>
+                            <td class="p-2 text-right">${s.wins}</td>
+                            <td class="p-2 text-right">${s.losses}</td>
+                            <td class="p-2 text-right">${s.winrate}</td>`;
+                body.appendChild(row);
             });
+    }
 
-            document.getElementById('search').addEventListener('input', loadBindings);
+    async function mute(discordId) {
+        await fetch('/api/mute/' + discordId, {method: 'POST'});
+        loadVoiceList();
+    }
 
-            loadStatus();
+    async function unmute(discordId) {
+        await fetch('/api/unmute/' + discordId, {method: 'POST'});
+        loadVoiceList();
+    }
+
+    async function endRound() {
+        await fetch('/api/unmuteAll', {method: 'POST'});
+        loadVoiceList();
+    }
+
+    async function deleteBinding(steamId) {
+        if (confirm('Wirklich löschen?')) {
+            await fetch('/api/bindings/' + steamId, {method: 'DELETE'});
             loadBindings();
-            loadVoiceList();
-            setInterval(loadVoiceList, 5000);
-        </script>
-    </body>
+        }
+    }
+
+    function editBinding(steamId) {
+        fetch('/api/bindings/' + steamId)
+            .then((res) => res.json())
+            .then((data) => {
+                document.querySelector('[name="name"]').value = data.name;
+                document.querySelector('[name="steamId"]').value = steamId;
+                document.querySelector('[name="discordId"]').value = data.discordId;
+                currentEdit = steamId;
+            });
+    }
+
+    document.getElementById('bindingForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = new FormData(e.target);
+        const payload = Object.fromEntries(form.entries());
+        await fetch('/api/bindings', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload),
+        });
+        e.target.reset();
+        currentEdit = null;
+        loadBindings();
+    });
+
+    document.getElementById('search').addEventListener('input', loadBindings);
+
+    loadStatus();
+    loadBindings();
+    loadVoiceList();
+    loadStats();
+    setInterval(loadVoiceList, 5000);
+    setInterval(loadStats, 10000);
+</script>
+</body>
 </html>

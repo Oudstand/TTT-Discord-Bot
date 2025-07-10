@@ -21,6 +21,7 @@ const stmtUpsert = db.prepare(`INSERT INTO stats (steamId, name, kills, deaths, 
     deaths=excluded.deaths,
     wins=excluded.wins,
     losses=excluded.losses`);
+const stmtDeleteAll = db.prepare('DELETE FROM stats');
 
 function getStats() {
     return stmtAll.all();
@@ -71,6 +72,10 @@ function setStats(steamId, newData) {
     );
 }
 
+function deleteAllStats() {
+    stmtDeleteAll.run();
+}
+
 module.exports = {
     getStats,
     ensureStatsEntry,
@@ -78,6 +83,7 @@ module.exports = {
     addDeath,
     addLoss,
     addWin,
-    setStats
+    setStats,
+    deleteAllStats
 };
 
