@@ -1,41 +1,65 @@
 // storage/statsStore.js
-const {loadStats, saveStats} = require('../utils/fileStorage');
+const db = require('./database');
 const {getNameBySteamId} = require('../utils/playerName');
 
-let stats = loadStats();
+// Prepared statements
+const stmtAll = db.prepare('SELECT steamId, name, kills, deaths, wins, losses FROM stats');
+const stmtHas = db.prepare('SELECT steamId FROM stats WHERE steamId = ?');
+const stmtInsert = db.prepare('INSERT INTO stats (steamId, name, kills, deaths, wins, losses) VALUES (?, ?, 0, 0, 0, 0)');
+const stmtSelect = db.prepare('SELECT name, kills, deaths, wins, losses FROM stats WHERE steamId = ?');
+const stmtIncrement = {
+    kills: db.prepare('UPDATE stats SET kills = kills + 1 WHERE steamId = ?'),
+    deaths: db.prepare('UPDATE stats SET deaths = deaths + 1 WHERE steamId = ?'),
+    wins: db.prepare('UPDATE stats SET wins = wins + 1 WHERE steamId = ?'),
+    losses: db.prepare('UPDATE stats SET losses = losses + 1 WHERE steamId = ?'),
+};
+const stmtUpsert = db.prepare(`INSERT INTO stats (steamId, name, kills, deaths, wins, losses)
+    VALUES (?, ?, ?, ?, ?, ?)
+    ON CONFLICT(steamId) DO UPDATE SET
+    name=excluded.name,
+    kills=excluded.kills,
+    deaths=excluded.deaths,
+    wins=excluded.wins,
+    losses=excluded.losses`);
 
 function getStats() {
-    return stats;
+    const rows = stmtAll.all();
+    return Object.fromEntries(rows.map(r => [r.steamId, {
+        name: r.name,
+        kills: r.kills,
+        deaths: r.deaths,
+        wins: r.wins,
+        losses: r.losses
+    }]));
 }
 
 function ensureStatsEntry(steamId) {
-    if (!stats[steamId]) {
-        stats[steamId] = {
-            name: getNameBySteamId(steamId),
-            kills: 0,
-            deaths: 0,
-            wins: 0,
-            losses: 0
-        };
+    const row = stmtHas.get(steamId);
+    if (!row) {
+        stmtInsert.run(steamId, getNameBySteamId(steamId));
     }
-    return stats[steamId];
+    return stmtSelect.get(steamId);
 }
 
 function incrementStat(steamId, field) {
+    if (!stmtIncrement[field]) return;
     ensureStatsEntry(steamId);
-    if (stats[steamId][field] !== undefined) {
-        stats[steamId][field]++;
-        saveStats(stats);
-    }
+    stmtIncrement[field].run(steamId);
 }
 
 function setStats(steamId, newData) {
-    stats[steamId] = newData;
-    saveStats(stats);
+    stmtUpsert.run(
+        steamId,
+        newData.name,
+        newData.kills,
+        newData.deaths,
+        newData.wins,
+        newData.losses
+    );
 }
 
 function reloadStats() {
-    stats = loadStats();
+    // Datenbank speichert bereits permanent
 }
 
 module.exports = {
@@ -45,3 +69,4 @@ module.exports = {
     setStats,
     reloadStats
 };
+
