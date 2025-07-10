@@ -41,18 +41,22 @@
         <div id="voiceList" class="space-y-2 text-sm"></div>
     </div>
 
-    <div class="mb-8">
-        <h2 class="text-xl font-semibold mb-2">📈 Statistiken</h2>
-        <table class="min-w-full text-sm" id="statsTable">
+    <div class="mb-8 pb-16">
+        <h2 class="text-xl font-semibold mb-2 flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+            Statistiken
+        </h2>
+        <table class="min-w-full bg-slate-800 rounded-xl shadow-md text-left">
             <thead>
-            <tr class="text-left">
-                <th class="p-2">Name</th>
-                <th class="p-2 text-right">Kills</th>
-                <th class="p-2 text-right">Deaths</th>
-                <th class="p-2 text-right">K/D</th>
-                <th class="p-2 text-right">Wins</th>
-                <th class="p-2 text-right">Losses</th>
-                <th class="p-2 text-right">Winrate</th>
+            <tr class="text-slate-300">
+                <th class="p-3 w-12 text-center">Rang</th>
+                <th class="p-3">Name</th>
+                <th class="p-3 w-40"><i data-lucide="swords" class="inline w-4 h-4 mr-2"></i>Kills</th>
+                <th class="p-3 w-40"><i data-lucide="skull" class="inline w-4 h-4 mr-2"></i>Tode</th>
+                <th class="p-3 w-32 text-center">K/D</th>
+                <th class="p-3 w-32 text-center"><i data-lucide="trophy" class="inline w-4 h-4 mr-2"></i>Siege</th>
+                <th class="p-3 w-32 text-center"><i data-lucide="shield-off" class="inline w-4 h-4 mr-2"></i>Niederl.</th>
+                <th class="p-3 w-40"><i data-lucide="pie-chart" class="inline w-4 h-4 mr-2"></i>Winrate</th>
             </tr>
             </thead>
             <tbody id="statsBody"></tbody>
@@ -136,24 +140,72 @@
     }
 
     async function loadStats() {
-        const res = await fetch('/api/stats');
-        const data = await res.json();
-        const body = document.getElementById('statsBody');
-        body.innerHTML = '';
-        data
-            .sort((a, b) => b.kills - a.kills)
-            .forEach((s) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                            <td class="p-2">${s.name}</td>
-                            <td class="p-2 text-right">${s.kills}</td>
-                            <td class="p-2 text-right">${s.deaths}</td>
-                            <td class="p-2 text-right">${s.kdRatio}</td>
-                            <td class="p-2 text-right">${s.wins}</td>
-                            <td class="p-2 text-right">${s.losses}</td>
-                            <td class="p-2 text-right">${s.winrate}</td>`;
-                body.appendChild(row);
+        try {
+            const res = await fetch('/api/stats');
+            const stats = await res.json();
+            const statsBody = document.getElementById('statsBody');
+
+            if (stats.length === 0) {
+                statsBody.innerHTML = '<p class="text-slate-400">Noch keine Statistiken vorhanden.</p>';
+                return;
+            }
+
+            stats.sort((a, b) => {
+                const kdA = a.deaths > 0 ? a.kills / a.deaths : a.kills;
+                const kdB = b.deaths > 0 ? b.kills / b.deaths : b.kills;
+                if (kdB !== kdA) return kdB - kdA;
+                return b.kills - a.kills;
             });
+
+            const maxKills = Math.max(...stats.map(p => p.kills), 1);
+            const maxDeaths = Math.max(...stats.map(p => p.deaths), 1);
+
+            const rankClasses = [
+                'bg-yellow-500/10 hover:bg-yellow-500/20',
+                'bg-slate-500/10 hover:bg-slate-500/20',
+                'bg-orange-700/10 hover:bg-orange-700/20'
+            ];
+
+            let tableHTML = '';
+            stats.forEach((player, index) => {
+                const rankClass = rankClasses[index] || 'hover:bg-slate-700/50';
+                const killPercent = (player.kills / maxKills) * 100;
+                const deathPercent = (player.deaths / maxDeaths) * 100;
+
+                tableHTML += `
+                            <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
+                                <td class="p-3 font-bold text-center text-lg">${index + 1}</td>
+                                <td class="p-3 font-medium">${player.name || 'Unbekannter Spieler'}</td>
+                                <td class="p-3">
+                                    <div class="relative w-full h-6 bg-green-500/10 rounded overflow-hidden">
+                                        <div class="absolute top-0 left-0 h-full bg-green-500/40" style="width: ${killPercent}%"></div>
+                                        <span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.kills}</span>
+                                    </div>
+                                </td>
+                                <td class="p-3">
+                                    <div class="relative w-full h-6 bg-red-500/10 rounded overflow-hidden">
+                                        <div class="absolute top-0 left-0 h-full bg-red-500/40" style="width: ${deathPercent}%"></div>
+                                        <span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.deaths}</span>
+                                    </div>
+                                </td>
+                                <td class="p-3 text-center font-bold font-mono">${player.kdRatio}</td>
+                                <td class="p-3 text-center font-mono">${player.wins}</td>
+                                <td class="p-3 text-center font-mono">${player.losses}</td>
+                                <td class="p-3">
+                                    <div class="relative w-full h-6 bg-blue-500/10 rounded overflow-hidden" title="${player.winrate.toFixed(1)}%">
+                                        <div class="absolute top-0 left-0 h-full bg-blue-500/40" style="width: ${player.winrate}%"></div>
+                                        <span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.winrate.toFixed(1)}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+            });
+            statsBody.innerHTML = tableHTML;
+            lucide.createIcons();
+        } catch (error) {
+            console.error('Fehler beim Laden der Statistiken:', error);
+            document.getElementById('statsTableContainer').innerHTML = '<p class="text-red-400">Statistiken konnten nicht geladen werden.</p>';
+        }
     }
 
     async function mute(discordId) {
