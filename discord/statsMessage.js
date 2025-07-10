@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const stats = require('../storage/statsStore').getStats();
-const { guildId, statsChannelId } = require('../config.json');
+const { guildId, statsChannelId } = require('../config');
 const statsFile = './statsMessage.json';
 const {getGuild} = require('/client.js');
 
