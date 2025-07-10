@@ -66,30 +66,29 @@
                 const list = document.getElementById('bindingsList');
                 const search = document.getElementById('search').value.toLowerCase();
                 list.innerHTML = '';
-                Object.entries(data)
-                    .sort((a, b) => a[1].name.localeCompare(b[1].name))
-                    .forEach(([steamId, info]) => {
-                        if (info.name.toLowerCase().includes(search) || steamId.includes(search)) {
+                data
+                    .filter(info => info.name.toLowerCase().includes(search) || info.steamId.includes(search))
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .forEach(info => {
                             const div = document.createElement('div');
                             div.className = 'flex justify-between items-center bg-slate-800 p-3 rounded-xl shadow-md';
                             div.innerHTML = `
                               <span>
                                 ${info.name} –
-                                Steam: <a href="https://steamcommunity.com/profiles/${steamId}" target="_blank" class="text-blue-400 underline">${steamId}</a> –
+                                Steam: <a href="https://steamcommunity.com/profiles/${info.steamId}" target="_blank" class="text-blue-400 underline">${info.steamId}</a> –
                                 Discord: <a href="https://discordlookup.com/user/${info.discordId}" target="_blank" class="text-blue-400 underline">${info.discordId}</a>
                               </span>
 
                               <div class="flex gap-2">
-                                <button onclick="editBinding('${steamId}')" class="text-blue-400 hover:text-blue-200" title="Bearbeiten">
+                                <button onclick="editBinding('${info.steamId}')" class="text-blue-400 hover:text-blue-200" title="Bearbeiten">
                                   <i data-lucide="edit-2" class="w-4 h-4"></i>
                                 </button>
-                                <button onclick="deleteBinding('${steamId}')" class="text-red-400 hover:text-red-200" title="Löschen">
+                                <button onclick="deleteBinding('${info.steamId}')" class="text-red-400 hover:text-red-200" title="Löschen">
                                   <i data-lucide="trash-2" class="w-4 h-4"></i>
                                 </button>
                               </div>`;
                             list.appendChild(div);
                             lucide.createIcons();
-                        }
                     });
             }
 
@@ -141,14 +140,12 @@
             }
 
             function editBinding(steamId) {
-                fetch('/api/bindings')
+                fetch('/api/bindings/' + steamId)
                     .then((res) => res.json())
                     .then((data) => {
-                        const entry = data[steamId];
-                        if (!entry) return;
-                        document.querySelector('[name="name"]').value = entry.name;
+                        document.querySelector('[name="name"]').value = data.name;
                         document.querySelector('[name="steamId"]').value = steamId;
-                        document.querySelector('[name="discordId"]').value = entry.discordId;
+                        document.querySelector('[name="discordId"]').value = data.discordId;
                         currentEdit = steamId;
                     });
             }

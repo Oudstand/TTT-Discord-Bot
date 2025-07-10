@@ -23,14 +23,7 @@ const stmtUpsert = db.prepare(`INSERT INTO stats (steamId, name, kills, deaths, 
     losses=excluded.losses`);
 
 function getStats() {
-    const rows = stmtAll.all();
-    return Object.fromEntries(rows.map(r => [r.steamId, {
-        name: r.name,
-        kills: r.kills,
-        deaths: r.deaths,
-        wins: r.wins,
-        losses: r.losses
-    }]));
+    return stmtAll.all();
 }
 
 function ensureStatsEntry(steamId) {
@@ -47,6 +40,26 @@ function incrementStat(steamId, field) {
     stmtIncrement[field].run(steamId);
 }
 
+function addKill(steamId) {
+    ensureStatsEntry(steamId);
+    stmtIncrement["kills"].run(steamId);
+}
+
+function addDeath(steamId) {
+    ensureStatsEntry(steamId);
+    stmtIncrement["deaths"].run(steamId);
+}
+
+function addWin(steamId) {
+    ensureStatsEntry(steamId);
+    stmtIncrement["wins"].run(steamId);
+}
+
+function addLoss(steamId) {
+    ensureStatsEntry(steamId);
+    stmtIncrement["losses"].run(steamId);
+}
+
 function setStats(steamId, newData) {
     stmtUpsert.run(
         steamId,
@@ -58,15 +71,13 @@ function setStats(steamId, newData) {
     );
 }
 
-function reloadStats() {
-    // Datenbank speichert bereits permanent
-}
-
 module.exports = {
     getStats,
     ensureStatsEntry,
-    incrementStat,
-    setStats,
-    reloadStats
+    addKill,
+    addDeath,
+    addLoss,
+    addWin,
+    setStats
 };
 

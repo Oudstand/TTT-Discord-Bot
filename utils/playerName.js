@@ -1,15 +1,12 @@
 // utils/playerName.js
-const { getBindings } = require('../storage/bindingsStore');
+const {getBinding, getBindingByDiscordId} = require('../storage/bindingsStore');
 
 function getNameByDiscordId(discordId) {
-    const bindings = getBindings();
-    const entry = Object.entries(bindings).find(([, value]) => value.discordId === discordId);
-    return entry?.[1]?.name || null;
+    return getBindingByDiscordId(discordId)?.name;
 }
 
 function getNameBySteamId(steamId) {
-    const bindings = getBindings();
-    return bindings[steamId]?.name || null;
+    return getBinding(steamId)?.name;
 }
 
 module.exports = {
