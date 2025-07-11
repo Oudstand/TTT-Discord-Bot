@@ -56,8 +56,6 @@ router.post('/unmuteAll', async (req, res) => {
         console.error('Fehler beim Entmuten aller:', err);
         res.status(500).send('Fehler');
     }
-
-    updateStatsMessage();
 });
 
 // Hilfsfunktion

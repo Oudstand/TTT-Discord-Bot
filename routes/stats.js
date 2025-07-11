@@ -1,7 +1,7 @@
 // routes/stats.js
 const express = require('express');
 const router = express.Router();
-const {getStats, addKill, addDeath, addWin, addLoss, deleteAllStats} = require('../storage/statsStore');
+const {getStats, addKill, addTeamKill, addDeath, addWin, addLoss, deleteAllStats, addTraitorRound, addDamage, addTeamDamage} = require('../storage/statsStore');
 const {getNameBySteamId} = require('../utils/playerName');
 
 // Alle Statistiken abrufen
@@ -21,12 +21,23 @@ router.post('/trackDeath', (req, res) => {
 
 // Kill-Tracking
 router.post('/trackKill', (req, res) => {
-    const {killer, victim} = req.body;
-    if (!killer || !victim) return res.status(400).send('Fehlende Daten');
+    const {steamId} = req.body;
+    if (!steamId) return res.status(400).send('SteamID fehlt');
 
-    addKill(killer);
+    addKill(steamId);
 
-    console.log(`📊 Kill-Stat: ${getNameBySteamId(killer)} -> ${getNameBySteamId(victim)}`);
+    console.log(`📊 Kill-Stat: ${getNameBySteamId(steamId)}`);
+    res.sendStatus(200);
+});
+
+// Team-Kill-Tracking
+router.post('/trackTeamKill', (req, res) => {
+    const {steamId} = req.body;
+    if (!steamId) return res.status(400).send('SteamID fehlt');
+
+    addTeamKill(steamId);
+
+    console.log(`📊 TeamKill-Stat: ${getNameBySteamId(steamId)}`);
     res.sendStatus(200);
 });
 
@@ -37,12 +48,45 @@ router.post('/trackWin', (req, res) => {
 
     win === '1' ? addWin(steamId) : addLoss(steamId);
 
-    console.log(`🏁 Spieler ${steamId} hat ${win === '1' ? 'gewonnen' : 'verloren'}`);
+    console.log(`🏁 Spieler ${getNameBySteamId(steamId)} hat ${win === '1' ? 'gewonnen' : 'verloren'}`);
+    res.sendStatus(200);
+});
+
+// Traitor-Tracking
+router.post('/trackTraitorRound', (req, res) => {
+    const {steamId} = req.body;
+    if (!steamId) return res.status(400).send('SteamID fehlt');
+
+    addTraitorRound(steamId);
+
+    console.log(`📊 Traitor-Runde: ${getNameBySteamId(steamId)}`);
+    res.sendStatus(200);
+});
+
+// Damage-Tracking
+router.post('/trackDamage', (req, res) => {
+    const {steamId, damage} = req.body;
+    if (!steamId || !damage) return res.status(400).send('Daten fehlen');
+
+    addDamage(steamId, damage);
+
+    console.log(`📊 Schaden: ${getNameBySteamId(steamId)} - ${damage}`);
+    res.sendStatus(200);
+});
+
+// Team-Damage-Tracking
+router.post('/trackTeamDamage', (req, res) => {
+    const {steamId, damage} = req.body;
+    if (!steamId || !damage) return res.status(400).send('Daten fehlen');
+
+    addTeamDamage(steamId, damage);
+
+    console.log(`📊 Teamschaden: ${getNameBySteamId(steamId)} - ${damage}`);
     res.sendStatus(200);
 });
 
 // --- Debug ---
-router.delete('/debug/stats/clear', (req,res) => {
+router.delete('/debug/stats/clear', (req, res) => {
     deleteAllStats();
     res.sendStatus(200);
 });

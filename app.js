@@ -10,7 +10,7 @@ const voiceRoutes = require('./routes/voice');
 const muteRoutes = require('./routes/mute');
 const statsRoutes = require('./routes/stats');
 const statusRoutes = require('./routes/status');
-
+const discordRoutes = require('./routes/discord');
 
 const config = require('./config');
 const app = express();
@@ -28,6 +28,7 @@ app.use('/api', voiceRoutes);
 app.use('/api', muteRoutes);
 app.use('/api', statsRoutes);
 app.use('/api', statusRoutes);
+app.use('/api', discordRoutes);
 
 // Dashboard-View
 app.get('/', (req, res) => {

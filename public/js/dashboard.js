@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- API Helper ---
     const apiCall = (endpoint, body = {}) => fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body),
     });
 
@@ -103,24 +103,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            stats.sort((a, b) => (b.kdRatio - a.kdRatio) || (b.kills - a.kills));
+            stats.sort((a, b) => (b.winrate - a.winrate) || (b.kdRatio - a.kdRatio));
             const maxKills = Math.max(...stats.map(p => p.kills), 1);
             const maxDeaths = Math.max(...stats.map(p => p.deaths), 1);
+            const maxDamage = Math.max(...stats.map(p => p.damage), 1);
             const rankClasses = ['bg-yellow-500/10', 'bg-slate-500/10', 'bg-orange-700/10'];
 
             statsBodyEl.innerHTML = stats.map((player, idx) => {
                 const rankClass = rankClasses[idx] || 'hover:bg-slate-700/50';
-                const killPercent = (player.kills / maxKills) * 100;
-                const deathPercent = (player.deaths / maxDeaths) * 100;
+                const totalKills = player.kills + player.teamKills;
+                const killPercent = maxKills ? (player.kills / maxKills) * 100 : 0;
+                const teamKillPercent = totalKills ? (player.teamKills / totalKills) * 100 : 0;
+                const deathPercent = maxDeaths ? (player.deaths / maxDeaths) * 100 : 0;
+                const damagePercent = maxDamage ? (player.damage / maxDamage) * 100 : 0;
+                const totalDamage = player.damage + player.teamDamage;
+                const teamDamagePercent = totalDamage ? (player.teamDamage / totalDamage) * 100 : 0;
+
                 return `
                     <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
                         <td class="p-3 font-bold text-center text-lg">${idx + 1}</td>
                         <td class="p-3 font-medium">${player.name || 'Unbekannter Spieler'}</td>
                         <td class="p-3"><div class="relative w-full h-6 bg-green-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-green-500/40" style="width: ${killPercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.kills}</span></div></td>
+                        <td class="p-3"><div class="relative w-full h-6 bg-red-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-red-500/40" style="width: ${teamKillPercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.teamKills}</span></div></td>
                         <td class="p-3"><div class="relative w-full h-6 bg-red-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-red-500/40" style="width: ${deathPercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.deaths}</span></div></td>
                         <td class="p-3 text-center font-bold font-mono">${Number(player.kdRatio).toFixed(2)}</td>
                         <td class="p-3 text-center font-mono">${player.wins}</td>
                         <td class="p-3 text-center font-mono">${player.losses}</td>
+                        <td class="p-3"><div class="relative w-full h-6 bg-green-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-green-500/40" style="width: ${damagePercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.damage).toFixed(0)}</span></div></td>
+                        <td class="p-3"><div class="relative w-full h-6 bg-red-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-red-500/40" style="width: ${teamDamagePercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.teamDamage).toFixed(0)}</span></div ></td>
+                <!--                        <td class="p-3 text-center font-mono">${Number(player.damage).toFixed(0)}</td>-->
+                <!--                        <td class="p-3 text-center font-mono">${Number(player.teamDamage).toFixed(0)}</td>-->
+                <td class="p-3 text-center font-mono">${player.traitorRounds}</td>
                         <td class="p-3"><div class="relative w-full h-6 bg-blue-500/10 rounded overflow-hidden" title="${Number(player.winrate).toFixed(1)}%"><div class="absolute top-0 left-0 h-full bg-blue-500/40" style="width: ${player.winrate}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.winrate).toFixed(1)}%</span></div></td>
                     </tr>
                 `;
@@ -185,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (action === 'delete') {
             if (await showConfirmDialog()) {
-                await fetch('/api/bindings/' + steamId, { method: 'DELETE' });
+                await fetch('/api/bindings/' + steamId, {method: 'DELETE'});
                 row.remove();
             }
         } else if (action === 'edit') {
@@ -206,31 +219,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const row = button.closest('[data-discord-id]');
         const discordId = row.dataset.discordId;
         const isMuted = row.classList.contains('bg-red-800');
-        await apiCall(`/api/${isMuted ? 'unmute' : 'mute'}/${discordId}`);
-        loadVoiceList();
-    });
+        await apiCall(
+                `/api/${isMuted ? 'unmute' : 'mute'}/${discordId}`);
+                loadVoiceList();
+                });
 
-    endRoundBtn.addEventListener('click', () => {
-        apiCall('/api/unmuteAll').then(loadVoiceList);
-    });
+            endRoundBtn.addEventListener('click', () => {
+                apiCall('/api/unmuteAll').then(loadVoiceList);
+            });
 
-    searchInput.addEventListener('input', loadBindings);
+            searchInput.addEventListener('input', loadBindings);
 
-    // --- Initialisierung ---
-    async function initialize() {
-        try {
-            const res = await fetch('/api/status');
-            const data = await res.json();
-            statusEl.textContent = `🟢 Verbunden als: ${data.tag}`;
-        } catch {
-            statusEl.textContent = '🔴 Keine Verbindung zum Bot';
+            // --- Initialisierung ---
+            async function initialize() {
+                try {
+                    const res = await fetch('/api/status');
+                    const data = await res.json();
+                    statusEl.textContent = `🟢 Verbunden als: ${data.tag}`;
+                } catch {
+                    statusEl.textContent = '🔴 Keine Verbindung zum Bot';
+                }
+                loadBindings();
+                loadVoiceList();
+                loadStats();
+                setInterval(loadVoiceList, 10000);
+                setInterval(loadStats, 10000);
+                lucide.createIcons();
+            }
+
+            initialize();
         }
-        loadBindings();
-        loadVoiceList();
-        loadStats();
-        setInterval(loadVoiceList, 10000);
-        setInterval(loadStats, 10000);
-        lucide.createIcons();
-    }
-    initialize();
-});
+    )
+        ;

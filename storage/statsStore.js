@@ -3,24 +3,19 @@ const db = require('./database');
 const {getNameBySteamId} = require('../utils/playerName');
 
 // Prepared statements
-const stmtAll = db.prepare('SELECT steamId, name, kills, deaths, wins, losses FROM stats');
+const stmtAll = db.prepare('SELECT * FROM stats');
 const stmtHas = db.prepare('SELECT steamId FROM stats WHERE steamId = ?');
 const stmtInsert = db.prepare('INSERT INTO stats (steamId, name, kills, deaths, wins, losses) VALUES (?, ?, 0, 0, 0, 0)');
-const stmtSelect = db.prepare('SELECT name, kills, deaths, wins, losses FROM stats WHERE steamId = ?');
 const stmtIncrement = {
     kills: db.prepare('UPDATE stats SET kills = kills + 1 WHERE steamId = ?'),
+    teamKills: db.prepare('UPDATE stats SET teamKills = teamKills + 1 WHERE steamId = ?'),
     deaths: db.prepare('UPDATE stats SET deaths = deaths + 1 WHERE steamId = ?'),
     wins: db.prepare('UPDATE stats SET wins = wins + 1 WHERE steamId = ?'),
     losses: db.prepare('UPDATE stats SET losses = losses + 1 WHERE steamId = ?'),
+    traitorRounds: db.prepare('UPDATE stats SET traitorRounds = traitorRounds + 1 WHERE steamId = ?')
 };
-const stmtUpsert = db.prepare(`INSERT INTO stats (steamId, name, kills, deaths, wins, losses)
-    VALUES (?, ?, ?, ?, ?, ?)
-    ON CONFLICT(steamId) DO UPDATE SET
-    name=excluded.name,
-    kills=excluded.kills,
-    deaths=excluded.deaths,
-    wins=excluded.wins,
-    losses=excluded.losses`);
+const stmtAddDamage = db.prepare('UPDATE stats SET damage = damage + ? WHERE steamId = ?');
+const stmtAddTeamDamage = db.prepare('UPDATE stats SET teamDamage = teamDamage + ? WHERE steamId = ?')
 const stmtDeleteAll = db.prepare('DELETE FROM stats');
 
 function getStats() {
@@ -43,12 +38,16 @@ function ensureStatsEntry(steamId) {
     if (!row) {
         stmtInsert.run(steamId, getNameBySteamId(steamId));
     }
-    return stmtSelect.get(steamId);
 }
 
 function addKill(steamId) {
     ensureStatsEntry(steamId);
     stmtIncrement["kills"].run(steamId);
+}
+
+function addTeamKill(steamId) {
+    ensureStatsEntry(steamId);
+    stmtIncrement["teamKills"].run(steamId);
 }
 
 function addDeath(steamId) {
@@ -66,15 +65,19 @@ function addLoss(steamId) {
     stmtIncrement["losses"].run(steamId);
 }
 
-function setStats(steamId, newData) {
-    stmtUpsert.run(
-        steamId,
-        newData.name,
-        newData.kills,
-        newData.deaths,
-        newData.wins,
-        newData.losses
-    );
+function addTraitorRound(steamId) {
+    ensureStatsEntry(steamId);
+    stmtIncrement["traitorRounds"].run(steamId);
+}
+
+function addDamage(steamId, damage) {
+    ensureStatsEntry(steamId);
+    stmtAddDamage.run(damage, steamId);
+}
+
+function addTeamDamage(steamId, damage) {
+    ensureStatsEntry(steamId);
+    stmtAddTeamDamage.run(damage, steamId);
 }
 
 function deleteAllStats() {
@@ -83,12 +86,14 @@ function deleteAllStats() {
 
 module.exports = {
     getStats,
-    ensureStatsEntry,
     addKill,
+    addTeamKill,
     addDeath,
     addLoss,
     addWin,
-    setStats,
+    addTraitorRound,
+    addDamage,
+    addTeamDamage,
     deleteAllStats
 };
 
