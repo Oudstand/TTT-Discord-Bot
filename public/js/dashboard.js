@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const stats = await res.json();
 
             if (!stats.length) {
-                statsBodyEl.innerHTML = '<tr><td colspan="8" class="text-center p-4">Noch keine Statistiken vorhanden.</td></tr>';
+                statsBodyEl.innerHTML = '<tr><td colspan="12" class="text-center p-4">Noch keine Statistiken vorhanden.</td></tr>';
                 return;
             }
 
@@ -131,9 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td class="p-3 text-center font-mono">${player.losses}</td>
                         <td class="p-3"><div class="relative w-full h-6 bg-green-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-green-500/40" style="width: ${damagePercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.damage).toFixed(0)}</span></div></td>
                         <td class="p-3"><div class="relative w-full h-6 bg-red-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-red-500/40" style="width: ${teamDamagePercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.teamDamage).toFixed(0)}</span></div ></td>
-                <!--                        <td class="p-3 text-center font-mono">${Number(player.damage).toFixed(0)}</td>-->
-                <!--                        <td class="p-3 text-center font-mono">${Number(player.teamDamage).toFixed(0)}</td>-->
-                <td class="p-3 text-center font-mono">${player.traitorRounds}</td>
+                        <td class="p-3 text-center font-mono">${player.traitorRounds}</td>
                         <td class="p-3"><div class="relative w-full h-6 bg-blue-500/10 rounded overflow-hidden" title="${Number(player.winrate).toFixed(1)}%"><div class="absolute top-0 left-0 h-full bg-blue-500/40" style="width: ${player.winrate}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.winrate).toFixed(1)}%</span></div></td>
                     </tr>
                 `;
