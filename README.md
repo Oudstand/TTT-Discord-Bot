@@ -33,7 +33,7 @@ better-sqlite3 benötigt Python ≥ 3.6 zur Installation.
 - Falls du mehrere Python-Versionen hast oder npm es nicht findet:
 
 ```bash
-  npm config set python "C:\\Path\\To\\python.exe"
+npm config set python "C:\\Path\\To\\python.exe"
 ```
 
 ### 3️⃣ Microsoft C++ Build Tools installieren
@@ -46,7 +46,7 @@ better-sqlite3 benötigt Python ≥ 3.6 zur Installation.
 Prüfen:
 
 ```bash
-  where cl
+where cl
 ```
 
 ### 4️⃣ Loopback-Adresse & Hostname für TTT-Integration anlegen (nur Windows)
@@ -68,10 +68,10 @@ Für die lokale Kommunikation zwischen Garry’s Mod (TTT) und dem Bot muss eine
 ## ⚙️ Initiales Setup
 
 ```bash
-  git clone https://github.com/DEIN_REPO/ttt-discord-bot.git
-  cd ttt-discord-bot
-  
-  npm install
+git clone https://github.com/DEIN_REPO/ttt-discord-bot.git
+cd ttt-discord-bot
+
+npm install
 ```
 
 ---
@@ -79,7 +79,7 @@ Für die lokale Kommunikation zwischen Garry’s Mod (TTT) und dem Bot muss eine
 ## 🔥 Starten
 
   ```bash
-    node .\app.js
+  node .\app.js
   ```
 
 Das Dashboard läuft dann auf: http://localhost:3000
