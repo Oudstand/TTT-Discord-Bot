@@ -31,10 +31,9 @@ better-sqlite3 benötigt Python ≥ 3.6 zur Installation.
   ```
 
 - Falls du mehrere Python-Versionen hast oder npm es nicht findet:
-
-```bash
-npm config set python "C:\\Path\\To\\python.exe"
-```
+  ```bash
+  npm config set python "C:\\Path\\To\\python.exe"
+  ```
 
 ### 3️⃣ Microsoft C++ Build Tools installieren
 
