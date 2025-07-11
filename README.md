@@ -17,52 +17,77 @@ Bevor du `npm install` ausführst, stelle sicher, dass dein System vorbereitet i
   ```bash
   node --version
   npm --version
+  ```
 
 ### 2️⃣ Python installieren
+
 better-sqlite3 benötigt Python ≥ 3.6 zur Installation.
+
 - Download: https://www.python.org/downloads/windows/
 - WICHTIG: Bei der Installation „Add to PATH“ anhaken.
 - Prüfen:
- ```bash
-    python --version
+  ```bash
+  python --version
+  ```
+
+- Falls du mehrere Python-Versionen hast oder npm es nicht findet:
+
+```bash
+  npm config set python "C:\\Path\\To\\python.exe"
 ```
 
-Falls du mehrere Python-Versionen hast oder npm es nicht findet:
-```bash
-npm config set python "C:\\Path\\To\\python.exe"
-```
 ### 3️⃣ Microsoft C++ Build Tools installieren
+
 - Download: https://visualstudio.microsoft.com/visual-cpp-build-tools/
 - Bei der Installation auswählen:
     - ✅ „C++ build tools“
     - ✅ „Windows 10 SDK“ (oder neuer)
 
 Prüfen:
+
 ```bash
-where cl
+  where cl
 ```
+
+### 4️⃣ Loopback-Adresse & Hostname für TTT-Integration anlegen (nur Windows)
+
+Für die lokale Kommunikation zwischen Garry’s Mod (TTT) und dem Bot muss eine spezielle Loopback-Adresse und ein Hostname eingerichtet werden.
+
+- Füge eine zusätzliche IP zum Loopback-Interface hinzu:
+  Öffne eine Eingabeaufforderung als Administrator und führe aus:
+  ```bash 
+  netsh interface ipv4 add address "Loopback Pseudo-Interface 1" 192.178.0.1 255.255.255.255
+  ```
+- Ergänze deine Hosts-Datei (C:\Windows\System32\drivers\etc\hosts) um:
+  ```bash
+  192.178.0.1    ttthost
+  ```
 
 ---
 
 ## ⚙️ Initiales Setup
-```bash
-git clone https://github.com/DEIN_REPO/ttt-discord-bot.git
-cd ttt-discord-bot
 
-npm install
+```bash
+  git clone https://github.com/DEIN_REPO/ttt-discord-bot.git
+  cd ttt-discord-bot
+  
+  npm install
 ```
 
 ---
 
 ## 🔥 Starten
-```bash
-node .\app.js
-```
+
+  ```bash
+    node .\app.js
+  ```
+
 Das Dashboard läuft dann auf: http://localhost:3000
 
 ---
 
 ## ⚡ Features
+
 - Automatisches Muten/Entmuten der Spieler im Discord-Voice-Channel, basierend auf Spielereignissen.
 - Bindings (SteamID ↔ DiscordID ↔ Name).
 - Kill-/Death-/Win-/Loss-Statistiken.
@@ -72,7 +97,9 @@ Das Dashboard läuft dann auf: http://localhost:3000
 ---
 
 ## 🗃️ Datenbank
+
 Dieses Projekt nutzt better-sqlite3:
+
 - Datenbank-Datei: ttt.db (wird beim Start automatisch erstellt)
 - Tabellen:
     - bindings → SteamID, DiscordID, Name
@@ -85,8 +112,9 @@ Dieses Projekt nutzt better-sqlite3:
 - Erstellen und verwalten unter: https://discord.com/developers/applications
 - Zum Server hinzufügen
 - Anlegen der ``.env`` Datei:
-     ```bash
-     cp .env.example .env
+   ```bash
+   cp .env.example .env
+  ```
 - Einfügen der Werte in die `.env` Datei:
     - `DISCORD_TOKEN`: Token des Bots
     - `GUILD_ID`: ID des Servers
