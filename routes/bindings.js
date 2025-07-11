@@ -24,12 +24,7 @@ router.post('/bindings', (req, res) => {
 
 // Binding löschen
 router.delete('/bindings/:steamId', (req, res) => {
-    const steamId = req.params.steamId;
-    const bindings = getBindings();
-    if (!bindings[steamId]) return res.status(404).send('SteamID nicht gefunden');
-
-    deleteBinding(steamId);
-
+    deleteBinding(req.params.steamId);
     res.sendStatus(200);
 });
 
