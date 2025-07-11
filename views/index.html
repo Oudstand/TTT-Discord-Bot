@@ -46,7 +46,7 @@
             <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
             Statistiken
         </h2>
-        <table class="min-w-full bg-slate-800 rounded-xl shadow-md text-left">
+        <table id="statsTable" class="min-w-full bg-slate-800 rounded-xl shadow-md text-left">
             <thead>
             <tr class="text-slate-300">
                 <th class="p-3 w-12 text-center">Rang</th>
@@ -148,7 +148,8 @@
             if (!stats.length) return;
 
             stats.sort((a, b) => {
-                if (b.kdRatio !== a.kdRatio) return b.kdRatio - a.kdRatio;
+                if (b.winrate !== a.winrate) return b.winrate - a.winrate;
+                if (b.wins !== a.wins) return b.wins - a.wins;
                 return b.kills - a.kills;
             });
 

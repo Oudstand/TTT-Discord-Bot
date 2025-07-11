@@ -3,3 +3,5 @@ config.json
 .env
 database.sqlite
 meta.json
+stats.png
+.idea
