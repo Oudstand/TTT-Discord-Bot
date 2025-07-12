@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.addEventListener('input', loadBindings);
 
         function createWebSocket() {
-            const ws = new WebSocket('ws://ttthost:3000');
+            const ws = new WebSocket('ws://localhost:3000');
             ws.addEventListener('open', async () => {
                 console.log('WebSocket verbunden');
             });
