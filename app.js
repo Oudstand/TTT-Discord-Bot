@@ -1,5 +1,7 @@
 // app.js (Haupteinstiegspunkt)
 const express = require('express');
+const http = require('http');
+const WebSocket = require('ws');
 const path = require('path');
 const {client, loadGuild} = require('./discord/client');
 const { createUnmuteButton} = require('./discord/buttonHandlers');
@@ -15,6 +17,10 @@ const discordRoutes = require('./routes/discord');
 const config = require('./config');
 const app = express();
 const port = 3000;
+
+const server = http.createServer(app);
+const wss = new WebSocket.Server({server});
+app.set('wss', wss);
 
 // Middleware
 app.use(express.json());
@@ -40,9 +46,9 @@ client.once('ready', async () => {
     await loadGuild();
     console.log(`✅  Bot ist bereit als ${client.user.tag}`);
 
-    app.listen(port, () =>
-        console.log(`🌐 Dashboard läuft auf http://localhost:${port}`)
-    );
+    server.listen(port, () => {
+        console.log(`🌐 Dashboard läuft auf http://ttthost:${port}`)
+    });
 
     updateStatsMessage();
     createUnmuteButton();
