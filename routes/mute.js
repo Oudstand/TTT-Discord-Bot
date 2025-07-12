@@ -3,7 +3,6 @@ const express = require('express');
 const router = express.Router();
 const {getGuild} = require('../discord/client');
 const {getBinding} = require('../storage/bindingsStore');
-const {updateStatsMessage} = require('../discord/statsAnnouncer');
 
 const mutedUsers = new Set();
 
