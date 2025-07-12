@@ -1,6 +1,6 @@
 // storage/statsStore.js
 const db = require('./database');
-const {getNameBySteamId} = require('../utils/playerName');
+const {getNameBySteamId} = require('../utils/name');
 
 // Prepared statements
 const stmtAll = db.prepare('SELECT * FROM stats');

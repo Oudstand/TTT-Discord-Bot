@@ -10,7 +10,7 @@ async function createUnmuteButton() {
     try {
         const channel = await client.channels.fetch(config.commandChannelId);
         if (!channel) {
-            console.error(`[Button] Button-Kanal mit ID ${config.commandChannelId} nicht gefunden.`);
+            console.error(`❌ Button-Kanal mit ID ${config.commandChannelId} nicht gefunden.`);
             return;
         }
 

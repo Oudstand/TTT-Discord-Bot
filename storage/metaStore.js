@@ -13,7 +13,7 @@ try {
         save();
     }
 } catch (error) {
-    console.error('[MetaStore] Fehler beim Laden von meta.json:', error);
+    console.error('❌ Fehler beim Laden von meta.json:', error);
 }
 
 /**
@@ -23,7 +23,7 @@ function save() {
     try {
         fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
     } catch (error) {
-        console.error('[MetaStore] Fehler beim Speichern von meta.json:', error);
+        console.error('❌ Fehler beim Speichern von meta.json:', error);
     }
 }
 

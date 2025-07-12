@@ -1,4 +1,4 @@
-// utils/playerName.js
+// utils/name.js
 const {getBinding, getBindingByDiscordId} = require('../storage/bindingsStore');
 
 function getNameByDiscordId(discordId) {

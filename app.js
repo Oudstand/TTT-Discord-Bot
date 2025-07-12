@@ -3,12 +3,12 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
-const {client, loadGuild,setWebSocketServer} = require('./discord/client');
+const {setWebSocketServer} = require('./websocketService');
+const {client, loadGuild} = require('./discord/client');
 const {createUnmuteButton} = require('./discord/buttonHandlers');
 const {updateStatsMessage} = require('./discord/statsAnnouncer');
 
 const bindingsRoutes = require('./routes/bindings');
-const muteRoutes = require('./routes/mute');
 const statsRoutes = require('./routes/stats');
 const statusRoutes = require('./routes/status');
 const discordRoutes = require('./routes/discord');
@@ -30,7 +30,6 @@ app.use(express.static(path.join(__dirname, 'views')));
 
 // Routen
 app.use('/api', bindingsRoutes);
-app.use('/api', muteRoutes);
 app.use('/api', statsRoutes);
 app.use('/api', statusRoutes);
 app.use('/api', discordRoutes);

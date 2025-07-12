@@ -1,4 +1,4 @@
-// utils/statScreenshotter.js
+// utils/statsScreenshot.js
 const puppeteer = require('puppeteer');
 
 async function screenshotStats() {

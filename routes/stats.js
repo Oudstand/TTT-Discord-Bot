@@ -1,12 +1,32 @@
 // routes/stats.js
 const express = require('express');
 const router = express.Router();
+const WebSocket = require('ws');
+const {getWebSocketServer} = require('../websocketService');
+const {updateStatsMessage} = require('../discord/statsAnnouncer');
 const {getStats, addKill, addTeamKill, addDeath, addWin, addLoss, deleteAllStats, addTraitorRound, addDamage, addTeamDamage} = require('../storage/statsStore');
-const {getNameBySteamId} = require('../utils/playerName');
+const {getNameBySteamId} = require('../utils/name');
 
 // Alle Statistiken abrufen
 router.get('/stats', (req, res) => {
     res.json(getStats());
+});
+
+// Statistik-Announcer aktualisieren
+router.post('/updateStats', (req, res) => {
+    console.log('📊 Statistiken aktualisieren');
+    void updateStatsMessage();
+
+    const wss = getWebSocketServer();
+    if (wss) {
+        wss.clients.forEach(ws => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({type: 'statsUpdate'}));
+            }
+        });
+    }
+
+    res.sendStatus(200);
 });
 
 // Death-Tracking
