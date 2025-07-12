@@ -83,7 +83,7 @@ function setStatsMessage(type = 'all', msg) {
 }
 
 function getContent(type = 'all') {
-    return type === 'all' ? '\u200B\n**🏆 TTT Gesamt-Statistik**' : '\u200B\n**📊 TTT Session-Statistik (seit letztem Serverstart)**';
+    return type === 'all' ? '\u200B\n**🏆 TTT Gesamt-Statistik**' : '\u200B\n**📊 TTT Session-Statistik**';
 }
 
 module.exports = {updateStatsMessage};
