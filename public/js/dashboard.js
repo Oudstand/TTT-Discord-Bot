@@ -150,11 +150,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td class="p-3">${bar(player.losses, maxValues.losses, 'red')}</td>
                             <td class="p-3">${bar(player.damage, maxValues.damage, 'green', 0)}</td>
                             <td class="p-3">${bar(player.teamDamage, totalDamage, 'red', 0)}</td>
-                            <td class="p-3">${bar(player.traitorRounds, maxValues.traitorRounds, 'blue', 1)}</td>
+                            <td class="p-3">${bar(player.traitorRounds, maxValues.traitorRounds, 'sky', 1)}</td>
                             <td class="p-3">${bar(player.winrate, 100, 'blue', 1, '%')}</td>
                         </tr>
                     `;
                 }).join('');
+
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.stat-bar').forEach(bar => {
+                        bar.style.width = bar.dataset.targetWidth + '%';
+                    });
+                });
             } catch (err) {
                 console.error('Fehler beim Laden der Statistiken:', err);
                 statsBodyEl.innerHTML = `
@@ -181,11 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 green: ['bg-green-500/10', 'bg-green-500/40'],
                 red: ['bg-red-500/10', 'bg-red-500/40'],
                 blue: ['bg-blue-500/10', 'bg-blue-500/40'],
+                sky: ['bg-sky-500/10', 'bg-sky-500/40']
             };
             const [bg, fg] = colors[color] || colors.green;
+
             return `
                 <div class="relative w-full h-6 ${bg} rounded overflow-hidden">
-                    <div class="absolute top-0 left-0 h-full ${fg}" style="width: ${percent(value, max)}%"></div>
+                    <div class="stat-bar absolute top-0 left-0 h-full ${fg} transition-all duration-700" data-target-width="${percent(value, max)}" style="width:0"></div>
                     <span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">
                         ${Number(value).toFixed(digits)}${suffix}
                     </span>
