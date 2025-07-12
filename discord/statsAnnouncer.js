@@ -5,12 +5,13 @@ const {getClient} = require('./client');
 const {screenshotStats} = require('../utils/statsScreenshot');
 const {AttachmentBuilder} = require('discord.js');
 
-let statsMessage = null;
+let statsMessageAll = null;
+let statsMessageSession = null;
 
 /**
  * Sucht eine bestehende Statistik-Nachricht oder erstellt eine neue.
  */
-async function initializeStatsMessage() {
+async function initializeStatsMessage(type = 'all') {
     const client = getClient();
     try {
         const channel = await client.channels.fetch(config.statsChannelId);
@@ -19,22 +20,27 @@ async function initializeStatsMessage() {
             return;
         }
 
-        const messageId = meta.get('statsMessageId');
+        const metaKey = type === 'session' ? 'statsMessageIdSession' : 'statsMessageIdAll';
+        let messageId = meta.get(metaKey);
+
         if (messageId) {
             try {
-                statsMessage = await channel.messages.fetch(messageId);
+                let statsMessage = await channel.messages.fetch(messageId);
+                setStatsMessage(type, statsMessage);
             } catch (error) {
                 // Fehler 10008 = "Unknown Message", d.h. sie wurde gelöscht
                 if (error.code === 10008) {
-                    meta.set('statsMessageId', undefined);
+                    meta.set(metaKey, undefined);
                     await initializeStatsMessage();
                 } else {
                     console.error('❌ Fehler beim Abrufen der Nachricht via ID:', error.message);
                 }
             }
         } else {
-            statsMessage = await channel.send({content: 'Statistiken werden geladen...'});
-            meta.set('statsMessageId', statsMessage.id);
+            const msg = await channel.send({content: type === 'session' ? 'Sessionstatistik wird geladen...' : 'Gesamtstatistik wird geladen...'});
+            meta.set(metaKey, msg.id);
+            if (type === 'session') statsMessageSession = msg;
+            else statsMessageAll = msg;
         }
     } catch (error) {
         console.error('❌ Fehler bei der Initialisierung der Statistik-Nachricht:', error);
@@ -44,24 +50,40 @@ async function initializeStatsMessage() {
 /**
  * Aktualisiert die gespeicherte Nachricht mit dem neuen Embed.
  */
-async function updateStatsMessage() {
+async function updateStatsMessage(type = 'all') {
+    let statsMessage = getStatsMessage(type);
     if (!statsMessage) {
-        await initializeStatsMessage();
+        await initializeStatsMessage(type);
+        statsMessage = getStatsMessage(type);
         if (!statsMessage) return;
     }
 
     try {
-        await screenshotStats();
-        const attachment = new AttachmentBuilder('./stats.png');
-        await statsMessage.edit({content: ' ', files: [attachment]});
+        await screenshotStats(type, `stats_${type}.png`);
+        const attachment = new AttachmentBuilder(`stats_${type}.png`);
+        await statsMessage.edit({content: getContent(type), files: [attachment]});
     } catch (error) {
         console.error('❌ Fehler beim Aktualisieren der Statistik-Nachricht:', error.message);
         // Fehler 10008 = "Unknown Message", tritt auf, wenn die Nachricht gelöscht wurde.
         if (error.code === 10008) {
             console.log('❌ Nachricht wurde wohl gelöscht. Erstelle eine neue.');
             statsMessage = null;
+            await updateStatsMessage(type);
         }
     }
+}
+
+function getStatsMessage(type = 'all') {
+    return type === 'session' ? statsMessageSession : statsMessageAll;
+}
+
+function setStatsMessage(type = 'all', msg) {
+    if (type === 'session') statsMessageSession = msg;
+    else statsMessageAll = msg;
+}
+
+function getContent(type = 'all') {
+    return type === 'all' ? '\u200B\n**🏆 TTT Gesamt-Statistik**' : '\u200B\n**📊 TTT Session-Statistik (seit letztem Serverstart)**';
 }
 
 module.exports = {updateStatsMessage};

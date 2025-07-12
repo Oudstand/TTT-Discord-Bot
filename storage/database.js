@@ -22,6 +22,18 @@ db.exec(`
         damage INTEGER DEFAULT 0,
         teamDamage INTEGER DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS stats_session  (
+        steamId TEXT PRIMARY KEY,
+        name TEXT,
+        kills INTEGER DEFAULT 0,
+        teamKills INTEGER DEFAULT 0,
+        deaths INTEGER DEFAULT 0,
+        wins INTEGER DEFAULT 0,
+        losses INTEGER DEFAULT 0,
+        traitorRounds INTEGER DEFAULT 0,
+        damage INTEGER DEFAULT 0,
+        teamDamage INTEGER DEFAULT 0
+    );
 `);
 
 module.exports = db;

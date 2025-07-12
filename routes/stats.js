@@ -4,7 +4,19 @@ const router = express.Router();
 const WebSocket = require('ws');
 const {getWebSocketServer} = require('../websocketService');
 const {updateStatsMessage} = require('../discord/statsAnnouncer');
-const {getStats, addKill, addTeamKill, addDeath, addWin, addLoss, deleteAllStats, addTraitorRound, addDamage, addTeamDamage} = require('../storage/statsStore');
+const {
+    getStats,
+    getSessionStats,
+    addKill,
+    addTeamKill,
+    addDeath,
+    addWin,
+    addLoss,
+    deleteAllStats,
+    addTraitorRound,
+    addDamage,
+    addTeamDamage
+} = require('../storage/statsStore');
 const {getNameBySteamId} = require('../utils/name');
 
 // Alle Statistiken abrufen
@@ -12,10 +24,16 @@ router.get('/stats', (req, res) => {
     res.json(getStats());
 });
 
+// Session Statistiken abrufen
+router.get('/stats/session', (req, res) => {
+    res.json(getSessionStats());
+});
+
 // Statistik-Announcer aktualisieren
 router.post('/updateStats', (req, res) => {
     console.log('📊 Statistiken aktualisieren');
-    void updateStatsMessage();
+    void updateStatsMessage('all');
+    void updateStatsMessage('session');
 
     const wss = getWebSocketServer();
     if (wss) {

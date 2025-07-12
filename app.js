@@ -7,6 +7,7 @@ const {setWebSocketServer} = require('./websocketService');
 const {client, loadGuild} = require('./discord/client');
 const {createUnmuteButton} = require('./discord/buttonHandlers');
 const {updateStatsMessage} = require('./discord/statsAnnouncer');
+const {resetSessionStats} = require('./storage/statsStore');
 
 const bindingsRoutes = require('./routes/bindings');
 const statsRoutes = require('./routes/stats');
@@ -48,8 +49,11 @@ client.once('ready', async () => {
         console.log(`🌐 Dashboard läuft auf http://ttthost:${port}`)
     });
 
-    void updateStatsMessage();
-    void createUnmuteButton();
+    resetSessionStats();
+
+    await updateStatsMessage('all');
+    await updateStatsMessage('session');
+    await createUnmuteButton();
 });
 
 client.login(config.token);

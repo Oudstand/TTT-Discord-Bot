@@ -20,9 +20,15 @@
     </div>
 
     <div class="mb-8 pb-4">
-        <h2 class=" text-xl font-semibold mb-2 flex items-center gap-2">
-            <i data-lucide="bar-chart-3" class="w-6 h-6"></i> Statistiken
-        </h2>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class=" text-xl font-semibold flex items-center gap-2">
+                <i data-lucide="bar-chart-3" class="w-6 h-6"></i> Statistiken
+            </h2>
+            <div class="flex gap-2">
+                <button id="all-stats-btn" data-type="all" class="tab-btn bg-blue-600 text-white px-4 py-2 rounded-xl font-bold shadow transition-all duration-200">Alle</button>
+                <button id="session-stats-btn" data-type="session" class="tab-btn bg-slate-800 text-white px-4 py-2 rounded-xl transition-all duration-200">Sitzung</button>
+            </div>
+        </div>
         <table id="statsTable" class="min-w-full bg-slate-800 rounded-xl shadow-md text-left">
             <thead>
             <tr class="text-slate-300">

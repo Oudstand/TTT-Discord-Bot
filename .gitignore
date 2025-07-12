@@ -3,5 +3,6 @@ config.json
 .env
 database.sqlite
 meta.json
-stats.png
+stats_all.png
+stats_session.png
 .idea
