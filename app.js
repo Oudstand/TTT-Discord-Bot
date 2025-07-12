@@ -3,12 +3,11 @@ const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
-const {client, loadGuild} = require('./discord/client');
-const { createUnmuteButton} = require('./discord/buttonHandlers');
+const {client, loadGuild,setWebSocketServer} = require('./discord/client');
+const {createUnmuteButton} = require('./discord/buttonHandlers');
 const {updateStatsMessage} = require('./discord/statsAnnouncer');
 
 const bindingsRoutes = require('./routes/bindings');
-const voiceRoutes = require('./routes/voice');
 const muteRoutes = require('./routes/mute');
 const statsRoutes = require('./routes/stats');
 const statusRoutes = require('./routes/status');
@@ -21,6 +20,7 @@ const port = 3000;
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
 app.set('wss', wss);
+setWebSocketServer(wss);
 
 // Middleware
 app.use(express.json());
@@ -30,7 +30,6 @@ app.use(express.static(path.join(__dirname, 'views')));
 
 // Routen
 app.use('/api', bindingsRoutes);
-app.use('/api', voiceRoutes);
 app.use('/api', muteRoutes);
 app.use('/api', statsRoutes);
 app.use('/api', statusRoutes);
@@ -50,8 +49,8 @@ client.once('ready', async () => {
         console.log(`🌐 Dashboard läuft auf http://ttthost:${port}`)
     });
 
-    updateStatsMessage();
-    createUnmuteButton();
+    void updateStatsMessage();
+    void createUnmuteButton();
 });
 
 client.login(config.token);

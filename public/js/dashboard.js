@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const nameInput = bindingForm.querySelector('[name="name"]');
         const steamIdInput = bindingForm.querySelector('[name="steamId"]');
         const discordIdInput = bindingForm.querySelector('[name="discordId"]');
-        const endRoundBtn = $('button[onclick="endRound()"]');
+        const endRoundBtn = $('#end-round-button');
         const confirmBtn = $('#modal-confirm');
         const cancelBtn = $('#modal-cancel');
         const overlay = $('#modal-overlay');
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             bindingForm.reset();
             currentEditSteamId = null;
-            loadBindings();
+            void loadBindings();
         });
 
         bindingsListEl.addEventListener('click', async (e) => {
@@ -217,19 +217,40 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = button.closest('[data-discord-id]');
             const discordId = row.dataset.discordId;
             const isMuted = row.classList.contains('bg-red-800');
-            await apiCall(
-                `/api/${isMuted ? 'unmute' : 'mute'}/${discordId}`);
-            loadVoiceList();
+            await apiCall(`/api/${isMuted ? 'unmute' : 'mute'}/${discordId}`);
         });
 
         endRoundBtn.addEventListener('click', () => {
-            apiCall('/api/unmuteAll').then(loadVoiceList);
+            void apiCall('/api/unmuteAll');
         });
 
         searchInput.addEventListener('input', loadBindings);
 
+        function createWebSocket() {
+            const ws = new WebSocket('ws://ttthost:3000');
+            ws.addEventListener('open', async () => {
+                console.log('WebSocket verbunden');
+            });
+
+            ws.addEventListener('message', async event => {
+                let msg;
+                try {
+                    msg = JSON.parse(event.data);
+                } catch (err) {
+                    return;
+                }
+                if (msg.type === 'statsUpdate') {
+                    void loadStats();
+                } else if (msg.type === 'voiceUpdate') {
+                    void loadVoiceList();
+                }
+            });
+        }
+
         // --- Initialisierung ---
         async function initialize() {
+            createWebSocket();
+
             try {
                 const res = await fetch('/api/status');
                 const data = await res.json();
@@ -237,14 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch {
                 statusEl.textContent = '🔴 Keine Verbindung zum Bot';
             }
-            loadBindings();
-            loadVoiceList();
-            loadStats();
-            setInterval(loadVoiceList, 10000);
-            setInterval(loadStats, 10000);
+            void loadBindings();
+            void loadVoiceList();
+            void loadStats();
             lucide.createIcons();
         }
 
-        initialize();
+        void initialize();
     }
 );
