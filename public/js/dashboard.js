@@ -84,13 +84,29 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const res = await fetch('/api/voice');
                 if (!res.ok) throw new Error('Voice-Liste konnte nicht geladen werden');
+
                 const voiceUsers = await res.json();
-                voiceListEl.innerHTML = voiceUsers.map(createVoiceUserHTML).join('');
-                lucide.createIcons();
+                if (!voiceUsers.length) {
+                    voiceListEl.innerHTML = `
+                        <div class="bg-slate-800 rounded-xl p-4 text-center flex items-center justify-center gap-2">
+                            <i data-lucide="mic-off" class="w-5 h-5 opacity-70"></i>
+                            <span class="text-white text-base">Noch ist niemand im Discord.</span>
+                        </div>
+                    `;
+                } else {
+                    voiceListEl.innerHTML = voiceUsers.map(createVoiceUserHTML).join('');
+                }
             } catch (err) {
                 console.error(err);
-                voiceListEl.innerHTML = `<p class="text-red-400">Voice-Liste konnte nicht geladen werden.</p>`;
+                voiceListEl.innerHTML = `
+                    <div class="bg-slate-800 rounded-xl p-4 text-center flex items-center justify-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400 opacity-80"></i>
+                        <span class="text-red-400 text-base">Voice-Liste konnte nicht geladen werden.</span>
+                    </div>
+                `;
             }
+
+            lucide.createIcons();
         }
 
         async function loadStats() {
@@ -99,48 +115,82 @@ document.addEventListener('DOMContentLoaded', () => {
                 const stats = await res.json();
 
                 if (!stats.length) {
-                    statsBodyEl.innerHTML = '<tr><td colspan="12" class="text-center p-4">Noch keine Statistiken vorhanden.</td></tr>';
+                    statsBodyEl.innerHTML = `
+                        <tr>
+                            <td colspan="12" class="text-center p-4">
+                                Noch keine Statistiken vorhanden.
+                            </td>
+                        </tr>`;
                     return;
                 }
 
                 stats.sort((a, b) => (b.winrate - a.winrate) || (b.kdRatio - a.kdRatio));
-                const maxKills = Math.max(...stats.map(p => p.kills), 1);
-                const maxDeaths = Math.max(...stats.map(p => p.deaths), 1);
-                const maxDamage = Math.max(...stats.map(p => p.damage), 1);
+
+                const keys = ['kills', 'deaths', 'damage', 'wins', 'losses', 'traitorRounds'];
+                const maxValues = Object.fromEntries(
+                    keys.map(key => [key, Math.max(...stats.map(p => p[key]), 1)])
+                );
+
                 const rankClasses = ['bg-yellow-500/10', 'bg-slate-500/10', 'bg-orange-700/10'];
 
                 statsBodyEl.innerHTML = stats.map((player, idx) => {
                     const rankClass = rankClasses[idx] || 'hover:bg-slate-700/50';
                     const totalKills = player.kills + player.teamKills;
-                    const killPercent = maxKills ? (player.kills / maxKills) * 100 : 0;
-                    const teamKillPercent = totalKills ? (player.teamKills / totalKills) * 100 : 0;
-                    const deathPercent = maxDeaths ? (player.deaths / maxDeaths) * 100 : 0;
-                    const damagePercent = maxDamage ? (player.damage / maxDamage) * 100 : 0;
                     const totalDamage = player.damage + player.teamDamage;
-                    const teamDamagePercent = totalDamage ? (player.teamDamage / totalDamage) * 100 : 0;
 
                     return `
-                    <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
-                        <td class="p-3 font-bold text-center text-lg">${idx + 1}</td>
-                        <td class="p-3 font-medium">${player.name || 'Unbekannter Spieler'}</td>
-                        <td class="p-3"><div class="relative w-full h-6 bg-green-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-green-500/40" style="width: ${killPercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.kills}</span></div></td>
-                        <td class="p-3"><div class="relative w-full h-6 bg-red-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-red-500/40" style="width: ${teamKillPercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.teamKills}</span></div></td>
-                        <td class="p-3"><div class="relative w-full h-6 bg-red-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-red-500/40" style="width: ${deathPercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${player.deaths}</span></div></td>
-                        <td class="p-3 text-center font-bold font-mono">${Number(player.kdRatio).toFixed(2)}</td>
-                        <td class="p-3 text-center font-mono">${player.wins}</td>
-                        <td class="p-3 text-center font-mono">${player.losses}</td>
-                        <td class="p-3"><div class="relative w-full h-6 bg-green-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-green-500/40" style="width: ${damagePercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.damage).toFixed(0)}</span></div></td>
-                        <td class="p-3"><div class="relative w-full h-6 bg-red-500/10 rounded overflow-hidden"><div class="absolute top-0 left-0 h-full bg-red-500/40" style="width: ${teamDamagePercent}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.teamDamage).toFixed(0)}</span></div ></td>
-                        <td class="p-3 text-center font-mono">${player.traitorRounds}</td>
-                        <td class="p-3"><div class="relative w-full h-6 bg-blue-500/10 rounded overflow-hidden" title="${Number(player.winrate).toFixed(1)}%"><div class="absolute top-0 left-0 h-full bg-blue-500/40" style="width: ${player.winrate}%"></div><span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">${Number(player.winrate).toFixed(1)}%</span></div></td>
-                    </tr>
-                `;
+                        <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
+                            <td class="p-3 font-bold text-center text-lg">${idx + 1}</td>
+                            <td class="p-3 font-medium">${player.name || 'Unbekannter Spieler'}</td>
+                            <td class="p-3">${bar(player.kills, maxValues.kills, 'green')}</td>
+                            <td class="p-3">${bar(player.teamKills, totalKills, 'red')}</td>
+                            <td class="p-3">${bar(player.deaths, maxValues.deaths, 'red')}</td>
+                            <td class="p-3 text-center font-bold font-mono">${Number(player.kdRatio).toFixed(2)}</td>
+                            <td class="p-3">${bar(player.wins, maxValues.wins, 'green')}</td>
+                            <td class="p-3">${bar(player.losses, maxValues.losses, 'red')}</td>
+                            <td class="p-3">${bar(player.damage, maxValues.damage, 'green', 0)}</td>
+                            <td class="p-3">${bar(player.teamDamage, totalDamage, 'red', 0)}</td>
+                            <td class="p-3">${bar(player.traitorRounds, maxValues.traitorRounds, 'blue', 1)}</td>
+                            <td class="p-3">${bar(player.winrate, 100, 'blue', 1, '%')}</td>
+                        </tr>
+                    `;
                 }).join('');
-                lucide.createIcons();
             } catch (err) {
                 console.error('Fehler beim Laden der Statistiken:', err);
-                statsBodyEl.innerHTML = '<tr><td colspan="8" class="text-red-400 text-center p-4">Statistiken konnten nicht geladen werden.</td></tr>';
+                statsBodyEl.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="text-red-400 p-4 ">
+                            <div class="text-center flex items-center justify-center gap-2">
+                                <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400 opacity-80"></i>
+                                <span class="text-red-400 text-base">Voice-Liste konnte nicht geladen werden.</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
+
+            lucide.createIcons();
+        }
+
+        function percent(value, max) {
+            return max ? (value / max) * 100 : 0;
+        }
+
+        function bar(value, max, color, digits = 0, suffix = '') {
+            const colors = {
+                green: ['bg-green-500/10', 'bg-green-500/40'],
+                red: ['bg-red-500/10', 'bg-red-500/40'],
+                blue: ['bg-blue-500/10', 'bg-blue-500/40'],
+            };
+            const [bg, fg] = colors[color] || colors.green;
+            return `
+                <div class="relative w-full h-6 ${bg} rounded overflow-hidden">
+                    <div class="absolute top-0 left-0 h-full ${fg}" style="width: ${percent(value, max)}%"></div>
+                    <span class="absolute top-0 left-2 h-full flex items-center z-10 font-mono">
+                        ${Number(value).toFixed(digits)}${suffix}
+                    </span>
+                </div>
+            `;
         }
 
         // --- Confirm Dialog ---
