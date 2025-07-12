@@ -1,11 +1,31 @@
 // routes/bindings.js
 const express = require('express');
 const router = express.Router();
-const {getBindings, setBinding, deleteBinding, getBinding} = require('../storage/bindingsStore');
+const {getBindings, setBinding, deleteBinding, getBinding, getSteamIdByDiscordId} = require('../storage/bindingsStore');
+const {getGuild} = require("../discord/client");
 
 // Alle Bindings abrufen
-router.get('/bindings', (req, res) => {
-    res.json(getBindings());
+router.get('/bindings', async (req, res) => {
+    let bindings = getBindings();
+    const guild = getGuild();
+
+    if (guild) {
+        bindings = await Promise.all(bindings.map(async (binding) => {
+            try {
+                const member = await guild.members.fetch(binding.discordId);
+                return {
+                    ...binding,
+                    avatarUrl: member.user.avatarURL()
+                };
+            } catch {
+                return {
+                    ...binding
+                };
+            }
+        }));
+    }
+
+    res.json(bindings);
 });
 
 // Einzelnes Binding abrufen

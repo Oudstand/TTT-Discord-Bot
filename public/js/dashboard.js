@@ -27,34 +27,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- HTML Factories ---
         const createBindingRowHTML = binding => `
-        <div class="flex justify-between items-center bg-slate-800 p-3 rounded-xl shadow-md" data-steam-id="${binding.steamId}">
-            <span>
-                ${binding.name} –
-                Steam: <a href="https://steamcommunity.com/profiles/${binding.steamId}" target="_blank" class="text-blue-400 underline">${binding.steamId}</a> –
-                Discord: <a href="https://discordlookup.com/user/${binding.discordId}" target="_blank" class="text-blue-400 underline">${binding.discordId}</a>
-            </span>
-            <div class="flex gap-2">
-                <button data-action="edit" class="text-blue-400 hover:text-blue-200" title="Bearbeiten">
-                    <i data-lucide="edit-2" class="w-4 h-4"></i>
-                </button>
-                <button data-action="delete" class="text-red-400 hover:text-red-200" title="Löschen">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                </button>
+            <div class="flex items-center bg-slate-800 px-4 py-3 rounded-xl shadow-md hover:bg-slate-700 transition-all group gap-4" data-steam-id="${binding.steamId}">
+                <img src="${binding.avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png'}" alt="Avatar" class="w-8 h-8 rounded-full ring-2 ring-white/10 group-hover:ring-blue-400/30 flex-shrink-0" />
+                    <div class="flex flex-col flex-1 min-w-0">
+                        <span class="font-bold text-white text-base truncate">${binding.name}</span>
+                        <div class="flex gap-4 text-xs text-slate-400 font-mono mt-1 flex-wrap">
+                            <span>
+                                <span class="text-slate-500">Steam:</span>
+                                <a href="https://steamcommunity.com/profiles/${binding.steamId}" target="_blank" class="text-blue-400 underline hover:text-blue-300 break-all">${binding.steamId}</a>
+                            </span>
+                            <span>
+                                <span class="text-slate-500">Discord:</span>
+                                <a href="https://discordlookup.com/user/${binding.discordId}" target="_blank" class="text-blue-400 underline hover:text-blue-300 break-all">${binding.discordId}</a>
+                            </span>
+                      </div>
+                    </div>
+                    <div class="flex gap-2 flex-shrink-0">
+                        <button data-action="edit" class="rounded-full bg-slate-700 p-2 text-blue-400 hover:bg-blue-600 hover:text-white transition" title="Bearbeiten">
+                            <i data-lucide="edit-2" class="w-4 h-4"></i>
+                        </button>
+                        <button data-action="delete" class="rounded-full bg-slate-700 p-2 text-red-400 hover:bg-red-600 hover:text-white transition" title="Löschen">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
             </div>
-        </div>
-    `;
+        `;
 
         const createVoiceUserHTML = user => `
-        <div class="flex items-center justify-between ${user.muted ? 'bg-red-800' : 'bg-green-800'} p-3 rounded-xl shadow-md" data-discord-id="${user.discordId}">
-            <div class="flex items-center gap-3">
-                <img src="${user.avatarUrl}" class="w-10 h-10 rounded-full ring-2 ring-white/20" alt="Avatar von ${user.name}" />
-                <span>${user.name}</span>
+            <div class="flex items-center justify-between ${user.muted ? 'bg-red-800' : 'bg-green-800'} p-3 rounded-xl shadow-md" data-discord-id="${user.discordId}">
+                <div class="flex items-center gap-3">
+                    <img src="${user.avatarUrl}" class="w-10 h-10 rounded-full ring-2 ring-white/20" alt="Avatar von ${user.name}" />
+                    <span>${user.name}</span>
+                </div>
+                <button data-action="toggle-mute" class="text-white hover:text-white/80" title="${user.muted ? 'Entmuten' : 'Muten'}">
+                    <i data-lucide="${user.muted ? 'mic' : 'mic-off'}" class="w-5 h-5"></i>
+                </button>
             </div>
-            <button data-action="toggle-mute" class="text-white hover:text-white/80" title="${user.muted ? 'Entmuten' : 'Muten'}">
-                <i data-lucide="${user.muted ? 'mic' : 'mic-off'}" class="w-5 h-5"></i>
-            </button>
-        </div>
-    `;
+        `;
 
         // --- Load Functions ---
         async function loadBindings() {
