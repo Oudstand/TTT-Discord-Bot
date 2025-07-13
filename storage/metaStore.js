@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const metaPath = path.join(__dirname, '../meta.json');
+const metaPath = path.join(process.cwd(), 'meta.json');
 
 let meta = {};
 
