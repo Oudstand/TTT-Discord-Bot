@@ -110,6 +110,9 @@ Das Dashboard läuft dann auf: http://localhost:3000
 - Die Statistiken (Gesamtstatistiken und von der aktuellen Session) werden zusätzlich am Ende einer Runde im Discord Kanal mit der ID `STATS_CHANNEL_ID` gepostet.
 - Persistente Speicherung in SQLite-Datenbank (via `better-sqlite3`).
 
+![TTT Dashboard Screenshot](dashboard.png)
+Die Namen, Avatare, SteamIDs und DiscordIDs wurden im Screenshot anonymisiert. Im Betrieb werden die Profilbilder aus Discord (falls vorhanden) angezeigt.
+
 ---
 
 ## 🗃️ Datenbank
