@@ -23,7 +23,7 @@ Bevor du `npm install` ausführst, stelle sicher, dass dein System vorbereitet i
 
 ### 2️⃣ Python installieren
 
-better-sqlite3 benötigt Python ≥ 3.6 zur Installation.
+`better-sqlite3` benötigt Python ≥ 3.6 zur Installation.
 
 - Download: https://www.python.org/downloads/windows/
 - WICHTIG: Bei der Installation „Add to PATH“ anhaken.
@@ -70,7 +70,7 @@ Für die lokale Kommunikation zwischen Garry’s Mod (TTT) und dem Bot muss eine
 
 - Code auschecken und installieren:
 ```bash
-git clone https://github.com/DEIN_REPO/ttt-discord-bot.git
+git clone https://github.com/Oudstand/tttt-discord-bot.git
 cd ttt-discord-bot
 
 npm install
@@ -95,31 +95,32 @@ Das Dashboard läuft dann auf: http://localhost:3000
 
 - Automatisches Muten/Entmuten der Spieler im Discord-Voice-Channel, basierend auf Spielereignissen.
 - Web-Dashboard für den Einblick in Statistiken, Verwaltung der Bindings, Übersicht wer im Discord ist
-- Bindings (SteamID ↔ DiscordID ↔ Name).
-- Statistiken (insgesamt und pro Session):
-  - Kills
-  - Team-Kills
-  - Tode
-  - K/D
-  - Siege
-  - Niederlagen
-  - Schaden
-  - Teamschaden
-  - Traitor-Runden
-  - Winrate
-- Persistente Speicherung in SQLite-Datenbank (via better-sqlite3).
+  - Bindings (SteamID ↔ DiscordID ↔ Name).
+  - Statistiken (insgesamt und pro Session):
+    - Kills
+    - Team-Kills
+    - Tode
+    - K/D
+    - Siege
+    - Niederlagen
+    - Schaden
+    - Teamschaden
+    - Traitor-Runden
+    - Winrate
+- Die Statistiken (Gesamtstatistiken und von der aktuellen Session) werden zusätzlich am Ende einer Runde im Discord Kanal mit der ID `STATS_CHANNEL_ID` gepostet.
+- Persistente Speicherung in SQLite-Datenbank (via `better-sqlite3`).
 
 ---
 
 ## 🗃️ Datenbank
 
-Dieses Projekt nutzt better-sqlite3:
+Dieses Projekt nutzt `better-sqlite3`:
 
-- Datenbank-Datei: ttt.db (wird beim Start automatisch erstellt)
+- Datenbank-Datei: `database.sqlite` (wird beim Start automatisch erstellt)
 - Tabellen:
     - bindings → SteamID, DiscordID, Name
-    - stats → SteamID, Name, Kills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
-    - stats_session → SteamID, Name, Kills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
+    - stats → SteamID, Name, Kills, TeamKills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
+    - stats_session → SteamID, Name, Kills, TeamKills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
 
 ---
 
