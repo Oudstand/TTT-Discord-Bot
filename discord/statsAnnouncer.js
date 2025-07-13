@@ -51,6 +51,11 @@ async function initializeStatsMessage(type = 'all') {
  * Aktualisiert die gespeicherte Nachricht mit dem neuen Embed.
  */
 async function updateStatsMessage(type = 'all') {
+    if(!config.CHROMIUM_PATH) {
+        console.error('❌ Es wurde kein Chromium-Pfad angegeben. Ohne diesen können keine Screenshots der Statistiken erstellt werden. In der README.md ist erklärt, wie der Pfad zu hinterlegen ist.');
+        return;
+    }
+
     let statsMessage = getStatsMessage(type);
     if (!statsMessage) {
         await initializeStatsMessage(type);

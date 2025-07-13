@@ -1,8 +1,9 @@
 // utils/statsScreenshot.js
 const puppeteer = require('puppeteer');
+const {CHROMIUM_PATH} = require('../config');
 
 async function screenshotStats(type = 'all', filename = 'stats_all.png') {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({executablePath: CHROMIUM_PATH});
     const page = await browser.newPage();
 
     let url = 'http://localhost:3000/';

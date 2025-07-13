@@ -61,6 +61,8 @@ Dieses Projekt nutzt `better-sqlite3`:
   - `GUILD_ID`: ID des Servers
   - `COMMAND_CHANNEL_ID`: ID des Kanals für Befehle
   - `STATS_CHANNEL_ID`: ID des Kanals für Statistiken
+  - `CHROMIUM_PATH`: Pfad zu einer Chromium-Installation. Bspw. `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
+    - Es kann [hier](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html) eine portable Chromiumversion heruntergeladen werden, falls keine vorhanden ist.
 
 ## 🔥 Starten
 
