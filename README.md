@@ -8,6 +8,72 @@
 
 ---
 
+## ⚡ Features
+
+- Automatisches Muten/Entmuten der Spieler im Discord-Voice-Channel, basierend auf Spielereignissen.
+- Web-Dashboard für den Einblick in Statistiken, Verwaltung der Bindings, Übersicht wer im Discord ist
+  - Bindings (SteamID ↔ DiscordID ↔ Name).
+  - Statistiken (insgesamt und pro Session):
+    - Kills
+    - Team-Kills
+    - Tode
+    - K/D
+    - Siege
+    - Niederlagen
+    - Schaden
+    - Teamschaden
+    - Traitor-Runden
+    - Winrate
+- Die Statistiken (Gesamtstatistiken und von der aktuellen Session) werden zusätzlich am Ende einer Runde im Discord Kanal mit der ID `STATS_CHANNEL_ID` gepostet.
+- Persistente Speicherung in SQLite-Datenbank (via `better-sqlite3`).
+
+![TTT Dashboard Screenshot](dashboard.png)
+Die Namen, Avatare, SteamIDs und DiscordIDs wurden im Screenshot anonymisiert. Im Betrieb werden die Profilbilder aus Discord (falls vorhanden) angezeigt.
+
+---
+
+## 🗃️ Datenbank
+
+Dieses Projekt nutzt `better-sqlite3`:
+
+- Datenbank-Datei: `database.sqlite` (wird beim Start automatisch erstellt)
+- Tabellen:
+  - bindings → SteamID, DiscordID, Name
+  - stats → SteamID, Name, Kills, TeamKills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
+  - stats_session → SteamID, Name, Kills, TeamKills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
+
+---
+
+## 🤖 Discord Bot
+
+- Erstellen und verwalten unter: https://discord.com/developers/applications
+- Zum Server hinzufügen:
+  - Auf den Reiter `OAuth2` wechseln.
+  - Dort unter `OAuth2 URL Generator` unter `SCOPES` `bot` auswählen.
+  - Anschließend unter `BOT PERMISSIONS` `Send Messages` und `Mute Members` auswählen.
+  - Mit dem unten stehenden Link den Bot zum Server hinzufügen.
+- Anlegen der ``.env`` Datei:
+   ```bash
+   cp .env.example .env
+  ```
+- Einfügen der Werte in die `.env` Datei:
+  - `DISCORD_TOKEN`: Token des Bots
+  - `GUILD_ID`: ID des Servers
+  - `COMMAND_CHANNEL_ID`: ID des Kanals für Befehle
+  - `STATS_CHANNEL_ID`: ID des Kanals für Statistiken
+
+## 🔥 Starten
+
+- Verschiebe die Datei `discord_bot.lua` nach: `<pfad-zu-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
+- Platziere die erzeugte `.env` Datei neben der `TTT Discord Bot.exe` und führe diese aus.
+
+
+---
+
+---
+
+# ⚙️ Manuelles Setup aus dem Code
+
 ## 📦 Voraussetzungen
 
 Bevor du `npm install` ausführst, stelle sicher, dass dein System vorbereitet ist.
@@ -76,71 +142,20 @@ cd ttt-discord-bot
 npm install
 ```
 
-- Verschiebe die Datei `discord_bot.lua` nach: `{pfad-zu-steam}\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
+- Verschiebe die Datei `discord_bot.lua` nach: `<pfad-zu-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
 ---
 
 ## 🔥 Starten
 
-Zum Starten die `TTT Discord Bot.exe` oder `start_ttt_bot.bat` ausführen.
-Alternativ: 
+Zum Starten folgendes ausführen.
   ```bash
   node .\app.js
   ```
 
 Das Dashboard läuft dann auf: http://localhost:3000
 
----
-
-## ⚡ Features
-
-- Automatisches Muten/Entmuten der Spieler im Discord-Voice-Channel, basierend auf Spielereignissen.
-- Web-Dashboard für den Einblick in Statistiken, Verwaltung der Bindings, Übersicht wer im Discord ist
-  - Bindings (SteamID ↔ DiscordID ↔ Name).
-  - Statistiken (insgesamt und pro Session):
-    - Kills
-    - Team-Kills
-    - Tode
-    - K/D
-    - Siege
-    - Niederlagen
-    - Schaden
-    - Teamschaden
-    - Traitor-Runden
-    - Winrate
-- Die Statistiken (Gesamtstatistiken und von der aktuellen Session) werden zusätzlich am Ende einer Runde im Discord Kanal mit der ID `STATS_CHANNEL_ID` gepostet.
-- Persistente Speicherung in SQLite-Datenbank (via `better-sqlite3`).
-
-![TTT Dashboard Screenshot](dashboard.png)
-Die Namen, Avatare, SteamIDs und DiscordIDs wurden im Screenshot anonymisiert. Im Betrieb werden die Profilbilder aus Discord (falls vorhanden) angezeigt.
-
----
-
-## 🗃️ Datenbank
-
-Dieses Projekt nutzt `better-sqlite3`:
-
-- Datenbank-Datei: `database.sqlite` (wird beim Start automatisch erstellt)
-- Tabellen:
-    - bindings → SteamID, DiscordID, Name
-    - stats → SteamID, Name, Kills, TeamKills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
-    - stats_session → SteamID, Name, Kills, TeamKills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
-
----
-
-## 🤖 Discord Bot
-
-- Erstellen und verwalten unter: https://discord.com/developers/applications
-- Zum Server hinzufügen:
-  - Auf den Reiter `OAuth2` wechseln.
-  - Dort unter `OAuth2 URL Generator` unter `SCOPES` `bot` auswählen.
-  - Anschließend unter `BOT PERMISSIONS` `Send Messages` und `Mute Members` auswählen.
-  - Mit dem unten stehenden Link den Bot zum Server hinzufügen.
-- Anlegen der ``.env`` Datei:
-   ```bash
-   cp .env.example .env
-  ```
-- Einfügen der Werte in die `.env` Datei:
-    - `DISCORD_TOKEN`: Token des Bots
-    - `GUILD_ID`: ID des Servers
-    - `COMMAND_CHANNEL_ID`: ID des Kanals für Befehle
-    - `STATS_CHANNEL_ID`: ID des Kanals für Statistiken
+Alternativ erzeugen einer `.exe` mit `pkg`
+```bash
+npm install -g pkg
+npm run build
+```
