@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return `
                     <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
                         <td class="p-3 font-bold text-center text-lg">${idx + 1}</td>
-                        <td class="p-3 font-medium">${player.name || 'Unbekannter Spieler'}</td>
+                        <td class="p-3 font-medium max-w-[160px] truncate" title="${player.name || 'Unbekannter Spieler'}">${player.name || 'Unbekannter Spieler'}</td>
                         <td class="p-3">${bar(player.kills, maxValues.kills, 'green')}</td>
                         <td class="p-3">${bar(player.teamKills, totalKills, 'red')}</td>
                         <td class="p-3">${bar(player.deaths, maxValues.deaths, 'red')}</td>
