@@ -1,4 +1,4 @@
-[![GitHub](https://img.shields.io/badge/Repo-ttt--discord--bot-blue?logo=github)](https://github.com/Oudstand/tttt-discord-bot)
+[![GitHub](https://img.shields.io/badge/Repo-ttt--discord--bot-blue?logo=github)](https://github.com/Oudstand/TTT-Discord-Bot.git)
 
 # TTT Discord Bot
 
@@ -70,7 +70,7 @@ Für die lokale Kommunikation zwischen Garry’s Mod (TTT) und dem Bot muss eine
 
 - Code auschecken und installieren:
 ```bash
-git clone https://github.com/Oudstand/tttt-discord-bot.git
+git clone https://github.com/Oudstand/TTT-Discord-Bot.git
 cd ttt-discord-bot
 
 npm install
