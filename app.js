@@ -46,7 +46,7 @@ client.once('ready', async () => {
     console.log(`✅  Bot ist bereit als ${client.user.tag}`);
 
     server.listen(port, () => {
-        console.log(`🌐 Dashboard läuft auf http://ttthost:${port}`)
+        console.log(`🌐 Dashboard läuft auf http://localhost:${port}`)
     });
 
     resetSessionStats();
