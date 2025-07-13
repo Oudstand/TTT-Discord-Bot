@@ -68,6 +68,7 @@ Für die lokale Kommunikation zwischen Garry’s Mod (TTT) und dem Bot muss eine
 
 ## ⚙️ Initiales Setup
 
+- Code auschecken und installieren:
 ```bash
 git clone https://github.com/DEIN_REPO/ttt-discord-bot.git
 cd ttt-discord-bot
@@ -75,10 +76,13 @@ cd ttt-discord-bot
 npm install
 ```
 
+- Verschiebe die Datei `discord_bot.lua` nach: `{pfad-zu-steam}\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
 ---
 
 ## 🔥 Starten
 
+Zum Starten die `TTT Discord Bot.exe` oder `start_ttt_bot.bat` ausführen.
+Alternativ: 
   ```bash
   node .\app.js
   ```
@@ -90,9 +94,19 @@ Das Dashboard läuft dann auf: http://localhost:3000
 ## ⚡ Features
 
 - Automatisches Muten/Entmuten der Spieler im Discord-Voice-Channel, basierend auf Spielereignissen.
+- Web-Dashboard für den Einblick in Statistiken, Verwaltung der Bindings, Übersicht wer im Discord ist
 - Bindings (SteamID ↔ DiscordID ↔ Name).
-- Kill-/Death-/Win-/Loss-Statistiken.
-- Web-Dashboard mit Live-Übersicht und Steuerung.
+- Statistiken (insgesamt und pro Session):
+  - Kills
+  - Team-Kills
+  - Tode
+  - K/D
+  - Siege
+  - Niederlagen
+  - Schaden
+  - Teamschaden
+  - Traitor-Runden
+  - Winrate
 - Persistente Speicherung in SQLite-Datenbank (via better-sqlite3).
 
 ---
@@ -104,14 +118,19 @@ Dieses Projekt nutzt better-sqlite3:
 - Datenbank-Datei: ttt.db (wird beim Start automatisch erstellt)
 - Tabellen:
     - bindings → SteamID, DiscordID, Name
-    - stats → SteamID, Name, Kills, Deaths, Wins, Losses
+    - stats → SteamID, Name, Kills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
+    - stats_session → SteamID, Name, Kills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
 
 ---
 
 ## 🤖 Discord Bot
 
 - Erstellen und verwalten unter: https://discord.com/developers/applications
-- Zum Server hinzufügen
+- Zum Server hinzufügen:
+  - Auf den Reiter `OAuth2` wechseln.
+  - Dort unter `OAuth2 URL Generator` unter `SCOPES` `bot` auswählen.
+  - Anschließend unter `BOT PERMISSIONS` `Send Messages` und `Mute Members` auswählen.
+  - Mit dem unten stehenden Link den Bot zum Server hinzufügen.
 - Anlegen der ``.env`` Datei:
    ```bash
    cp .env.example .env
