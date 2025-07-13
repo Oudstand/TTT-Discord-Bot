@@ -8,6 +8,7 @@ const {client, loadGuild} = require('./discord/client');
 const {createUnmuteButton} = require('./discord/buttonHandlers');
 const {updateStatsMessage} = require('./discord/statsAnnouncer');
 const {resetSessionStats} = require('./storage/statsStore');
+const openBrowser = require('./utils/openBrowser');
 
 const bindingsRoutes = require('./routes/bindings');
 const statsRoutes = require('./routes/stats');
@@ -20,6 +21,12 @@ const port = 3000;
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({server});
+
+if (process.platform === 'win32') {
+    process.title = 'TTT Discord Bot';
+    require('child_process').exec('title TTT Discord Bot');
+}
+
 app.set('wss', wss);
 setWebSocketServer(wss);
 
@@ -47,6 +54,7 @@ client.once('ready', async () => {
 
     server.listen(port, () => {
         console.log(`🌐 Dashboard läuft auf http://localhost:${port}`)
+        openBrowser('http://localhost:3000');
     });
 
     resetSessionStats();

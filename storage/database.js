@@ -1,7 +1,7 @@
 const path = require('path');
 const Database = require('better-sqlite3');
 
-const dbPath = path.join(__dirname, '../database.sqlite');
+const dbPath = path.resolve(process.cwd(), 'database.sqlite');
 const db = new Database(dbPath);
 
 db.exec(`
