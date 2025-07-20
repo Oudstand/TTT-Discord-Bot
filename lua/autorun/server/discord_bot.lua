@@ -1,16 +1,27 @@
+if not SERVER then return end
+
 print("[TTTDiscordBot] Server-side script loaded")
 
 local ApiBase = "http://ttthost:3000/api"
+local TEAM_TRAITOR = "traitor"
+local TEAM_INNOCENT = "innocent"
+local TEAM_UNKNOWN = "unknown"
 local DeadPlayers = {}
 
-local function GetTeam(role)
+local plyMeta = FindMetaTable("Player")
+if not plyMeta then
+    return
+end
+
+function plyMeta:GetTeam()
+    local role = self:GetRole()
     if role == ROLE_TRAITOR then
-        return "traitor"
+        return TEAM_TRAITOR
     end
     if role == ROLE_INNOCENT or role == ROLE_DETECTIVE then
-        return "innocent"
+        return TEAM_INNOCENT
     end
-    return tostring(role)
+    return TEAM_UNKNOWN
 end
 
 local function IsValidPlayer(player)
@@ -34,7 +45,7 @@ hook.Add("PlayerDeath", "TTTDiscordDeath", function(victim, inflictor, attacker)
         return
     end
 
-    if GetTeam(victim:GetRole()) ~= GetTeam(attacker:GetRole()) then
+    if victim:GetTeam() ~= attacker:GetTeam() then
         http.Post(ApiBase .. "/trackKill", { steamId = attacker:SteamID64() })
     else
         http.Post(ApiBase .. "/trackTeamKill", { steamId = attacker:SteamID64() })
@@ -56,13 +67,16 @@ hook.Add("EntityTakeDamage", "TTTTrackDamage", function(target, dmginfo)
     end
 
     local attacker = dmginfo:GetAttacker()
-    local dmg = dmginfo:GetDamage() * attacker:GetDamageFactor()
-
-    if dmg <= 0 or not IsValidPlayer(attacker) then
+    if not IsValidPlayer(attacker) then
         return
     end
 
-    if GetTeam(target:GetRole()) ~= GetTeam(attacker:GetRole()) then
+    local dmg = dmginfo:GetDamage() * attacker:GetDamageFactor()
+    if dmg <= 0 then
+        return
+    end
+
+    if target:GetTeam() ~= attacker:GetTeam() then
         http.Post(ApiBase .. "/trackDamage", {
             steamId = attacker:SteamID64(),
             damage = tostring(dmg)
@@ -78,29 +92,26 @@ end)
 hook.Add("TTTEndRound", "TTTDiscordRoundEnd", function(result)
     print("TTTRoundEnd")
     for _, ply in ipairs(player.GetAll()) do
-        local sid = ply:SteamID64()
-        local role = ply:GetRole()
+        if IsValidPlayer(ply) and ply:GetRole() then
+            local sid = ply:SteamID64()
+            local team = ply:GetTeam()
+            local won = false
 
-        if not IsValidPlayer(ply) or not role then
-            continue
-        end
+            if result == WIN_TRAITOR and team == TEAM_TRAITOR then
+                won = true
+            end
+            if result == WIN_INNOCENT and team == TEAM_INNOCENT then
+                won = true
+            end
 
-        local won = false
+            http.Post(ApiBase .. "/trackWin", {
+                steamId = sid,
+                win = won and "1" or "0"
+            })
 
-        if result == WIN_TRAITOR and (role == ROLE_TRAITOR) then
-            won = true
-        end
-        if result == WIN_INNOCENT and (role == ROLE_INNOCENT or role == ROLE_DETECTIVE) then
-            won = true
-        end
-
-        http.Post(ApiBase .. "/trackWin", {
-            steamId = sid,
-            win = won and "1" or "0"
-        })
-
-        if role == ROLE_TRAITOR then
-            http.Post(ApiBase .. "/trackTraitorRound", { steamId = sid })
+            if team == TEAM_TRAITOR then
+                http.Post(ApiBase .. "/trackTraitorRound", { steamId = sid })
+            end
         end
     end
 
