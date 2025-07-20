@@ -1,10 +1,10 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {updateStats} = require('../storage/statsStore');
-const {unmuteAll} = require("../utils/mute");
-const {updateStatsMessage} = require("../discord/statsAnnouncer");
-const WebSocket = require("ws");
-const {getWebSocketServer} = require("../websocketService");
+import { updateStats } from '../storage/statsStore.js';
+import { unmuteAll } from "../utils/mute.js";
+import { updateStatsMessage } from "../discord/statsAnnouncer.js";
+import WebSocket from "ws";
+import { getWebSocketServer } from "../websocketService.js";
 
 router.post('/roundEnd', async (req, res) => {
     void unmuteAll();
@@ -23,7 +23,7 @@ router.post('/roundEnd', async (req, res) => {
     if (wss) {
         wss.clients.forEach(ws => {
             if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({type: 'statsUpdate'}));
+                ws.send(JSON.stringify({ type: 'statsUpdate' }));
             }
         });
     }
@@ -31,4 +31,4 @@ router.post('/roundEnd', async (req, res) => {
     return res.status(200).send('Runde beendet');
 });
 
-module.exports = router;
+export default router;

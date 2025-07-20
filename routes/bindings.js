@@ -1,8 +1,8 @@
 // routes/bindings.js
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {getBindings, setBinding, deleteBinding, getBinding, getSteamIdByDiscordId} = require('../storage/bindingsStore');
-const {getGuild} = require("../discord/client");
+import { getBindings, setBinding, deleteBinding, getBinding } from '../storage/bindingsStore.js';
+import { getGuild } from "../discord/client.js";
 
 // Alle Bindings abrufen
 router.get('/bindings', async (req, res) => {
@@ -35,7 +35,7 @@ router.get('/bindings/:steamId', (req, res) => {
 
 // Neuen Binding-Eintrag speichern oder aktualisieren
 router.post('/bindings', (req, res) => {
-    const {steamId, discordId, name} = req.body;
+    const { steamId, discordId, name } = req.body;
     if (!steamId || !discordId || !name) return res.status(400).send('Fehlende Felder');
 
     setBinding(steamId, discordId, name);
@@ -48,4 +48,4 @@ router.delete('/bindings/:steamId', (req, res) => {
     res.sendStatus(200);
 });
 
-module.exports = router;
+export default router;

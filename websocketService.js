@@ -9,4 +9,4 @@ function getWebSocketServer() {
     return wss;
 }
 
-module.exports = { setWebSocketServer, getWebSocketServer };
+export { setWebSocketServer, getWebSocketServer };

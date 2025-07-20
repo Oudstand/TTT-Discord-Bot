@@ -1,5 +1,5 @@
 // utils/open-browser.js
-const { spawn } = require('child_process');
+import { spawn } from 'child_process';
 
 function openBrowser(url) {
     const platform = process.platform;
@@ -12,4 +12,4 @@ function openBrowser(url) {
     }
 }
 
-module.exports = openBrowser;
+export default openBrowser;

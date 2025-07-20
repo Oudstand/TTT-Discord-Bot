@@ -4,29 +4,16 @@
   "description": "Ein Discord-Bot zur automatischen Mute-/Unmute-Steuerung für TTT und Darstellung von Statistiken.",
   "author": "Oudstand",
   "main": "app.js",
-  "bin": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "build": "pkg . --icon icon.ico --output \"TTT Discord Bot.exe\""
+    "start": "bun run app.js",
+    "build": "bun build ./app.js --compile --outfile \"TTT Discord Bot.exe\""
   },
   "dependencies": {
-    "better-sqlite3": "^8.0.1",
     "discord.js": "^14.21.0",
     "dotenv": "^16.0.0",
     "express": "^5.1.0",
     "puppeteer": "^24.12.1",
+    "typescript": "^5.8.3",
     "ws": "^8.18.3"
-  },
-  "pkg": {
-    "icon": "icon.ico",
-    "assets": [
-      "views/**/*",
-      "public/**/*",
-      "storage/**/*",
-      "node_modules/better-sqlite3/build/Release/better_sqlite3.node"
-    ],
-    "targets": [
-      "node18-win-x64"
-    ]
   }
 }

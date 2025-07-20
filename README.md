@@ -14,27 +14,20 @@
 - Web-Dashboard für den Einblick in Statistiken, Verwaltung der Bindings, Übersicht wer im Discord ist
   - Bindings (SteamID ↔ DiscordID ↔ Name).
   - Statistiken (insgesamt und pro Session):
-    - Kills
-    - Team-Kills
-    - Tode
-    - K/D
-    - Siege
-    - Niederlagen
-    - Schaden
-    - Teamschaden
-    - Traitor-Runden
-    - Winrate
-- Die Statistiken (Gesamtstatistiken und von der aktuellen Session) werden zusätzlich am Ende einer Runde im Discord Kanal mit der ID `STATS_CHANNEL_ID` gepostet.
-- Persistente Speicherung in SQLite-Datenbank (via `better-sqlite3`).
+    - Kills, Team-Kills, Tode, K/D
+    - Siege, Niederlagen, Winrate
+    - Schaden, Teamschaden, Traitor-Runden
+- Statistiken werden zusätzlich am Ende jeder Runde in einem Discord-Kanal gepostet.
+- Persistente Speicherung in einer SQLite-Datenbank (via `bun:sqlite`).
 
 ![TTT Dashboard Screenshot](dashboard.png)
-Die Namen, Avatare, SteamIDs und DiscordIDs wurden im Screenshot anonymisiert. Im Betrieb werden die Profilbilder aus Discord (falls vorhanden) angezeigt.
+*Die Namen, Avatare, SteamIDs und DiscordIDs wurden im Screenshot anonymisiert.*
 
 ---
 
 ## 🗃️ Datenbank
 
-Dieses Projekt nutzt `better-sqlite3`:
+Dieses Projekt nutzt `bun:sqlite`:
 
 - Datenbank-Datei: `database.sqlite` (wird beim Start automatisch erstellt)
 - Tabellen:
@@ -44,120 +37,79 @@ Dieses Projekt nutzt `better-sqlite3`:
 
 ---
 
-## 🤖 Discord Bot
+## ⚙️ Setup & Installation
 
-- Erstellen und verwalten unter: https://discord.com/developers/applications
+### 1. Voraussetzungen
+
+- **Bun:** Lade Bun herunter und installiere es von der [offiziellen Webseite](https://bun.sh/).
+- **Chromium-basierter Browser:** Eine installierte Version von Chrome, Edge o.ä. wird für die Screenshot-Funktion von Puppeteer benötigt.
+- **Garry's Mod** mit **Trouble in Terrorist Town**.
+
+### 2. Projekt herunterladen
+
+Lade den Code herunter oder klone das Repository:
+```bash
+git clone [https://github.com/Oudstand/TTT-Discord-Bot.git](https://github.com/Oudstand/TTT-Discord-Bot.git)
+cd TTT-Discord-Bot
+````
+
+### 3. Discord Bot
+
+- Erstellen einen Bot in dem [Discord Developer Portal](https://discord.com/developers/applications)
 - Zum Server hinzufügen:
   - Auf den Reiter `OAuth2` wechseln.
   - Dort unter `OAuth2 URL Generator` unter `SCOPES` `bot` auswählen.
   - Anschließend unter `BOT PERMISSIONS` `Send Messages` und `Mute Members` auswählen.
   - Mit dem unten stehenden Link den Bot zum Server hinzufügen.
-- Anlegen der ``.env`` Datei:
-   ```bash
-   cp .env.example .env
-  ```
-- Einfügen der Werte in die `.env` Datei:
-  - `DISCORD_TOKEN`: Token des Bots
-  - `GUILD_ID`: ID des Servers
-  - `COMMAND_CHANNEL_ID`: ID des Kanals für Befehle
-  - `STATS_CHANNEL_ID`: ID des Kanals für Statistiken
-  - `CHROMIUM_PATH`: Pfad zu einer Chromium-Installation. Bspw. `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
+- Kopiere die .env.example-Datei zu .env und fülle die Werte aus:
+  - `DISCORD_TOKEN`: Der Token deines Bots
+  - `GUILD_ID`: Die ID deines Discord-Servers
+  - `COMMAND_CHANNEL_ID`: ID des Kanals für den Mute-Button
+  - `STATS_CHANNEL_ID`: ID des Kanals für die Statistik-Nachrichten
+  - `CHROMIUM_PATH`: Der Pfad zur .exe deines Chromium-Browsers (z.B. `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`)
     - Es kann [hier](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html) eine portable Chromiumversion heruntergeladen werden, falls keine vorhanden ist.
 
-## 🔥 Starten
-
-- Verschiebe die Datei `discord_bot.lua` nach: `<pfad-zu-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
-- Platziere die erzeugte `.env` Datei neben der `TTT Discord Bot.exe` und führe diese aus.
-
-
----
-
----
-
-# ⚙️ Manuelles Setup aus dem Code
-
-## 📦 Voraussetzungen
-
-Bevor du `npm install` ausführst, stelle sicher, dass dein System vorbereitet ist.
-
-### 1️⃣ Node.js installieren
-
-- Empfohlen: [Node.js LTS (20.x)](https://nodejs.org/)
-- Prüfen:
+### 4. Lokales Netzwerk für GMod einrichten (nur Windows)
+Damit Garry's Mod mit dem Bot kommunizieren kann, muss eine spezielle Loopback-Adresse eingerichtet werden.
+1. **IP hinzufügen:** Öffne eine Eingabeaufforderung als Administrator und führe aus:
   ```bash
-  node --version
-  npm --version
-  ```
-
-### 2️⃣ Python installieren
-
-`better-sqlite3` benötigt Python ≥ 3.6 zur Installation.
-
-- Download: https://www.python.org/downloads/windows/
-- WICHTIG: Bei der Installation „Add to PATH“ anhaken.
-- Prüfen:
-  ```bash
-  python --version
-  ```
-
-- Falls du mehrere Python-Versionen hast oder npm es nicht findet:
-  ```bash
-  npm config set python "C:\\Path\\To\\python.exe"
-  ```
-
-### 3️⃣ Microsoft C++ Build Tools installieren
-
-- Download: https://visualstudio.microsoft.com/visual-cpp-build-tools/
-- Bei der Installation auswählen:
-    - ✅ „C++ build tools“
-    - ✅ „Windows 10 SDK“ (oder neuer)
-
-Prüfen:
-
-```bash
-where cl
-```
-
-### 4️⃣ Loopback-Adresse & Hostname für TTT-Integration anlegen (nur Windows)
-
-Für die lokale Kommunikation zwischen Garry’s Mod (TTT) und dem Bot muss eine spezielle Loopback-Adresse und ein Hostname eingerichtet werden.
-
-- Füge eine zusätzliche IP zum Loopback-Interface hinzu:
-  Öffne eine Eingabeaufforderung als Administrator und führe aus:
-  ```bash 
   netsh interface ipv4 add address "Loopback Pseudo-Interface 1" 192.178.0.1 255.255.255.255
   ```
-- Ergänze deine Hosts-Datei (C:\Windows\System32\drivers\etc\hosts) um:
-  ```bash
+2. **Hosts-Datei bearbeiten:** Füge die folgende Zeile am Ende deiner Hosts-Datei (`C:\Windows\System32\drivers\etc\hosts`) hinzu:
+  ```bash 
   192.178.0.1    ttthost
   ```
 
----
+### 5. GMod Addon installieren
+Verschiebe die Datei `lua/autorun/server/discord_bot.lua` in deinen GMod-Serverordner: `<pfad-zu-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
 
-## ⚙️ Initiales Setup
-
-- Code auschecken und installieren:
-```bash
-git clone https://github.com/Oudstand/TTT-Discord-Bot.git
-cd ttt-discord-bot
-
-npm install
-```
-
-- Verschiebe die Datei `discord_bot.lua` nach: `<pfad-zu-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
----
-
-## 🔥 Starten
-
-Zum Starten folgendes ausführen.
+### 6. Abhängigkeiten installieren
+Führe im Projektordner folgenden Befehl aus:
   ```bash
-  node .\app.js
+  bun install
   ```
 
-Das Dashboard läuft dann auf: http://localhost:3000
+---
 
-Alternativ erzeugen einer `.exe` mit `pkg`
+## 🔥 Ausführen
+
+### Bot starten
+Führe im Projektordner aus:
+
 ```bash
-npm install -g pkg
-npm run build
+bun start
 ```
+
+Das Dashboard ist dann unter http://localhost:3000 erreichbar.
+
+
+### Standalone .exe erstellen
+Du kannst eine einzelne, portable `.exe`-Datei erstellen, die keine weiteren Dateien benötigt (außer der `.env`-Datei).
+1. **Bauen:**
+  ```bash
+  bun run build
+  ```
+2. **Ausführen:**
+- Nimm die erstellte `TTT Discord Bot.exe`.
+- Lege deine `.env`-Datei in denselben Ordner.
+- Starte die `.exe`.

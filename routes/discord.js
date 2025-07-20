@@ -1,10 +1,10 @@
 // routes/discord.js
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {getGuild} = require("../discord/client");
-const {getSteamIdByDiscordId, getBinding} = require("../storage/bindingsStore");
-const {getNameBySteamId, getNameByDiscordId} = require("../utils/name");
-const {unmuteAll} = require("../utils/mute");
+import { getGuild } from "../discord/client.js";
+import { getSteamIdByDiscordId, getBinding } from "../storage/bindingsStore.js";
+import { getNameByDiscordId, getNameBySteamId } from "../utils/name.js";
+import { unmuteAll } from "../utils/mute.js";
 
 router.get('/voice', async (req, res) => {
     try {
@@ -35,7 +35,7 @@ router.get('/voice', async (req, res) => {
 
 // Spieler muten per SteamID
 router.post('/mute', async (req, res) => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
     const binding = getBinding(steamId);
@@ -46,7 +46,7 @@ router.post('/mute', async (req, res) => {
 
 // Spieler entmuten per SteamID
 router.post('/unmute', async (req, res) => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
     const binding = getBinding(steamId);
@@ -88,4 +88,4 @@ async function muteMember(discordId, mute, res) {
     }
 }
 
-module.exports = router;
+export default router;

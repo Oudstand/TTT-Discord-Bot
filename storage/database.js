@@ -1,8 +1,8 @@
-const path = require('path');
-const Database = require('better-sqlite3');
+import { Database } from "bun:sqlite";
+import path from 'path';
 
 const dbPath = path.resolve(process.cwd(), 'database.sqlite');
-const db = new Database(dbPath);
+const db = new Database(dbPath, { create: true });
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS bindings (
@@ -36,5 +36,4 @@ db.exec(`
     );
 `);
 
-module.exports = db;
-
+export default db;

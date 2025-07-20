@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const metaPath = path.join(process.cwd(), 'meta.json');
 
@@ -46,4 +46,4 @@ function set(key, value) {
     save();
 }
 
-module.exports = {get, set};
+export { get, set };

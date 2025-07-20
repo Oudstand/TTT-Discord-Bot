@@ -1,8 +1,8 @@
 // discord/client.js
-const {Client, GatewayIntentBits, Partials} = require('discord.js');
-const {getWebSocketServer} = require('../websocketService');
-const WebSocket = require('ws');
-const config = require('../config');
+import { Client, GatewayIntentBits, Partials } from 'discord.js';
+import { getWebSocketServer } from '../websocketService.js';
+import WebSocket from 'ws';
+import config from '../config.js';
 
 const client = new Client({
     intents: [
@@ -20,7 +20,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         if (wss) {
             wss.clients.forEach(ws => {
                 if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({type: 'voiceUpdate'}));
+                    ws.send(JSON.stringify({ type: 'voiceUpdate' }));
                 }
             });
         }
@@ -45,7 +45,7 @@ function getGuild() {
     return guild;
 }
 
-module.exports = {
+export {
     client,
     getClient,
     loadGuild,

@@ -1,10 +1,10 @@
 // routes/stats.js
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const WebSocket = require('ws');
-const {getWebSocketServer} = require('../websocketService');
-const {updateStatsMessage} = require('../discord/statsAnnouncer');
-const {
+import WebSocket from 'ws';
+import { getWebSocketServer } from '../websocketService.js';
+import { updateStatsMessage } from '../discord/statsAnnouncer.js';
+import {
     getStats,
     getSessionStats,
     addKills,
@@ -16,8 +16,8 @@ const {
     addTraitorRound,
     addDamage,
     addTeamDamage
-} = require('../storage/statsStore');
-const {getNameBySteamId} = require('../utils/name');
+} from '../storage/statsStore.js';
+import { getNameBySteamId } from '../utils/name.js';
 
 // Alle Statistiken abrufen
 router.get('/stats', (req, res) => {
@@ -39,7 +39,7 @@ router.post('/updateStats', (req, res) => {
     if (wss) {
         wss.clients.forEach(ws => {
             if (ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({type: 'statsUpdate'}));
+                ws.send(JSON.stringify({ type: 'statsUpdate' }));
             }
         });
     }
@@ -49,7 +49,7 @@ router.post('/updateStats', (req, res) => {
 
 // Death-Tracking
 router.post('/trackDeath', (req, res) => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
     addDeaths(steamId, 1);
@@ -59,7 +59,7 @@ router.post('/trackDeath', (req, res) => {
 
 // Kill-Tracking
 router.post('/trackKill', (req, res) => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
     addKills(steamId, 1);
@@ -70,7 +70,7 @@ router.post('/trackKill', (req, res) => {
 
 // Team-Kill-Tracking
 router.post('/trackTeamKill', (req, res) => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
     addTeamKills(steamId, 1);
@@ -81,7 +81,7 @@ router.post('/trackTeamKill', (req, res) => {
 
 // Win/Loss-Tracking
 router.post('/trackWin', (req, res) => {
-    const {steamId, win} = req.body;
+    const { steamId, win } = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
     win === '1' ? addWin(steamId) : addLoss(steamId);
@@ -92,7 +92,7 @@ router.post('/trackWin', (req, res) => {
 
 // Traitor-Tracking
 router.post('/trackTraitorRound', (req, res) => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
     addTraitorRound(steamId);
@@ -103,7 +103,7 @@ router.post('/trackTraitorRound', (req, res) => {
 
 // Damage-Tracking
 router.post('/trackDamage', (req, res) => {
-    const {steamId, damage} = req.body;
+    const { steamId, damage } = req.body;
     if (!steamId || !damage) return res.status(400).send('Daten fehlen');
 
     addDamage(steamId, damage);
@@ -114,7 +114,7 @@ router.post('/trackDamage', (req, res) => {
 
 // Team-Damage-Tracking
 router.post('/trackTeamDamage', (req, res) => {
-    const {steamId, damage} = req.body;
+    const { steamId, damage } = req.body;
     if (!steamId || !damage) return res.status(400).send('Daten fehlen');
 
     addTeamDamage(steamId, damage);
@@ -129,4 +129,4 @@ router.delete('/debug/stats/clear', (req, res) => {
     res.sendStatus(200);
 });
 
-module.exports = router;
+export default router;

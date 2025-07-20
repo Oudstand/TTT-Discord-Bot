@@ -1,10 +1,10 @@
 // routes/status.js
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const {getClient} = require('../discord/client');
+import { getClient } from '../discord/client.js';
 
 router.get('/status', (req, res) => {
     res.json({ tag: getClient().user?.tag || 'Unverbunden' });
 });
 
-module.exports = router;
+export default router;

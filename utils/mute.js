@@ -1,10 +1,10 @@
-const {getGuild} = require("../discord/client");
-const {getNameByDiscordId} = require("./name");
+import { getGuild } from "../discord/client.js";
+import { getNameByDiscordId } from "./name.js";
 
 async function unmuteAll() {
     const guild = getGuild();
     if (!guild) {
-        return {success: false, errors: ['❌ Guild nicht bereit']};
+        return { success: false, errors: ['❌ Guild nicht bereit'] };
     }
 
     console.log('🔊 Versuche, alle Spieler zu entmuten...');
@@ -27,13 +27,13 @@ async function unmuteAll() {
 
     if (errors.length > 0) {
         console.log(`🔊 Entmutung abgeschlossen mit ${errors.length} Fehlern.`);
-        return {success: false, errors: errors};
+        return { success: false, errors: errors };
     } else {
         console.log('🔊 Alle Spieler erfolgreich entmutet.');
-        return {success: true, errors: []};
+        return { success: true, errors: [] };
     }
 }
 
-module.exports = {
+export {
     unmuteAll,
 }

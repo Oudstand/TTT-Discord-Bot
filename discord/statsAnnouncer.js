@@ -1,9 +1,9 @@
 // discord/statsAnnouncer.js
-const meta = require('../storage/metaStore');
-const config = require('../config');
-const {getClient} = require('./client');
-const {screenshotStats} = require('../utils/statsScreenshot');
-const {AttachmentBuilder} = require('discord.js');
+import { get, set } from '../storage/metaStore.js';
+import config from '../config.js';
+import { getClient } from './client.js';
+import { screenshotStats } from '../utils/statsScreenshot.js';
+import { AttachmentBuilder } from 'discord.js';
 
 let statsMessageAll = null;
 let statsMessageSession = null;
@@ -21,7 +21,7 @@ async function initializeStatsMessage(type = 'all') {
         }
 
         const metaKey = type === 'session' ? 'statsMessageIdSession' : 'statsMessageIdAll';
-        let messageId = meta.get(metaKey);
+        let messageId = get(metaKey);
 
         if (messageId) {
             try {
@@ -30,15 +30,15 @@ async function initializeStatsMessage(type = 'all') {
             } catch (error) {
                 // Fehler 10008 = "Unknown Message", d.h. sie wurde gelöscht
                 if (error.code === 10008) {
-                    meta.set(metaKey, undefined);
+                    set(metaKey, undefined);
                     await initializeStatsMessage();
                 } else {
                     console.error('❌ Fehler beim Abrufen der Nachricht via ID:', error.message);
                 }
             }
         } else {
-            const msg = await channel.send({content: type === 'session' ? 'Sessionstatistik wird geladen...' : 'Gesamtstatistik wird geladen...'});
-            meta.set(metaKey, msg.id);
+            const msg = await channel.send({ content: type === 'session' ? 'Sessionstatistik wird geladen...' : 'Gesamtstatistik wird geladen...' });
+            set(metaKey, msg.id);
             if (type === 'session') statsMessageSession = msg;
             else statsMessageAll = msg;
         }
@@ -66,7 +66,7 @@ async function updateStatsMessage(type = 'all') {
     try {
         await screenshotStats(type, `stats_${type}.png`);
         const attachment = new AttachmentBuilder(`stats_${type}.png`);
-        await statsMessage.edit({content: getContent(type), files: [attachment]});
+        await statsMessage.edit({ content: getContent(type), files: [attachment] });
     } catch (error) {
         console.error('❌ Fehler beim Aktualisieren der Statistik-Nachricht:', error.message);
         // Fehler 10008 = "Unknown Message", tritt auf, wenn die Nachricht gelöscht wurde.
@@ -91,4 +91,4 @@ function getContent(type = 'all') {
     return type === 'all' ? '\u200B\n**🏆 TTT Gesamt-Statistik**' : '\u200B\n**📊 TTT Session-Statistik**';
 }
 
-module.exports = {updateStatsMessage};
+export { updateStatsMessage };

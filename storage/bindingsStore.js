@@ -1,5 +1,5 @@
 // storage/bindingsStore.js
-const db = require('./database');
+import db from './database.js';
 
 // Prepared statements
 const stmtAll = db.prepare('SELECT * FROM bindings');
@@ -33,7 +33,7 @@ function deleteBinding(steamId) {
     stmtDelete.run(steamId);
 }
 
-module.exports = {
+export {
     getBindings,
     getBinding,
     getBindingByDiscordId,

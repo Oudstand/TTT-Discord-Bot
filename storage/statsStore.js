@@ -1,6 +1,6 @@
 // storage/statsStore.js
-const db = require('./database');
-const {getNameBySteamId} = require('../utils/name');
+import db from './database.js';
+import { getNameBySteamId } from '../utils/name.js';
 
 function createStatStore(tableName) {
     // 1. Dynamisch vorbereitete Statements für die gegebene Tabelle
@@ -107,7 +107,7 @@ function mapStats(stat) {
     const kdRatio = stat.deaths > 0 ? parseFloat((stat.kills / stat.deaths).toFixed(2)) : stat.kills;
     const totalGames = stat.wins + stat.losses;
     const winrate = totalGames ? parseFloat(((stat.wins / totalGames) * 100).toFixed(2)) : 0;
-    return {...stat, kdRatio, winrate};
+    return { ...stat, kdRatio, winrate };
 }
 
 function updateStats(players) {
@@ -185,7 +185,7 @@ function resetSessionStats() {
     deleteAllSessionStats();
 }
 
-module.exports = {
+export {
     getStats,
     getSessionStats,
     updateStats,
@@ -201,4 +201,3 @@ module.exports = {
     deleteAllSessionStats,
     resetSessionStats
 };
-

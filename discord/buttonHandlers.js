@@ -1,8 +1,8 @@
 // discord/buttonHandlers.js
-const {ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
-const meta = require('../storage/metaStore');
-const config = require('../config');
-const {getClient, getGuild} = require('./client');
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { get, set } from '../storage/metaStore.js';
+import config from '../config.js';
+import { getClient, getGuild } from './client.js';
 
 // Button-Nachricht einmalig senden
 async function createUnmuteButton() {
@@ -14,14 +14,14 @@ async function createUnmuteButton() {
             return;
         }
 
-        const messageId = meta.get('unmuteButtonMessageId');
+        const messageId = get('unmuteButtonMessageId');
         if (messageId) {
             try {
                 await channel.messages.fetch(messageId);
             } catch (error) {
                 // Fehler 10008 = "Unknown Message", d.h. sie wurde gelöscht
-                if (error.code === 1008) {
-                    meta.set('unmuteButtonMessageId', undefined);
+                if (error.code === 10008) {
+                    set('unmuteButtonMessageId', undefined);
                     await createUnmuteButton();
                 }
             }
@@ -33,8 +33,8 @@ async function createUnmuteButton() {
                     .setStyle(ButtonStyle.Danger)
                     .setEmoji('🔊')
             );
-            const unmuteMessage = await channel.send({content: '', components: [button]});
-            meta.set('unmuteButtonMessageId', unmuteMessage.id);
+            const unmuteMessage = await channel.send({ content: '', components: [button] });
+            set('unmuteButtonMessageId', unmuteMessage.id);
         }
     } catch (e) {
         console.error('❌ Fehler beim Erstellen des Buttons:', e.message);
@@ -57,16 +57,16 @@ function setupButtonInteraction() {
             if (member.voice?.channel) {
                 try {
                     await member.voice.setMute(false, 'Selbst entmutet via Button');
-                    await interaction.reply({content: '🔊 Du wurdest entmutet.', ephemeral: true});
+                    await interaction.reply({ content: '🔊 Du wurdest entmutet.', ephemeral: true });
                 } catch (err) {
                     console.error('❌ Fehler beim Selbstentmuten:', err);
-                    await interaction.reply({content: '❌ Fehler beim Entmuten.', ephemeral: true});
+                    await interaction.reply({ content: '❌ Fehler beim Entmuten.', ephemeral: true });
                 }
             }
         }
     });
 }
 
-module.exports = {
+export {
     createUnmuteButton
 };

@@ -1,6 +1,7 @@
 // config.js
-require('dotenv').config();
-module.exports = {
+import 'dotenv/config';
+
+export default {
     token: process.env.DISCORD_TOKEN,
     guildId: process.env.GUILD_ID,
     commandChannelId: process.env.COMMAND_CHANNEL_ID,
