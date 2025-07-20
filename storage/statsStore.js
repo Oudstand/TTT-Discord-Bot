@@ -2,125 +2,183 @@
 const db = require('./database');
 const {getNameBySteamId} = require('../utils/name');
 
-// Prepared statements stats
-const stmtAll = db.prepare('SELECT * FROM stats');
-const stmtHas = db.prepare('SELECT steamId FROM stats WHERE steamId = ?');
-const stmtInsert = db.prepare('INSERT INTO stats (steamId, name, kills, deaths, wins, losses) VALUES (?, ?, 0, 0, 0, 0)');
-const stmtIncrement = {
-    kills: db.prepare('UPDATE stats SET kills = kills + 1 WHERE steamId = ?'),
-    teamKills: db.prepare('UPDATE stats SET teamKills = teamKills + 1 WHERE steamId = ?'),
-    deaths: db.prepare('UPDATE stats SET deaths = deaths + 1 WHERE steamId = ?'),
-    wins: db.prepare('UPDATE stats SET wins = wins + 1 WHERE steamId = ?'),
-    losses: db.prepare('UPDATE stats SET losses = losses + 1 WHERE steamId = ?'),
-    traitorRounds: db.prepare('UPDATE stats SET traitorRounds = traitorRounds + 1 WHERE steamId = ?')
-};
-const stmtAddDamage = db.prepare('UPDATE stats SET damage = damage + ? WHERE steamId = ?');
-const stmtAddTeamDamage = db.prepare('UPDATE stats SET teamDamage = teamDamage + ? WHERE steamId = ?')
-const stmtDeleteAll = db.prepare('DELETE FROM stats');
+function createStatStore(tableName) {
+    // 1. Dynamisch vorbereitete Statements für die gegebene Tabelle
+    const statements = {
+        all: db.prepare(`SELECT *
+                         FROM ${tableName}`),
+        has: db.prepare(`SELECT steamId
+                         FROM ${tableName}
+                         WHERE steamId = ?`),
+        insert: db.prepare(`INSERT INTO ${tableName} (steamId, name, kills, teamKills, deaths, wins, losses, damage, teamDamage, traitorRounds)
+                            VALUES (?, ?, 0, 0, 0, 0, 0, 0, 0, 0)`),
+        insertOrUpdate: db.prepare(`
+            INSERT INTO ${tableName}
+            (steamId, name, kills, teamKills, deaths, wins, losses,
+             damage, teamDamage, traitorRounds)
+            VALUES (@steamId, @name, @kills, @teamKills, @deaths, @wins, @losses,
+                    @damage, @teamDamage, @traitorRounds)
+            ON CONFLICT(steamId) DO UPDATE SET kills         = kills + excluded.kills,
+                                               teamKills     = teamKills + excluded.teamKills,
+                                               deaths        = deaths + excluded.deaths,
+                                               wins          = wins + excluded.wins,
+                                               losses        = losses + excluded.losses,
+                                               damage        = damage + excluded.damage,
+                                               teamDamage    = teamDamage + excluded.teamDamage,
+                                               traitorRounds = traitorRounds + excluded.traitorRounds;
+        `),
+        addKills: db.prepare(`UPDATE ${tableName}
+                              SET kills = kills + ?
+                              WHERE steamId = ?`),
+        addTeamKills: db.prepare(`UPDATE ${tableName}
+                                  SET teamKills = teamKills + ?
+                                  WHERE steamId = ?`),
+        addDeaths: db.prepare(`UPDATE ${tableName}
+                               SET deaths = deaths + ?
+                               WHERE steamId = ?`),
+        addWins: db.prepare(`UPDATE ${tableName}
+                             SET wins = wins + ?
+                             WHERE steamId = ?`),
+        addLosses: db.prepare(`UPDATE ${tableName}
+                               SET losses = losses + ?
+                               WHERE steamId = ?`),
+        addTraitorRounds: db.prepare(`UPDATE ${tableName}
+                                      SET traitorRounds = traitorRounds + ?
+                                      WHERE steamId = ?`),
+        addDamage: db.prepare(`UPDATE ${tableName}
+                               SET damage = damage + ?
+                               WHERE steamId = ?`),
+        addTeamDamage: db.prepare(`UPDATE ${tableName}
+                                   SET teamDamage = teamDamage + ?
+                                   WHERE steamId = ?`),
+        deleteAll: db.prepare(`DELETE
+                               FROM ${tableName}`)
+    };
 
-// Prepared statements session stats
-const stmtAllSession = db.prepare('SELECT * FROM stats_session');
-const stmtHasSession = db.prepare('SELECT steamId FROM stats_session WHERE steamId = ?');
-const stmtInsertSession = db.prepare('INSERT INTO stats_session (steamId, name, kills, deaths, wins, losses) VALUES (?, ?, 0, 0, 0, 0)');
-const stmtIncrementSession = {
-    kills: db.prepare('UPDATE stats_session SET kills = kills + 1 WHERE steamId = ?'),
-    teamKills: db.prepare('UPDATE stats_session SET teamKills = teamKills + 1 WHERE steamId = ?'),
-    deaths: db.prepare('UPDATE stats_session SET deaths = deaths + 1 WHERE steamId = ?'),
-    wins: db.prepare('UPDATE stats_session SET wins = wins + 1 WHERE steamId = ?'),
-    losses: db.prepare('UPDATE stats_session SET losses = losses + 1 WHERE steamId = ?'),
-    traitorRounds: db.prepare('UPDATE stats_session SET traitorRounds = traitorRounds + 1 WHERE steamId = ?')
-};
-const stmtAddDamageSession = db.prepare('UPDATE stats_session SET damage = damage + ? WHERE steamId = ?');
-const stmtAddTeamDamageSession = db.prepare('UPDATE stats_session SET teamDamage = teamDamage + ? WHERE steamId = ?')
-const stmtDeleteAllSession = db.prepare('DELETE FROM stats_session');
+    const insertOrUpdateTransaction = db.transaction(players => {
+        players.forEach((player) => {
+            statements.insertOrUpdate.run({
+                steamId: player.steamId,
+                name: getNameBySteamId(player.steamId),
+                kills: parseInt(player.kills) || 0,
+                teamKills: parseInt(player.teamKills) || 0,
+                deaths: parseInt(player.deaths) || 0,
+                wins: player.win ? 1 : 0,
+                losses: player.win ? 0 : 1,
+                damage: parseFloat(player.damage) || 0,
+                teamDamage: parseFloat(player.teamDamage) || 0,
+                traitorRounds: player.wasTraitor ? 1 : 0
+            });
+        })
+    });
 
-function getStats() {
-    return stmtAll.all().map(mapStats);
-}
-
-function getSessionStats(stats) {
-    return stmtAllSession.all().map(mapStats);
-}
-
-function mapStats(stat) {
-    const kdRatio = stat.deaths > 0 ? (stat.kills / stat.deaths).toFixed(2) : stat.kills.toFixed(2);
-
-    const totalGames = stat.wins + stat.losses;
-    const winrate = totalGames ? (stat.wins / totalGames) * 100 : 0;
-
+    // 2. Ein Objekt mit sauberen Aktions-Funktionen zurückgeben
     return {
-        ...stat,
-        kdRatio,
-        winrate
+        getAll: () => statements.all.all(),
+        has: (steamId) => statements.has.get(steamId),
+        insert: (steamId) => statements.insert.run(steamId, getNameBySteamId(steamId)),
+        insertOrUpdate: (players) => insertOrUpdateTransaction(players),
+        deleteAll: () => statements.deleteAll.run(),
+
+        // Funktionen, die einen Wert hinzufügen
+        addKills: (steamId, value) => statements.addKills.run(parseInt(value) || 0, steamId),
+        addTeamKills: (steamId, value) => statements.addTeamKills.run(parseInt(value) || 0, steamId),
+        addDeaths: (steamId, value) => statements.addDeaths.run(parseInt(value) || 0, steamId),
+        addWins: (steamId, value) => statements.addWins.run(parseInt(value) || 0, steamId),
+        addLosses: (steamId, value) => statements.addLosses.run(parseInt(value) || 0, steamId),
+        addTraitorRounds: (steamId, value) => statements.addTraitorRounds.run(parseInt(value) || 0, steamId),
+        addDamage: (steamId, value) => statements.addDamage.run(parseFloat(value) || 0, steamId),
+        addTeamDamage: (steamId, value) => statements.addTeamDamage.run(parseFloat(value) || 0, steamId),
     };
 }
 
+const totalStatsStore = createStatStore('stats');
+const sessionStatsStore = createStatStore('stats_session');
+
+function getStats() {
+    return totalStatsStore.getAll().map(mapStats);
+}
+
+function getSessionStats() {
+    return sessionStatsStore.getAll().map(mapStats);
+}
+
+function mapStats(stat) {
+    const kdRatio = stat.deaths > 0 ? parseFloat((stat.kills / stat.deaths).toFixed(2)) : stat.kills;
+    const totalGames = stat.wins + stat.losses;
+    const winrate = totalGames ? parseFloat(((stat.wins / totalGames) * 100).toFixed(2)) : 0;
+    return {...stat, kdRatio, winrate};
+}
+
+function updateStats(players) {
+    totalStatsStore.insertOrUpdate(players);
+    sessionStatsStore.insertOrUpdate(players);
+}
+
 function ensureStatsEntry(steamId) {
-    let row = stmtHas.get(steamId);
-    if (!row) {
-        stmtInsert.run(steamId, getNameBySteamId(steamId));
+    if (!totalStatsStore.has(steamId)) {
+        totalStatsStore.insert(steamId);
     }
 
-    row = stmtHasSession.get(steamId);
-    if (!row) {
-        stmtInsertSession.run(steamId, getNameBySteamId(steamId));
+    if (!sessionStatsStore.has(steamId)) {
+        sessionStatsStore.insert(steamId);
     }
 }
 
-function addKill(steamId) {
+function addKills(steamId, kills) {
     ensureStatsEntry(steamId);
-    stmtIncrement["kills"].run(steamId);
-    stmtIncrementSession["kills"].run(steamId);
+    totalStatsStore.addKills(steamId, kills);
+    sessionStatsStore.addKills(steamId, kills);
 }
 
-function addTeamKill(steamId) {
+function addTeamKills(steamId, teamKills) {
     ensureStatsEntry(steamId);
-    stmtIncrement["teamKills"].run(steamId);
-    stmtIncrementSession["teamKills"].run(steamId);
+    totalStatsStore.addTeamKills(steamId, teamKills);
+    sessionStatsStore.addTeamKills(steamId, teamKills);
 }
 
-function addDeath(steamId) {
+function addDeaths(steamId, deaths) {
     ensureStatsEntry(steamId);
-    stmtIncrement["deaths"].run(steamId);
-    stmtIncrementSession["deaths"].run(steamId);
+    totalStatsStore.addDeaths(steamId, deaths);
+    sessionStatsStore.addDeaths(steamId, deaths);
 }
 
 function addWin(steamId) {
     ensureStatsEntry(steamId);
-    stmtIncrement["wins"].run(steamId);
-    stmtIncrementSession["wins"].run(steamId);
+    totalStatsStore.addWins(steamId, 1);
+    sessionStatsStore.addWins(steamId, 1);
 }
 
 function addLoss(steamId) {
     ensureStatsEntry(steamId);
-    stmtIncrement["losses"].run(steamId);
-    stmtIncrementSession["losses"].run(steamId);
+    totalStatsStore.addLosses(steamId, 1);
+    sessionStatsStore.addLosses(steamId, 1);
 }
 
 function addTraitorRound(steamId) {
     ensureStatsEntry(steamId);
-    stmtIncrement["traitorRounds"].run(steamId);
-    stmtIncrementSession["traitorRounds"].run(steamId);
+    totalStatsStore.addTraitorRounds(steamId, 1);
+    sessionStatsStore.addTraitorRounds(steamId, 1);
 }
 
 function addDamage(steamId, damage) {
     ensureStatsEntry(steamId);
-    stmtAddDamage.run(damage, steamId);
-    stmtAddDamageSession.run(damage, steamId);
+    totalStatsStore.addDamage(steamId, damage);
+    sessionStatsStore.addDamage(steamId, damage);
 }
 
 function addTeamDamage(steamId, damage) {
     ensureStatsEntry(steamId);
-    stmtAddTeamDamage.run(damage, steamId);
-    stmtAddTeamDamageSession.run(damage, steamId);
+    totalStatsStore.addTeamDamage(steamId, damage);
+    sessionStatsStore.addTeamDamage(steamId, damage);
 }
 
 function deleteAllStats() {
-    stmtDeleteAll.run();
+    totalStatsStore.deleteAll();
 }
 
 function deleteAllSessionStats() {
-    stmtDeleteAllSession.run();
+    sessionStatsStore.deleteAll();
 }
 
 function resetSessionStats() {
@@ -130,9 +188,10 @@ function resetSessionStats() {
 module.exports = {
     getStats,
     getSessionStats,
-    addKill,
-    addTeamKill,
-    addDeath,
+    updateStats,
+    addKills,
+    addTeamKills,
+    addDeaths,
     addLoss,
     addWin,
     addTraitorRound,

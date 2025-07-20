@@ -4,6 +4,7 @@ const router = express.Router();
 const {getGuild} = require("../discord/client");
 const {getSteamIdByDiscordId, getBinding} = require("../storage/bindingsStore");
 const {getNameBySteamId, getNameByDiscordId} = require("../utils/name");
+const {unmuteAll} = require("../utils/mute");
 
 router.get('/voice', async (req, res) => {
     try {
@@ -31,8 +32,6 @@ router.get('/voice', async (req, res) => {
         res.status(500).send('Fehler');
     }
 });
-
-const mutedUsers = new Set();
 
 // Spieler muten per SteamID
 router.post('/mute', async (req, res) => {
@@ -62,26 +61,12 @@ router.post('/unmute/:discordId', async (req, res) => muteMember(req.params.disc
 
 // Alle entmuten
 router.post('/unmuteAll', async (req, res) => {
-    const guild = getGuild();
-    if (!guild) return res.status(503).send('Guild nicht bereit');
-
-    console.log('🔊 Alle Spieler entmutet');
-    try {
-        for (const state of guild.voiceStates.cache.values()) {
-            const member = guild.members.cache.get(state.id);
-            if (member?.voice?.channel) {
-                try {
-                    await member.voice.setMute(false);
-                } catch (e) {
-                    console.error(`❌ Fehler beim Entmuten von ${getNameByDiscordId(member.id)}:`, e.message);
-                }
-            }
-        }
-        mutedUsers.clear();
-        res.sendStatus(200);
-    } catch (err) {
-        console.error('❌ Fehler beim Entmuten aller:', err);
-        res.status(500).send('Fehler');
+    const result = await unmuteAll();
+    if (!result.success) {
+        const combinedErrorMessage = result.errors.join('\n');
+        return res.status(500).send(combinedErrorMessage);
+    } else {
+        return res.status(200).send('Alle Spieler erfolgreich entmutet.');
     }
 });
 
@@ -94,7 +79,6 @@ async function muteMember(discordId, mute, res) {
         const member = guild.members.cache.get(discordId);
         if (member?.voice?.channel) {
             await member.voice.setMute(mute);
-            mute ? mutedUsers.add(discordId) : mutedUsers.delete(discordId);
             console.log(`${mute ? '🔇 Gemutet' : '🔊 Entmutet'}: ${getNameByDiscordId(discordId)}`);
         }
         res.sendStatus(200);

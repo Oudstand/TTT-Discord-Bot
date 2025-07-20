@@ -7,9 +7,9 @@ const {updateStatsMessage} = require('../discord/statsAnnouncer');
 const {
     getStats,
     getSessionStats,
-    addKill,
-    addTeamKill,
-    addDeath,
+    addKills,
+    addTeamKills,
+    addDeaths,
     addWin,
     addLoss,
     deleteAllStats,
@@ -52,7 +52,7 @@ router.post('/trackDeath', (req, res) => {
     const {steamId} = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
-    addDeath(steamId);
+    addDeaths(steamId, 1);
     console.log(`📊 Death-Stat: ${getNameBySteamId(steamId)}`);
     res.sendStatus(200);
 });
@@ -62,7 +62,7 @@ router.post('/trackKill', (req, res) => {
     const {steamId} = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
-    addKill(steamId);
+    addKills(steamId, 1);
 
     console.log(`📊 Kill-Stat: ${getNameBySteamId(steamId)}`);
     res.sendStatus(200);
@@ -73,7 +73,7 @@ router.post('/trackTeamKill', (req, res) => {
     const {steamId} = req.body;
     if (!steamId) return res.status(400).send('SteamID fehlt');
 
-    addTeamKill(steamId);
+    addTeamKills(steamId, 1);
 
     console.log(`📊 TeamKill-Stat: ${getNameBySteamId(steamId)}`);
     res.sendStatus(200);

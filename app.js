@@ -14,6 +14,7 @@ const bindingsRoutes = require('./routes/bindings');
 const statsRoutes = require('./routes/stats');
 const statusRoutes = require('./routes/status');
 const discordRoutes = require('./routes/discord');
+const gameRoutes = require('./routes/game');
 
 const config = require('./config');
 const app = express();
@@ -41,6 +42,7 @@ app.use('/api', bindingsRoutes);
 app.use('/api', statsRoutes);
 app.use('/api', statusRoutes);
 app.use('/api', discordRoutes);
+app.use('/api', gameRoutes);
 
 // Dashboard-View
 app.get('/', (req, res) => {
