@@ -3,19 +3,21 @@
   "version": "1.0.0",
   "description": "Ein Discord-Bot zur automatischen Mute-/Unmute-Steuerung für TTT und Darstellung von Statistiken.",
   "author": "Oudstand",
-  "main": "app.js",
+  "main": "app.ts",
   "scripts": {
-    "start": "bun run app.js",
-    "build": "bun build ./app.js --compile --outfile \"TTT Discord Bot.exe\""
+    "start": "bun run app.ts",
+    "build": "bun build ./app.ts --compile --outfile \"TTT Discord Bot.exe\""
   },
   "dependencies": {
     "discord.js": "^14.21.0",
     "express": "^5.1.0",
     "puppeteer": "^24.12.1",
-    "typescript": "^5.8.3",
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "bun-types": "^1.2.19"
+    "@types/express": "^5.0.3",
+    "@types/ws": "^8.18.1",
+    "bun-types": "^1.2.19",
+    "typescript": "^5.8.3"
   }
 }

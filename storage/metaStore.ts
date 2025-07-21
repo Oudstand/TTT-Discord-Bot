@@ -1,14 +1,15 @@
+// storage/metaStore.js
 import fs from 'fs';
 import path from 'path';
 
 const metaPath = path.join(process.cwd(), 'meta.json');
 
-let meta = {};
+let meta: Record<string, any> = {};
 
 // Lade die Datei beim Start
 try {
     if (fs.existsSync(metaPath)) {
-        meta = JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+        meta = JSON.parse(fs.readFileSync(metaPath, 'utf8')) as Record<string, any>;
     } else {
         save();
     }
@@ -19,7 +20,7 @@ try {
 /**
  * Speichert die Daten in der JSON-Datei.
  */
-function save() {
+function save(): void {
     try {
         fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
     } catch (error) {
@@ -32,7 +33,7 @@ function save() {
  * @param {string} key Der Schlüssel des Werts.
  * @returns {any} Der gespeicherte Wert oder undefined.
  */
-function get(key) {
+function get<T = any>(key: string): T | undefined {
     return meta[key];
 }
 
@@ -41,9 +42,9 @@ function get(key) {
  * @param {string} key Der Schlüssel des Werts.
  * @param {any} value Der zu speichernde Wert.
  */
-function set(key, value) {
+function set(key: string, value: any): void {
     meta[key] = value;
     save();
 }
 
-export { get, set };
+export {get, set};

@@ -1,33 +1,40 @@
 // discord/statsAnnouncer.js
-import { get, set } from '../storage/metaStore.js';
-import config from '../config.js';
-import { getClient } from './client.js';
-import { screenshotStats } from '../utils/statsScreenshot.js';
-import { AttachmentBuilder } from 'discord.js';
+import {get, set} from '../storage/metaStore';
+import config from '../config';
+import {getClient} from './client';
+import {screenshotStats} from '../utils/statsScreenshot';
+import {AttachmentBuilder, Channel, Client, Message, TextChannel} from 'discord.js';
 
-let statsMessageAll = null;
-let statsMessageSession = null;
+let statsMessageAll: Message | null = null;
+let statsMessageSession: Message | null = null;
+
+type StatsType = 'all' | 'session';
 
 /**
  * Sucht eine bestehende Statistik-Nachricht oder erstellt eine neue.
  */
-async function initializeStatsMessage(type = 'all') {
-    const client = getClient();
+async function initializeStatsMessage(type: StatsType = 'all'): Promise<void> {
+    if (!config.statsChannelId) {
+        console.error('❌ Statistik-Kanal-ID (STATS_CHANNEL_ID) ist nicht in der Konfiguration gesetzt.');
+        return;
+    }
+
+    const client: Client = getClient();
     try {
-        const channel = await client.channels.fetch(config.statsChannelId);
-        if (!channel) {
+        const channel: Channel | null = await client.channels.fetch(config.statsChannelId);
+        if (!channel || !(channel instanceof TextChannel)) {
             console.error(`❌ Statistik-Kanal mit ID ${config.statsChannelId} nicht gefunden.`);
             return;
         }
 
-        const metaKey = type === 'session' ? 'statsMessageIdSession' : 'statsMessageIdAll';
-        let messageId = get(metaKey);
+        const metaKey = getMetaKey(type);
+        let messageId: string | undefined = get<string>(metaKey);
 
         if (messageId) {
             try {
-                let statsMessage = await channel.messages.fetch(messageId);
+                let statsMessage: Message = await channel.messages.fetch(messageId);
                 setStatsMessage(type, statsMessage);
-            } catch (error) {
+            } catch (error: any) {
                 // Fehler 10008 = "Unknown Message", d.h. sie wurde gelöscht
                 if (error.code === 10008) {
                     set(metaKey, undefined);
@@ -37,7 +44,7 @@ async function initializeStatsMessage(type = 'all') {
                 }
             }
         } else {
-            const msg = await channel.send({ content: type === 'session' ? 'Sessionstatistik wird geladen...' : 'Gesamtstatistik wird geladen...' });
+            const msg: Message = await channel.send({content: type === 'session' ? 'Sessionstatistik wird geladen...' : 'Gesamtstatistik wird geladen...'});
             set(metaKey, msg.id);
             if (type === 'session') statsMessageSession = msg;
             else statsMessageAll = msg;
@@ -50,13 +57,13 @@ async function initializeStatsMessage(type = 'all') {
 /**
  * Aktualisiert die gespeicherte Nachricht mit dem neuen Embed.
  */
-async function updateStatsMessage(type = 'all') {
-    if(!config.CHROMIUM_PATH) {
+async function updateStatsMessage(type: StatsType = 'all'): Promise<void> {
+    if (!config.CHROMIUM_PATH) {
         console.error('❌ Es wurde kein Chromium-Pfad angegeben. Ohne diesen können keine Screenshots der Statistiken erstellt werden. In der README.md ist erklärt, wie der Pfad zu hinterlegen ist.');
         return;
     }
 
-    let statsMessage = getStatsMessage(type);
+    let statsMessage: Message | null = getStatsMessage(type);
     if (!statsMessage) {
         await initializeStatsMessage(type);
         statsMessage = getStatsMessage(type);
@@ -64,31 +71,37 @@ async function updateStatsMessage(type = 'all') {
     }
 
     try {
-        await screenshotStats(type, `stats_${type}.png`);
-        const attachment = new AttachmentBuilder(`stats_${type}.png`);
-        await statsMessage.edit({ content: getContent(type), files: [attachment] });
-    } catch (error) {
+        const imagePath: string = `stats_${type}.png`;
+        await screenshotStats(type, imagePath);
+        const attachment: AttachmentBuilder = new AttachmentBuilder(imagePath);
+        await statsMessage.edit({content: getContent(type), files: [attachment]});
+    } catch (error: any) {
         console.error('❌ Fehler beim Aktualisieren der Statistik-Nachricht:', error.message);
         // Fehler 10008 = "Unknown Message", tritt auf, wenn die Nachricht gelöscht wurde.
         if (error.code === 10008) {
             console.log('❌ Nachricht wurde wohl gelöscht. Erstelle eine neue.');
-            statsMessage = null;
+            setStatsMessage(type, null);
+            set(getContent(type), undefined);
             await updateStatsMessage(type);
         }
     }
 }
 
-function getStatsMessage(type = 'all') {
+function getStatsMessage(type: StatsType = 'all'): Message | null {
     return type === 'session' ? statsMessageSession : statsMessageAll;
 }
 
-function setStatsMessage(type = 'all', msg) {
+function setStatsMessage(type = 'all', msg: Message | null): void {
     if (type === 'session') statsMessageSession = msg;
     else statsMessageAll = msg;
 }
 
-function getContent(type = 'all') {
+function getContent(type: StatsType = 'all'): string {
     return type === 'all' ? '\u200B\n**🏆 TTT Gesamt-Statistik**' : '\u200B\n**📊 TTT Session-Statistik**';
 }
 
-export { updateStatsMessage };
+function getMetaKey(type: StatsType): string {
+    return type === 'session' ? 'statsMessageIdSession' : 'statsMessageIdAll';
+}
+
+export {updateStatsMessage};
