@@ -1,38 +1,7 @@
-// storage/statsStore.js
+// storage/statsStore.ts
 import db from './database';
 import {getNameBySteamId} from '../utils/name';
-
-export interface Stat {
-    steamId: string;
-    name: string;
-    kills: number;
-    teamKills: number;
-    deaths: number;
-    wins: number;
-    losses: number;
-    traitorRounds: number;
-    damage: number;
-    teamDamage: number;
-}
-
-export interface MappedStat extends Stat {
-    kdRatio: number;
-    winrate: number;
-}
-
-export interface PlayerRoundData {
-    steamId: string;
-    name: string;
-    kills: string;
-    teamKills: string;
-    deaths: string;
-    win: boolean;
-    damage: string;
-    teamDamage: string;
-    wasTraitor: boolean;
-}
-
-type StatTableName = 'stats' | 'stats_session';
+import {MappedStat, PlayerRoundData, Stat, StatTableName} from "../types";
 
 function createStatStore(tableName: StatTableName) {
     // 1. Dynamisch vorbereitete Statements für die gegebene Tabelle

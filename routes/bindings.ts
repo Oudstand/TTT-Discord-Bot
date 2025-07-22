@@ -1,14 +1,11 @@
 // routes/bindings.ts
 import express, {Request, Response, Router} from 'express';
-import {Binding, deleteBinding, getBinding, getBindings, setBinding} from '../storage/bindingsStore';
+import {deleteBinding, getBinding, getBindings, setBinding} from '../storage/bindingsStore';
 import {getGuild} from "../discord/client";
 import {Guild, GuildMember} from "discord.js";
+import {Binding, BindingWithAvatar} from "../types";
 
 const router: Router = express.Router();
-
-interface BindingWithAvatar extends Binding {
-    avatarUrl?: string | null;
-}
 
 // Alle Bindings abrufen
 router.get('/bindings', async (req: Request, res: Response): Promise<void> => {
@@ -22,7 +19,7 @@ router.get('/bindings', async (req: Request, res: Response): Promise<void> => {
                     const member: GuildMember = await guild.members.fetch(binding.discordId);
                     return {
                         ...binding,
-                        avatarUrl: member.user.avatarURL()
+                        avatarUrl: member.user.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/0.png'
                     };
                 } catch {
                     return {
@@ -77,7 +74,7 @@ router.delete('/bindings/:steamId', (req: Request<{ steamId: string }>, res: Res
     try {
         const {steamId} = req.params;
         deleteBinding(steamId);
-        res.sendStatus(200).send("Binding erfolgreich gelöscht.");
+        res.status(200).send("Binding erfolgreich gelöscht.");
     } catch (error) {
         console.error("❌ Fehler beim Löschen eines Bindings:", error);
         res.status(500).send("Interner Serverfehler");

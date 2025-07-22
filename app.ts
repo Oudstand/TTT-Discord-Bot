@@ -1,4 +1,4 @@
-// app.js (Haupteinstiegspunkt)
+// app.ts (Haupteinstiegspunkt)
 import express, {Request, Response} from 'express';
 import http from 'http';
 import {WebSocketServer} from "ws";
@@ -7,7 +7,6 @@ import {client, loadGuild} from './discord/client';
 import {createUnmuteButton} from './discord/buttonHandlers';
 import {updateStatsMessage} from './discord/statsAnnouncer';
 import {resetSessionStats} from './storage/statsStore';
-import openBrowser from './utils/openBrowser';
 
 import bindingsRoutes from './routes/bindings';
 import statsRoutes from './routes/stats';
@@ -22,6 +21,7 @@ import indexHtml from './public/index.html' with {type: 'text'};
 import dashboardJs from './public/js/dashboard.js' with {type: 'text'};
 import faviconIco from './public/favicon.ico' with {type: 'buffer'};
 import {Client} from "discord.js";
+import openBrowser from "./utils/openBrowser";
 // ---
 
 const app = express();

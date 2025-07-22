@@ -1,4 +1,4 @@
-// storage/database.js
+// storage/database.ts
 import { Database } from "bun:sqlite";
 import path from 'path';
 

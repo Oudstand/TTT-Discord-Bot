@@ -1,4 +1,4 @@
-// discord/client.js
+// discord/client.ts
 import {Client, GatewayIntentBits, Guild, Partials, VoiceState} from 'discord.js';
 import {getWebSocketServer} from '../websocketService';
 import WebSocket, {WebSocketServer} from 'ws';
@@ -16,7 +16,7 @@ const client: Client = new Client({
 
 client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState): void => {
     if (oldState.channelId !== newState.channelId || oldState.selfMute !== newState.selfMute || oldState.serverMute !== newState.serverMute) {
-        const wss: WebSocketServer | undefined = getWebSocketServer();
+        const wss: WebSocketServer | null = getWebSocketServer();
         if (wss) {
             wss.clients.forEach(ws => {
                 if (ws.readyState === WebSocket.OPEN) {

@@ -1,9 +1,8 @@
 // utils/statsScreenshot.ts
 import puppeteer, {Browser, Page} from 'puppeteer';
 import config from '../config';
+import {ScreenshotPath, StatsType} from "../types";
 
-type StatsType = 'all' | 'session';
-type ScreenshotPath = `${string}.png` | `${string}.jpeg` | `${string}.webp`;
 
 async function screenshotStats(type: StatsType = 'all', filename: string = 'stats_all.png'): Promise<void> {
     if (!config.CHROMIUM_PATH) {
@@ -24,7 +23,7 @@ async function screenshotStats(type: StatsType = 'all', filename: string = 'stat
 
         await page.setViewport({width: 1600, height: 900});
         await page.goto(url, {waitUntil: 'networkidle2'});
-        await page.waitForSelector('#statsTable tr', { timeout: 4000 });
+        await page.waitForSelector('#statsTable tr', {timeout: 4000});
         await new Promise(resolve => setTimeout(resolve, 300));
 
         const statsElement = await page.$('#statsTable');

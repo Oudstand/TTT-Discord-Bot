@@ -1,14 +1,13 @@
-// discord/statsAnnouncer.js
+// discord/statsAnnouncer.ts
 import {get, set} from '../storage/metaStore';
 import config from '../config';
 import {getClient} from './client';
 import {screenshotStats} from '../utils/statsScreenshot';
 import {AttachmentBuilder, Channel, Client, Message, TextChannel} from 'discord.js';
+import {StatsType} from "../types";
 
 let statsMessageAll: Message | null = null;
 let statsMessageSession: Message | null = null;
-
-type StatsType = 'all' | 'session';
 
 /**
  * Sucht eine bestehende Statistik-Nachricht oder erstellt eine neue.

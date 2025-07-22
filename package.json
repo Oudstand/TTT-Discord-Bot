@@ -6,7 +6,10 @@
   "main": "app.ts",
   "scripts": {
     "start": "bun run app.ts",
-    "build": "bun build ./app.ts --compile --outfile \"TTT Discord Bot.exe\""
+    "dev": "bun run --watch app.ts",
+    "build:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --minify",
+    "watch:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --watch --minify",
+    "build": "bun run build:frontend && bun build ./app.ts --compile --minify --outfile \"TTT Discord Bot.exe\""
   },
   "dependencies": {
     "discord.js": "^14.21.0",

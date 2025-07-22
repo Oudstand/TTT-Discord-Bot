@@ -1,11 +1,6 @@
-// storage/bindingsStore.js
+// storage/bindingsStore.ts
 import db from './database';
-
-export interface Binding {
-    steamId: string;
-    discordId: string;
-    name: string;
-}
+import {Binding} from "../types";
 
 // Prepared statements
 const stmtAll = db.prepare<Binding, []>('SELECT * FROM bindings');

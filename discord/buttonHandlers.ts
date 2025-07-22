@@ -1,4 +1,4 @@
-// discord/buttonHandlers.js
+// discord/buttonHandlers.ts
 import {ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, Client, Guild, GuildMember, Interaction, Message, TextChannel} from 'discord.js';
 import {get, set} from '../storage/metaStore';
 import config from '../config';
@@ -54,15 +54,15 @@ function setupButtonInteraction(): void {
     client.on('interactionCreate', async (interaction: Interaction) => {
         if (!interaction.isButton() || interaction.customId !== 'self_unmute') return;
 
-        const guild: Guild = getGuild();
-        const member: GuildMember | undefined = guild.members.cache.get(interaction.user.id);
+        const guild: Guild | null = getGuild();
+        const member: GuildMember | undefined = guild?.members.cache.get(interaction.user.id);
         if (!member) return;
 
         if (member.voice?.channel) {
             try {
                 await member.voice.setMute(false, 'Selbst entmutet via Button');
                 await interaction.reply({content: '🔊 Du wurdest entmutet.', ephemeral: true});
-            } catch (error: any) {
+            } catch (error) {
                 console.error('❌ Fehler beim Selbstentmuten:', error);
                 await interaction.reply({content: '❌ Fehler beim Entmuten.', ephemeral: true});
             }

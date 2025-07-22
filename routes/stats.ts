@@ -17,20 +17,9 @@ import {
     getStats
 } from '../storage/statsStore';
 import {getNameBySteamId} from '../utils/name';
+import {DamageBody, SteamIdBody, WinLossBody} from "../types";
 
 const router: Router = express.Router();
-
-interface SteamIdBody {
-    steamId: string;
-}
-
-interface WinLossBody extends SteamIdBody {
-    win: '1' | '0';
-}
-
-interface DamageBody extends SteamIdBody {
-    damage: number;
-}
 
 function notifyClientsAndDiscord(): void {
     console.log('📊 Statistiken werden aktualisiert und Clients benachrichtigt...');
@@ -86,7 +75,7 @@ router.post('/trackDeath', (req: Request<{}, {}, SteamIdBody>, res: Response): v
 
     addDeaths(steamId, 1);
     console.log(`📊 Death-Stat: ${getNameBySteamId(steamId) ?? steamId}`);
-    res.sendStatus(200).send('Death erfasst.');
+    res.status(200).send('Death erfasst.');
 });
 
 // Kill-Tracking
@@ -99,7 +88,7 @@ router.post('/trackKill', (req: Request<{}, {}, SteamIdBody>, res: Response): vo
 
     addKills(steamId, 1);
     console.log(`📊 Kill-Stat: ${getNameBySteamId(steamId) ?? steamId}`);
-    res.sendStatus(200).send('Kill erfasst.');
+    res.status(200).send('Kill erfasst.');
 });
 
 // Team-Kill-Tracking
@@ -112,7 +101,7 @@ router.post('/trackTeamKill', (req: Request<{}, {}, SteamIdBody>, res: Response)
 
     addTeamKills(steamId, 1);
     console.log(`📊 TeamKill-Stat: ${getNameBySteamId(steamId) ?? steamId}`);
-    res.sendStatus(200).send('TeamKill erfasst.');
+    res.status(200).send('TeamKill erfasst.');
 });
 
 // Win/Loss-Tracking
@@ -125,7 +114,7 @@ router.post('/trackWin', (req: Request<{}, {}, WinLossBody>, res: Response): voi
 
     win === '1' ? addWin(steamId) : addLoss(steamId);
     console.log(`🏁 Spieler ${getNameBySteamId(steamId) ?? steamId} hat ${win === '1' ? 'gewonnen' : 'verloren'}`);
-    res.sendStatus(200).send('Win/Loss erfasst.');
+    res.status(200).send('Win/Loss erfasst.');
 });
 
 // Traitor-Tracking
@@ -138,7 +127,7 @@ router.post('/trackTraitorRound', (req: Request<{}, {}, SteamIdBody>, res: Respo
 
     addTraitorRound(steamId);
     console.log(`📊 Traitor-Runde: ${getNameBySteamId(steamId) ?? steamId}`);
-    res.sendStatus(200).send('Traitor-Runde erfasst.');
+    res.status(200).send('Traitor-Runde erfasst.');
 });
 
 // Damage-Tracking
@@ -151,7 +140,7 @@ router.post('/trackDamage', (req: Request<{}, {}, DamageBody>, res: Response): v
 
     addDamage(steamId, damage);
     console.log(`📊 Schaden: ${getNameBySteamId(steamId) ?? steamId} - ${damage}`);
-    res.sendStatus(200).send('Schaden erfasst.');
+    res.status(200).send('Schaden erfasst.');
 });
 
 // Team-Damage-Tracking
@@ -164,7 +153,7 @@ router.post('/trackTeamDamage', (req: Request<{}, {}, DamageBody>, res: Response
 
     addTeamDamage(steamId, damage);
     console.log(`📊 Teamschaden: ${getNameBySteamId(steamId) ?? steamId} - ${damage}`);
-    res.sendStatus(200).send('Teamschaden erfasst.');
+    res.status(200).send('Teamschaden erfasst.');
 });
 
 // --- Debug ---

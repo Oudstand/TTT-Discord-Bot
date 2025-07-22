@@ -2,11 +2,7 @@
 import {getGuild} from "../discord/client";
 import {getNameByDiscordId} from "./name";
 import {Guild, GuildMember} from "discord.js";
-
-interface UnmuteResult {
-    success: boolean;
-    errors: string[];
-}
+import {UnmuteResult} from "../types";
 
 async function unmuteAll(): Promise<UnmuteResult> {
     const guild: Guild | null = getGuild();

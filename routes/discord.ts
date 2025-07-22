@@ -1,20 +1,14 @@
 // routes/discord.ts
 import express, {Request, Response, Router} from 'express';
 import {getGuild} from "../discord/client";
-import {Binding, getBinding, getSteamIdByDiscordId} from "../storage/bindingsStore";
+import {getBinding, getSteamIdByDiscordId} from "../storage/bindingsStore";
 import {getNameByDiscordId, getNameBySteamId} from "../utils/name";
 import {unmuteAll} from "../utils/mute";
 import {Guild, GuildMember, VoiceState} from "discord.js";
+import {Binding, DiscordIdParams, SteamIdBody, VoiceUser} from "../types";
 
 const router: Router = express.Router();
 
-interface VoiceUser {
-    name: string;
-    steamId: string | undefined;
-    discordId: string;
-    muted: boolean;
-    avatarUrl: string;
-}
 
 router.get('/voice', async (req: Request, res: Response): Promise<void> => {
     try {
@@ -45,10 +39,6 @@ router.get('/voice', async (req: Request, res: Response): Promise<void> => {
         res.status(500).send('Interner Serverfehler beim Voice-Check');
     }
 });
-
-interface SteamIdBody {
-    steamId: string;
-}
 
 // Spieler muten per SteamID
 router.post('/mute', async (req: Request<{}, {}, SteamIdBody>, res: Response): Promise<void> => {
@@ -84,10 +74,6 @@ router.post('/unmute', async (req: Request<{}, {}, SteamIdBody>, res: Response):
     return muteMember(binding.discordId, false, res);
 });
 
-interface DiscordIdParams {
-    discordId: string;
-}
-
 // Spieler muten/entmuten per DiscordID
 router.post('/mute/:discordId', async (req: Request<DiscordIdParams>, res: Response): Promise<void> => {
     await muteMember(req.params.discordId, true, res)
@@ -121,7 +107,7 @@ async function muteMember(discordId: string, mute: boolean, res: Response): Prom
             return;
         }
 
-        const member: GuildMember = await guild.members.fetch(discordId).catch(() => null);
+        const member: GuildMember | null = await guild.members.fetch(discordId).catch(() => null);
         if (member?.voice?.channel) {
             await member.voice.setMute(mute);
             const name = getNameByDiscordId(discordId) ?? member.displayName;

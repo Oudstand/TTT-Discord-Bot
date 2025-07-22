@@ -1,16 +1,13 @@
 // routes/game.ts
 import express, {Request, Response, Router} from 'express';
-import {PlayerRoundData, updateStats} from '../storage/statsStore';
+import {updateStats} from '../storage/statsStore';
 import {unmuteAll} from "../utils/mute";
 import {updateStatsMessage} from "../discord/statsAnnouncer";
 import WebSocket, {WebSocketServer} from "ws";
 import {getWebSocketServer} from "../websocketService";
+import {RoundEndBody} from "../types";
 
 const router: Router = express.Router();
-
-interface RoundEndBody {
-    players: PlayerRoundData[];
-}
 
 router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Response): Promise<void> => {
     try {
@@ -29,7 +26,7 @@ router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Respons
         void updateStatsMessage('all');
         void updateStatsMessage('session');
 
-        const wss: WebSocketServer | undefined = getWebSocketServer();
+        const wss: WebSocketServer | null = getWebSocketServer();
         if (wss) {
             const message: string = JSON.stringify({type: 'statsUpdate'});
             wss.clients.forEach(ws => {
