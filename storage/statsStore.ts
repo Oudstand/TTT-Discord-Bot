@@ -10,19 +10,19 @@ function createStatStore(tableName: StatTableName) {
         all: db.prepare<Stat, []>(`SELECT * FROM ${tableName}`),
         has: db.prepare<{ steamId: string }, [string]>(`SELECT steamId FROM ${tableName} WHERE steamId = ?`),
         insert: db.prepare<null, [string, string | null]>(`INSERT INTO ${tableName} (steamId, name, kills, teamKills, deaths, wins, losses, damage, teamDamage, traitorRounds) VALUES (?, ?, 0, 0, 0, 0, 0, 0, 0, 0)`),
-        insertOrUpdate: db.prepare<null, Record<string,any>>(`
-            INSERT INTO ${tableName}
-            (steamId, name, kills, teamKills, deaths, wins, losses, damage, teamDamage, traitorRounds)
+        insertOrUpdate: db.prepare<null, Record<string, any>>(`
+            INSERT INTO ${tableName} (steamId, name, kills, teamKills, deaths, wins, losses, damage, teamDamage, traitorRounds)
             VALUES (@steamId, @name, @kills, @teamKills, @deaths, @wins, @losses, @damage, @teamDamage, @traitorRounds)
-            ON CONFLICT(steamId) DO UPDATE SET kills         = kills + excluded.kills,
-                                               teamKills     = teamKills + excluded.teamKills,
-                                               deaths        = deaths + excluded.deaths,
-                                               wins          = wins + excluded.wins,
-                                               losses        = losses + excluded.losses,
-                                               damage        = damage + excluded.damage,
-                                               teamDamage    = teamDamage + excluded.teamDamage,
-                                               traitorRounds = traitorRounds + excluded.traitorRounds;
-        `),
+            ON CONFLICT(steamId) DO UPDATE SET
+                kills         = kills + @kills,
+                teamKills     = teamKills + @teamKills,
+                deaths        = deaths + @deaths,
+                wins          = wins + @wins,
+                losses        = losses + @losses,
+                damage        = damage + @damage,
+                teamDamage    = teamDamage + @teamDamage,
+                traitorRounds = traitorRounds + @traitorRounds;
+         `),
         addKills: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET kills = kills + ? WHERE steamId = ?`),
         addTeamKills: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET teamKills = teamKills + ? WHERE steamId = ?`),
         addDeaths: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET deaths = deaths + ? WHERE steamId = ?`),
@@ -37,18 +37,19 @@ function createStatStore(tableName: StatTableName) {
 
     const insertOrUpdateTransaction = db.transaction((players: PlayerRoundData[]) => {
         players.forEach((player: PlayerRoundData) => {
-            statements.insertOrUpdate.run({
-                steamId: player.steamId,
-                name: getNameBySteamId(player.steamId),
-                kills: parseInt(player.kills) || 0,
-                teamKills: parseInt(player.teamKills) || 0,
-                deaths: parseInt(player.deaths) || 0,
-                wins: player.win ? 1 : 0,
-                losses: player.win ? 0 : 1,
-                damage: parseFloat(player.damage) || 0,
-                teamDamage: parseFloat(player.teamDamage) || 0,
-                traitorRounds: player.wasTraitor ? 1 : 0
-            });
+            const params = {
+                '@steamId': player.steamId,
+                '@name': getNameBySteamId(player.steamId) ?? player.steamId,
+                '@kills': player.kills ?? 0,
+                '@teamKills': player.teamKills ?? 0,
+                '@deaths': player.deaths ?? 0,
+                '@wins': player.win ? 1 : 0,
+                '@losses': player.win ? 0 : 1,
+                '@damage': player.damage ?? 0,
+                '@teamDamage': player.teamDamage ?? 0,
+                '@traitorRounds': player.wasTraitor ? 1 : 0,
+            };
+            statements.insertOrUpdate.run(params);
         })
     });
 

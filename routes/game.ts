@@ -12,7 +12,6 @@ const router: Router = express.Router();
 router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Response): Promise<void> => {
     try {
         void unmuteAll();
-
         const {players} = req.body;
         if (!Array.isArray(players)) {
             res.status(400).send('Spielerliste fehlt oder ist kein Array.');

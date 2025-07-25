@@ -56,12 +56,12 @@ export interface MappedStat extends Stat {
 export interface PlayerRoundData {
     steamId: string;
     name: string;
-    kills: string;
-    teamKills: string;
-    deaths: string;
+    kills: number;
+    teamKills: number;
+    deaths: number;
     win: boolean;
-    damage: string;
-    teamDamage: string;
+    damage: number;
+    teamDamage: number;
     wasTraitor: boolean;
 }
 

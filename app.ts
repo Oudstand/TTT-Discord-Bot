@@ -2,7 +2,11 @@
 import express, {Request, Response} from 'express';
 import http from 'http';
 import {WebSocketServer} from "ws";
+import {Client} from "discord.js";
+
+import config from './config';
 import {setWebSocketServer} from './websocketService';
+
 import {client, loadGuild} from './discord/client';
 import {createUnmuteButton} from './discord/buttonHandlers';
 import {updateStatsMessage} from './discord/statsAnnouncer';
@@ -14,15 +18,11 @@ import statusRoutes from './routes/status';
 import discordRoutes from './routes/discord';
 import gameRoutes from './routes/game';
 
-import config from './config';
-
-// --- Lade alle UI-Assets zur Build-Zeit direkt in den Code ---
-import indexHtml from './public/index.html' with {type: 'text'};
-import dashboardJs from './public/js/dashboard.js' with {type: 'text'};
-import faviconIco from './public/favicon.ico' with {type: 'buffer'};
-import {Client} from "discord.js";
 import openBrowser from "./utils/openBrowser";
-// ---
+
+import indexHtml from "./public/index.html" with {type: "text"};
+import dashboardJs from "./public/js/dashboard.js" with {type: "text"};
+import favicon from "./public/favicon.ico" with {type: "buffer"};
 
 const app = express();
 const port = 3000;
@@ -49,27 +49,25 @@ app.use('/api', statusRoutes);
 app.use('/api', discordRoutes);
 app.use('/api', gameRoutes);
 
-// --- Auslieferung der UI-Assets aus dem Speicher ---
-app.get('/', (req: Request, res: Response): void => {
-    res.setHeader('Content-Type', 'text/html');
+app.get('/', (_req: Request, res: Response): void => {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(indexHtml);
 });
 
-app.get('/js/dashboard.js', (req: Request, res: Response): void => {
-    res.setHeader('Content-Type', 'application/javascript');
+app.get('/js/dashboard.js', (_req: Request, res: Response): void => {
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
     res.send(dashboardJs);
 });
 
-app.get('/favicon.ico', (req: Request, res: Response) => {
+app.get('/favicon.ico', (req: Request, res: Response): void => {
     res.setHeader('Content-Type', 'image/x-icon');
-    res.send(faviconIco);
+    res.send(favicon);
 });
-// ---
 
 // Discord Login & Bot Start
 client.once('ready', async (readyClient: Client) => {
     if (!readyClient.user) {
-        console.error("❌ Client ist bereit, aber der Benutzer konnte nicht ermittelt werden.");
+        console.error('❌ Client ist bereit, aber der Benutzer konnte nicht ermittelt werden.');
         return;
     }
 
@@ -89,7 +87,7 @@ client.once('ready', async (readyClient: Client) => {
 });
 
 if (!config.token) {
-    throw new Error("❌ Discord-Bot-Token (DISCORD_TOKEN) fehlt in der Konfiguration. Der Bot kann nicht gestartet werden.");
+    throw new Error('❌ Discord-Bot-Token (DISCORD_TOKEN) fehlt in der Konfiguration. Der Bot kann nicht gestartet werden.');
 }
 
 void client.login(config.token);

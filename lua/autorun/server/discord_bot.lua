@@ -132,8 +132,8 @@ hook.Add("TTTEndRound", "TTTDiscordRoundEnd", function(result)
     HTTP({
         url = ApiBase .. "/roundEnd",
         method = "POST",
-        headers = {["Content-Type"] = "application/json"},
-        body = util.TableToJSON({players = finalPayload})
+        type = "application/json",
+        body = util.TableToJSON({ players = finalPayload })
     })
 
     DeadPlayers = {}

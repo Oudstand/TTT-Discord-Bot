@@ -5,6 +5,7 @@
   "author": "Oudstand",
   "main": "app.ts",
   "scripts": {
+    "prestart": "bun run build:frontend",
     "start": "bun run app.ts",
     "dev": "bun run --watch app.ts",
     "build:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --minify",
