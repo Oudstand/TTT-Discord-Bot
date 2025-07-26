@@ -1,10 +1,10 @@
 // routes/game.ts
 import express, {Request, Response, Router} from 'express';
-import {updateStats} from '../storage/statsStore';
+import {updateStats} from '../storage/stats-store';
 import {unmuteAll} from "../utils/mute";
-import {updateStatsMessage} from "../discord/statsAnnouncer";
+import {updateStatsMessage} from "../discord/stats-announcer";
 import WebSocket, {WebSocketServer} from "ws";
-import {getWebSocketServer} from "../websocketService";
+import {getWebSocketServer} from "../websocket-service";
 import {RoundEndBody} from "../types";
 
 const router: Router = express.Router();

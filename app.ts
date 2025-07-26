@@ -5,12 +5,12 @@ import {WebSocketServer} from "ws";
 import {Client} from "discord.js";
 
 import config from './config';
-import {setWebSocketServer} from './websocketService';
+import {setWebSocketServer} from './websocket-service';
 
 import {client, loadGuild} from './discord/client';
-import {createUnmuteButton} from './discord/buttonHandlers';
-import {updateStatsMessage} from './discord/statsAnnouncer';
-import {resetSessionStats} from './storage/statsStore';
+import {createUnmuteButton} from './discord/button-handlers';
+import {updateStatsMessage} from './discord/stats-announcer';
+import {resetSessionStats} from './storage/stats-store';
 
 import bindingsRoutes from './routes/bindings';
 import statsRoutes from './routes/stats';
@@ -18,7 +18,7 @@ import statusRoutes from './routes/status';
 import discordRoutes from './routes/discord';
 import gameRoutes from './routes/game';
 
-import openBrowser from "./utils/openBrowser";
+import openBrowser from "./utils/open-browser";
 
 import indexHtml from "./public/index.html" with {type: "text"};
 import dashboardJs from "./public/js/dashboard.js" with {type: "text"};

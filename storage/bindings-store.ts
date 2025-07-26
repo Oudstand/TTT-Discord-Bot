@@ -1,4 +1,4 @@
-// storage/bindingsStore.ts
+// storage/bindings-store.ts
 import db from './database';
 import {Binding} from "../types";
 

@@ -1,7 +1,7 @@
 // routes/discord.ts
 import express, {Request, Response, Router} from 'express';
 import {getGuild} from "../discord/client";
-import {getBinding, getSteamIdByDiscordId} from "../storage/bindingsStore";
+import {getBinding, getSteamIdByDiscordId} from "../storage/bindings-store";
 import {getNameByDiscordId, getNameBySteamId} from "../utils/name";
 import {unmuteAll} from "../utils/mute";
 import {Guild, GuildMember, VoiceState} from "discord.js";
@@ -42,24 +42,15 @@ router.get('/voice', async (req: Request, res: Response): Promise<void> => {
 
 // Spieler muten per SteamID
 router.post('/mute', async (req: Request<{}, {}, SteamIdBody>, res: Response): Promise<void> => {
-    const {steamId} = req.body;
-    if (!steamId) {
-        res.status(400).send('SteamID fehlt');
-        return;
-    }
-
-    const binding: Binding | null = getBinding(steamId);
-    if (!binding) {
-        res.status(404).send('Binding für diese SteamID nicht gefunden');
-        return;
-    }
-
-    return muteMember(binding.discordId, true, res);
+    return setMuteBySteamId(req.body.steamId, true, res);
 });
 
 // Spieler entmuten per SteamID
 router.post('/unmute', async (req: Request<{}, {}, SteamIdBody>, res: Response): Promise<void> => {
-    const {steamId} = req.body;
+    void setMuteBySteamId(req.body.steamId, false, res);
+});
+
+async function setMuteBySteamId(steamId: string, mute: boolean, res: Response): Promise<void> {
     if (!steamId) {
         res.status(400).send('SteamID fehlt');
         return;
@@ -71,15 +62,15 @@ router.post('/unmute', async (req: Request<{}, {}, SteamIdBody>, res: Response):
         return;
     }
 
-    return muteMember(binding.discordId, false, res);
-});
+    void setMute(binding.discordId, mute, res);
+}
 
 // Spieler muten/entmuten per DiscordID
 router.post('/mute/:discordId', async (req: Request<DiscordIdParams>, res: Response): Promise<void> => {
-    await muteMember(req.params.discordId, true, res)
+    await setMute(req.params.discordId, true, res)
 });
 router.post('/unmute/:discordId', async (req: Request<DiscordIdParams>, res: Response): Promise<void> => {
-    await muteMember(req.params.discordId, false, res)
+    await setMute(req.params.discordId, false, res)
 });
 
 // Alle entmuten
@@ -99,7 +90,7 @@ router.post('/unmuteAll', async (req: Request, res: Response): Promise<void> => 
 });
 
 // Hilfsfunktion
-async function muteMember(discordId: string, mute: boolean, res: Response): Promise<void> {
+async function setMute(discordId: string, mute: boolean, res: Response): Promise<void> {
     try {
         const guild: Guild | null = getGuild();
         if (!guild) {

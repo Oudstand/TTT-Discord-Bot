@@ -1,4 +1,4 @@
-// storage/statsStore.ts
+// storage/stats-store.ts
 import db from './database';
 import {getNameBySteamId} from '../utils/name';
 import {MappedStat, PlayerRoundData, Stat, StatTableName} from "../types";

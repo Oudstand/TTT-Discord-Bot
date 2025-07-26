@@ -1,6 +1,6 @@
 // routes/bindings.ts
 import express, {Request, Response, Router} from 'express';
-import {deleteBinding, getBinding, getBindings, setBinding} from '../storage/bindingsStore';
+import {deleteBinding, getBinding, getBindings, setBinding} from '../storage/bindings-store';
 import {getGuild} from "../discord/client";
 import {Guild, GuildMember} from "discord.js";
 import {Binding, BindingWithAvatar} from "../types";

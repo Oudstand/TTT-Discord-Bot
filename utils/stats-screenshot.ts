@@ -1,4 +1,4 @@
-// utils/statsScreenshot.ts
+// utils/stats-screenshot.ts
 import puppeteer, {Browser, Page} from 'puppeteer';
 import config from '../config';
 import {ScreenshotPath, StatsType} from "../types";

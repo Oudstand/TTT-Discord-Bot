@@ -1,6 +1,6 @@
 // discord/client.ts
 import {Client, GatewayIntentBits, Guild, Partials, VoiceState} from 'discord.js';
-import {getWebSocketServer} from '../websocketService';
+import {getWebSocketServer} from '../websocket-service';
 import WebSocket, {WebSocketServer} from 'ws';
 import config from '../config';
 

@@ -1,4 +1,4 @@
-// websocketService.ts
+// websocket-service.ts
 import {WebSocketServer} from "ws";
 
 let wss: WebSocketServer | null = null;

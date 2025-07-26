@@ -1,4 +1,4 @@
-// storage/metaStore.ts
+// storage/meta-store.ts
 import fs from 'fs';
 import path from 'path';
 

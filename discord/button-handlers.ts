@@ -1,6 +1,6 @@
-// discord/buttonHandlers.ts
+// discord/button-handlers.ts
 import {ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, Client, Guild, GuildMember, Interaction, Message, TextChannel} from 'discord.js';
-import {get, set} from '../storage/metaStore';
+import {get, set} from '../storage/meta-store';
 import config from '../config';
 import {getClient, getGuild} from './client';
 

@@ -1,8 +1,8 @@
 // routes/stats.ts
 import express, {Request, Response, Router} from 'express';
 import WebSocket from 'ws';
-import {getWebSocketServer} from '../websocketService';
-import {updateStatsMessage} from '../discord/statsAnnouncer';
+import {getWebSocketServer} from '../websocket-service';
+import {updateStatsMessage} from '../discord/stats-announcer';
 import {
     addDamage,
     addDeaths,
@@ -15,7 +15,7 @@ import {
     deleteAllStats,
     getSessionStats,
     getStats
-} from '../storage/statsStore';
+} from '../storage/stats-store';
 import {getNameBySteamId} from '../utils/name';
 import {DamageBody, SteamIdBody, WinLossBody} from "../types";
 
