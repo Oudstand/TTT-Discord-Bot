@@ -4,7 +4,7 @@ import config from '../config';
 import {getClient} from './client';
 import {screenshotStats} from '../utils/stats-screenshot';
 import {AttachmentBuilder, Channel, Client, Message, TextChannel} from 'discord.js';
-import {StatsType} from "../types";
+import {ScreenshotPath, StatsType} from "../types";
 
 class StatsAnnouncer {
     private message: Message | null = null;
@@ -12,7 +12,7 @@ class StatsAnnouncer {
     private readonly messageName: string;
     private readonly metaKey: 'statsMessageIdAll' | 'statsMessageIdSession';
     private readonly content: string;
-    private readonly imagePath: string;
+    private readonly imagePath: ScreenshotPath;
 
     constructor(type: StatsType) {
         this.type = type;
@@ -26,11 +26,6 @@ class StatsAnnouncer {
      * Aktualisiert die gespeicherte Nachricht mit dem neuen Embed.
      */
     public async update(): Promise<void> {
-        if (!config.CHROMIUM_PATH) {
-            console.error('❌ Chromium-Pfad ist nicht konfiguriert. Screenshots können nicht erstellt werden.');
-            return;
-        }
-
         if (!this.message) {
             await this.initializeStatsMessage();
             if (!this.message) return;

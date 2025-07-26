@@ -1,41 +1,47 @@
 // utils/stats-screenshot.ts
-import puppeteer, {Browser, Page} from 'puppeteer';
-import config from '../config';
+import puppeteer, {Browser, Page} from "puppeteer";
 import {ScreenshotPath, StatsType} from "../types";
 
-
-async function screenshotStats(type: StatsType = 'all', filename: string = 'stats_all.png'): Promise<void> {
-    if (!config.CHROMIUM_PATH) {
-        console.error("❌ Chromium-Pfad (CHROMIUM_PATH) ist nicht in der Konfiguration gesetzt. Screenshot kann nicht erstellt werden.");
-        return;
-    }
-
+async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath = 'stats_all.png'): Promise<void> {
     let browser: Browser | null = null;
+    let page: Page | null = null;
 
     try {
-        browser = await puppeteer.launch({executablePath: config.CHROMIUM_PATH});
-        const page: Page = await browser.newPage();
+        browser = await puppeteer.launch({headless: true});
+
+        page = await browser.newPage();
+        page.setDefaultNavigationTimeout(10_000);
+        page.setDefaultTimeout(8_000);
+        await page.setViewport({width: 1600, height: 900});
+
         const tableId = type === 'session' ? '#statsTableSession' : '#statsTableAll';
         const url = 'http://localhost:3000/';
 
-        await page.setViewport({width: 1600, height: 900});
         await page.goto(url, {waitUntil: 'networkidle2'});
-        await page.waitForSelector(`${tableId} tr`, {timeout: 4000});
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await page.waitForSelector(`${tableId} tr`);
+        await page.waitForFunction(
+            (sel) => {
+                const el = document.querySelector(sel);
+                if (!el) return false;
+                const rows = el.querySelectorAll('tr');
+                return rows.length > 1 && (el as HTMLElement).offsetParent !== null;
+            }, {}, tableId);
+        await page.$eval(tableId, (el) =>
+            el.scrollIntoView({block: 'center', inline: 'center'})
+        );
 
         const statsElement = await page.$(tableId);
         if (statsElement) {
-            await statsElement.screenshot({path: filename as ScreenshotPath});
+            await statsElement.screenshot({path: filename});
         } else {
-            console.error('❌ #statsTable nicht auf der Seite gefunden. Mache einen Screenshot der ganzen Seite.');
-            await page.screenshot({path: filename as ScreenshotPath, fullPage: true});
+            console.error('❌ Tabelle nicht gefunden – mache Full-Page-Screenshot.');
+            await page.screenshot({path: filename, fullPage: true});
         }
     } catch (error) {
         console.error('❌ Fehler beim Erstellen des Screenshots:', error);
     } finally {
-        if (browser) {
-            await browser.close();
-        }
+        try { await page?.close(); } catch {}
+        try { await browser?.close(); } catch {}
     }
 }
 

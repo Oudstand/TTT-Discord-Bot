@@ -42,7 +42,6 @@ Dieses Projekt nutzt `bun:sqlite`:
 ### 1. Voraussetzungen
 
 - **Bun:** Lade Bun herunter und installiere es von der [offiziellen Webseite](https://bun.sh/).
-- **Chromium-basierter Browser:** Eine installierte Version von Chrome, Edge o.ä. wird für die Screenshot-Funktion von Puppeteer benötigt.
 - **Garry's Mod** mit **Trouble in Terrorist Town**.
 
 ### 2. Projekt herunterladen
@@ -66,9 +65,7 @@ cd TTT-Discord-Bot
   - `GUILD_ID`: Die ID deines Discord-Servers
   - `COMMAND_CHANNEL_ID`: ID des Kanals für den Mute-Button
   - `STATS_CHANNEL_ID`: ID des Kanals für die Statistik-Nachrichten
-  - `CHROMIUM_PATH`: Der Pfad zur .exe deines Chromium-Browsers (z.B. `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`)
-    - Es kann [hier](https://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html) eine portable Chromiumversion heruntergeladen werden, falls keine vorhanden ist.
-
+  
 ### 4. Lokales Netzwerk für GMod einrichten (nur Windows)
 Damit Garry's Mod mit dem Bot kommunizieren kann, muss eine spezielle Loopback-Adresse eingerichtet werden.
 1. **IP hinzufügen:** Öffne eine Eingabeaufforderung als Administrator und führe aus:
