@@ -9,21 +9,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusEl = $<HTMLSpanElement>('#status');
     const bindingsListEl = $<HTMLDivElement>('#bindingsList');
     const voiceListEl = $<HTMLDivElement>('#voiceList');
-    const allStatsBtn = $<HTMLButtonElement>('#all-stats-btn');
-    const sessionStatsBtn = $<HTMLButtonElement>('#session-stats-btn');
-    const statsBodyEl = $<HTMLTableSectionElement>('#statsBody');
+    const statsBodySessionEl = $<HTMLTableSectionElement>('#statsBodySession');
+    const statsBodyAllEl = $<HTMLTableSectionElement>('#statsBodyAll');
     const searchInput = $<HTMLInputElement>('#search');
     const bindingForm = $<HTMLFormElement>('#bindingForm');
     const nameInput = bindingForm?.querySelector<HTMLInputElement>('[name="name"]');
     const steamIdInput = bindingForm?.querySelector<HTMLInputElement>('[name="steamId"]');
     const discordIdInput = bindingForm?.querySelector<HTMLInputElement>('[name="discordId"]');
-    const endRoundBtn = $<HTMLButtonElement>('#end-round-button');
     const confirmBtn = $<HTMLButtonElement>('#modal-confirm');
     const cancelBtn = $<HTMLButtonElement>('#modal-cancel');
     const overlay = $<HTMLDivElement>('#modal-overlay');
     const overlayText = overlay?.querySelector('p');
-
-    let statsType: StatsType = 'all';
 
     // --- API Helper ---
     const apiCall = (endpoint: string, body: object = {}) => fetch(endpoint, {
@@ -138,84 +134,82 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    async function loadStats(): Promise<void> {
-        if (!statsBodyEl) return;
-        const errorHtml: string = `
+    const renderStats = (stats: MappedStat[], targetElement: HTMLTableSectionElement) => {
+        if (!stats.length) {
+            targetElement.innerHTML = `
                 <tr>
-                    <td colspan="12" class="text-red-400 p-4 ">
-                        <div class="text-center flex items-center justify-center gap-2">
-                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400 opacity-80"></i>
-                            <span class="text-red-400 text-base">Voice-Liste konnte nicht geladen werden.</span>
-                        </div>
+                    <td colspan="12" class="text-center p-4">
+                        Noch keine Statistiken vorhanden.
                     </td>
-                </tr>
-            `;
-        try {
-            const endpoint: string = statsType === 'all' ? '/api/stats' : '/api/stats/session';
-            const res: Response = await fetch(endpoint);
-            if (!res.ok) {
-                console.error('Fehler beim Laden der Statistiken:', res.statusText);
-                statsBodyEl.innerHTML = errorHtml;
-                return;
-            }
-
-            const stats: MappedStat[] = await res.json();
-            if (!stats.length) {
-                statsBodyEl.innerHTML = `
-                    <tr>
-                        <td colspan="12" class="text-center p-4">
-                            Noch keine Statistiken vorhanden.
-                        </td>
-                    </tr>`;
-                return;
-            }
-
-            stats.sort((a: MappedStat, b: MappedStat): number => (b.winrate - a.winrate) || (b.kdRatio - a.kdRatio));
-
-            const keys: (keyof Stat)[] = ['kills', 'deaths', 'damage', 'wins', 'losses', 'traitorRounds'];
-            const maxValues: { [key in keyof Stat]?: number } = Object.fromEntries(
-                keys.map(key => [key, Math.max(...stats.map(p => p[key] as number), 1)])
-            );
-
-            const rankClasses: string[] = ['bg-yellow-500/10', 'bg-slate-500/10', 'bg-orange-700/10'];
-
-            statsBodyEl.innerHTML = stats.map((player, idx) => {
-                const rankClass: string = rankClasses[idx] || 'hover:bg-slate-700/50';
-                const totalKills: number = player.kills + player.teamKills;
-                const totalDamage: number = player.damage + player.teamDamage;
-
-                return `
-                    <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
-                        <td class="p-3 font-bold text-center text-lg">${idx + 1}</td>
-                        <td class="p-3 font-medium max-w-[160px] truncate" title="${player.name || 'Unbekannter Spieler'}">${player.name || 'Unbekannter Spieler'}</td>
-                        <td class="p-3">${bar(player.kills, maxValues.kills!, 'green')}</td>
-                        <td class="p-3">${bar(player.teamKills, totalKills, 'red')}</td>
-                        <td class="p-3">${bar(player.deaths, maxValues.deaths!, 'red')}</td>
-                        <td class="p-3 text-center font-bold font-mono">${Number(player.kdRatio).toFixed(2)}</td>
-                        <td class="p-3">${bar(player.wins, maxValues.wins!, 'green')}</td>
-                        <td class="p-3">${bar(player.losses, maxValues.losses!, 'red')}</td>
-                        <td class="p-3">${bar(player.damage, maxValues.damage!, 'green', 0)}</td>
-                        <td class="p-3">${bar(player.teamDamage, totalDamage, 'red', 0)}</td>
-                        <td class="p-3">${bar(player.traitorRounds, maxValues.traitorRounds!, 'sky', 1)}</td>
-                        <td class="p-3">${bar(player.winrate, 100, 'blue', 1, '%')}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            setTimeout(() => {
-                requestAnimationFrame(() => {
-                    document.querySelectorAll<HTMLDivElement>('.stat-bar').forEach(bar => {
-                        bar.style.width = bar.dataset.targetWidth + '%';
-                    });
-                });
-            }, 30);
-        } catch (err) {
-            console.error('Fehler beim Laden der Statistiken:', err);
-            statsBodyEl.innerHTML = errorHtml;
+                </tr>`;
+            return;
         }
 
-        lucide.createIcons();
+        stats.sort((a: MappedStat, b: MappedStat): number => (b.winrate - a.winrate) || (b.kdRatio - a.kdRatio));
+
+        const keys: (keyof Stat)[] = ['kills', 'deaths', 'damage', 'wins', 'losses', 'traitorRounds'];
+        const maxValues: { [key in keyof Stat]?: number } = Object.fromEntries(
+            keys.map(key => [key, Math.max(...stats.map(p => p[key] as number), 1)])
+        );
+
+        const rankClasses: string[] = ['bg-yellow-500/10', 'bg-slate-500/10', 'bg-orange-700/10'];
+
+        targetElement.innerHTML = stats.map((player, idx) => {
+            const rankClass: string = rankClasses[idx] || 'hover:bg-slate-700/50';
+            const totalKills: number = player.kills + player.teamKills;
+            const totalDamage: number = player.damage + player.teamDamage;
+
+            return `
+                <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
+                    <td class="p-3 font-bold text-center text-lg">${idx + 1}</td>
+                    <td class="p-3 font-medium max-w-[160px] truncate" title="${player.name || 'Unbekannter Spieler'}">${player.name || 'Unbekannter Spieler'}</td>
+                    <td class="p-3">${bar(player.kills, maxValues.kills!, 'green')}</td>
+                    <td class="p-3">${bar(player.teamKills, totalKills, 'red')}</td>
+                    <td class="p-3">${bar(player.deaths, maxValues.deaths!, 'red')}</td>
+                    <td class="p-3 text-center font-bold font-mono">${Number(player.kdRatio).toFixed(2)}</td>
+                    <td class="p-3">${bar(player.wins, maxValues.wins!, 'green')}</td>
+                    <td class="p-3">${bar(player.losses, maxValues.losses!, 'red')}</td>
+                    <td class="p-3">${bar(player.damage, maxValues.damage!, 'green', 0)}</td>
+                    <td class="p-3">${bar(player.teamDamage, totalDamage, 'red', 0)}</td>
+                    <td class="p-3">${bar(player.traitorRounds, maxValues.traitorRounds!, 'sky', 1)}</td>
+                    <td class="p-3">${bar(player.winrate, 100, 'blue', 1, '%')}</td>
+                </tr>
+            `;
+        }).join('');
+
+        setTimeout(() => {
+            requestAnimationFrame(() => {
+                document.querySelectorAll<HTMLDivElement>('.stat-bar').forEach(bar => {
+                    bar.style.width = bar.dataset.targetWidth + '%';
+                });
+            });
+        }, 30);
     }
+
+    async function loadSessionStats(): Promise<void> {
+        if (!statsBodySessionEl) return;
+        try {
+            const res = await fetch('/api/stats/session');
+            if (!res.ok) throw new Error(res.statusText);
+            const stats: MappedStat[] = await res.json();
+            renderStats(stats, statsBodySessionEl);
+        } catch (err) {
+            console.error('Fehler beim Laden der Session-Statistiken:', err);
+        }
+    }
+
+    async function loadAllStats(): Promise<void> {
+        if (!statsBodyAllEl) return;
+        try {
+            const res = await fetch('/api/stats');
+            if (!res.ok) throw new Error(res.statusText);
+            const stats: MappedStat[] = await res.json();
+            renderStats(stats, statsBodyAllEl);
+        } catch (err) {
+            console.error('Fehler beim Laden der Gesamt-Statistiken:', err);
+        }
+    }
+
 
     function percent(value: number, max: number): number {
         return max > 0 ? (value / max) * 100 : 0;
@@ -243,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Confirm Dialog ---
-
     function showConfirmDialog(text = "Soll der Eintrag wirklich gelöscht werden?"): Promise<boolean> {
         return new Promise(resolve => {
             if (!overlay || !overlayText || !confirmBtn || !cancelBtn) return resolve(false);
@@ -271,29 +264,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-
     // --- Event Handlers ---
-    allStatsBtn?.addEventListener('click', () => {
-        if (statsType === 'all') return;
-        statsType = 'all';
-        toggleActiveSessionButton(allStatsBtn, sessionStatsBtn);
-        void loadStats();
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.chevron-icon');
+
+            if (content && content.classList.contains('collapsible-content')) {
+                content.classList.toggle('open');
+                icon?.classList.toggle('open');
+            }
+        });
     });
-
-    sessionStatsBtn?.addEventListener('click', () => {
-        if (statsType === 'session') return;
-        statsType = 'session';
-        toggleActiveSessionButton(sessionStatsBtn, allStatsBtn);
-        void loadStats();
-    });
-
-    function toggleActiveSessionButton(activeButton: HTMLButtonElement, inactiveButton: HTMLButtonElement | null): void {
-        activeButton.classList.add('bg-blue-600', 'font-bold', 'shadow');
-        activeButton.classList.remove('bg-slate-800');
-
-        inactiveButton?.classList.remove('bg-blue-600', 'font-bold', 'shadow');
-        inactiveButton?.classList.add('bg-slate-800');
-    }
 
     bindingForm?.addEventListener('submit', async (e: SubmitEvent) => {
         e.preventDefault();
@@ -351,10 +333,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await apiCall(`/api/${isMuted ? 'unmute' : 'mute'}/${discordId}`);
     });
 
-    endRoundBtn?.addEventListener('click', () => {
-        void apiCall('/api/unmuteAll');
-    });
-
     searchInput?.addEventListener('input', loadBindings);
 
     function createWebSocket(): void {
@@ -364,7 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const msg = JSON.parse(event.data);
                 if (msg.type === 'statsUpdate') {
-                    void loadStats();
+                    void loadSessionStats();
+                    void loadAllStats();
                 } else if (msg.type === 'voiceUpdate') {
                     void loadVoiceList();
                 }
@@ -375,13 +354,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initialisierung ---
     async function initialize(): Promise<void> {
-        const urlParams = new URLSearchParams(window.location.search);
-        const statsTypeParam = urlParams.get('stats');
-        if (sessionStatsBtn && statsTypeParam === 'session') {
-            statsType = 'session';
-            toggleActiveSessionButton(sessionStatsBtn, allStatsBtn);
-        }
-
         createWebSocket();
 
         if (statusEl) {
@@ -396,7 +368,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         void loadBindings();
         void loadVoiceList();
-        void loadStats();
+        void loadSessionStats();
+        void loadAllStats();
         lucide.createIcons();
     }
 

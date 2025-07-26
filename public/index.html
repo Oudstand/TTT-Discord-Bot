@@ -11,6 +11,25 @@
             lucide.createIcons();
         };
     </script>
+    <style>
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .collapsible-content.open {
+            max-height: 100vh; /* Genug Höhe, um den Inhalt anzuzeigen */
+        }
+
+        .chevron-icon {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .chevron-icon.open {
+            transform: rotate(90deg);
+        }
+    </style>
 </head>
 <body class="bg-slate-900 text-white min-h-screen font-sans">
 <div class="container mx-auto px-4 py-6">
@@ -19,69 +38,97 @@
         <span id="status" class="text-sm text-gray-300">🔄 Lade...</span>
     </div>
 
-    <div class="mb-8 pb-4">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class=" text-xl font-semibold flex items-center gap-2">
-                <i data-lucide="bar-chart-3" class="w-6 h-6"></i> Statistiken
-            </h2>
-            <div class="flex gap-2">
-                <button id="all-stats-btn" data-type="all" class="tab-btn bg-blue-600 text-white px-4 py-2 rounded-xl font-bold shadow transition-all duration-200">Alle</button>
-                <button id="session-stats-btn" data-type="session" class="tab-btn bg-slate-800 text-white px-4 py-2 rounded-xl transition-all duration-200">Sitzung</button>
-            </div>
+    <div class="mb-4">
+        <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
+            <i data-lucide="chevron-right" class="chevron-icon w-5 h-5 open"></i>
+            📊 Session-Statistik
+        </h2>
+        <div class="collapsible-content open">
+            <table id="statsTableSession" class="min-w-full bg-slate-800 rounded-xl shadow-md text-left overflow-hidden">
+                <thead>
+                <tr class="text-slate-300">
+                    <th class="p-3 w-12 text-center">Rang</th>
+                    <th class="p-3 w-40">Name</th>
+                    <th class="p-3 w-40"><i data-lucide="swords" class="inline w-4 h-4 mr-2"></i>Kills</th>
+                    <th class="p-3 w-40"><i data-lucide="heart-minus" class="inline w-4 h-4 mr-2"></i>Team-Kills</th>
+                    <th class="p-3 w-40"><i data-lucide="skull" class="inline w-4 h-4 mr-2"></i>Tode</th>
+                    <th class="p-3 w-28"><i data-lucide="divide" class="inline w-4 h-4 mr-2"></i>K/D</th>
+                    <th class="p-3 w-40"><i data-lucide="trophy" class="inline w-4 h-4 mr-2"></i>Siege</th>
+                    <th class="p-3 w-40"><i data-lucide="shield-off" class="inline w-4 h-4 mr-2"></i>Losses</th>
+                    <th class="p-3 w-40"><i data-lucide="flame" class="inline w-4 h-4 mr-2"></i>Schaden</th>
+                    <th class="p-3 w-40"><i data-lucide="user-x" class="inline w-4 h-4 mr-2"></i>Teamschaden</th>
+                    <th class="p-3 w-40"><i data-lucide="ghost " class="inline w-4 h-4 mr-2"></i>Traitor</th>
+                    <th class="p-3 w-40"><i data-lucide="pie-chart" class="inline w-4 h-4 mr-2"></i>Winrate</th>
+                </tr>
+                </thead>
+                <tbody id="statsBodySession"></tbody>
+            </table>
         </div>
-        <table id="statsTable" class="min-w-full bg-slate-800 rounded-xl shadow-md text-left">
-            <thead>
-            <tr class="text-slate-300">
-                <th class="p-3 w-12 text-center">Rang</th>
-                <th class="p-3 w-40">Name</th>
-                <th class="p-3 w-40"><i data-lucide="swords" class="inline w-4 h-4 mr-2"></i>Kills</th>
-                <th class="p-3 w-40"><i data-lucide="heart-minus" class="inline w-4 h-4 mr-2"></i>Team-Kills</th>
-                <th class="p-3 w-40"><i data-lucide="skull" class="inline w-4 h-4 mr-2"></i>Tode</th>
-                <th class="p-3 w-28"><i data-lucide="divide" class="inline w-4 h-4 mr-2"></i>K/D</th>
-                <th class="p-3 w-40"><i data-lucide="trophy" class="inline w-4 h-4 mr-2"></i>Siege</th>
-                <th class="p-3 w-40"><i data-lucide="shield-off" class="inline w-4 h-4 mr-2"></i>Losses</th>
-                <th class="p-3 w-40"><i data-lucide="flame" class="inline w-4 h-4 mr-2"></i>Schaden</th>
-                <th class="p-3 w-40"><i data-lucide="user-x" class="inline w-4 h-4 mr-2"></i>Teamschaden</th>
-                <th class="p-3 w-40"><i data-lucide="ghost " class="inline w-4 h-4 mr-2"></i>Traitor</th>
-                <th class="p-3 w-40"><i data-lucide="pie-chart" class="inline w-4 h-4 mr-2"></i>Winrate</th>
-            </tr>
-            </thead>
-            <tbody id="statsBody"></tbody>
-        </table>
     </div>
 
     <div class="mb-8">
-        <h2 class="text-xl font-semibold mb-2">🎙️ Spieler im Discord</h2>
-        <div id="voiceList" class="space-y-2 text-sm"></div>
-    </div>
-
-    <h2 class=" text-xl font-semibold mb-2 flex items-center gap-2">
-        <i data-lucide="link-2" class="w-6 h-6"></i> Spieler ↔ Discord-Bindings
-    </h2>
-
-    <form id="bindingForm" class="bg-slate-800 p-4 rounded-2xl shadow-md mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input name="name" placeholder="Name" class="bg-slate-700 text-white p-2 rounded-lg" required/>
-            <input name="steamId" placeholder="SteamID64" class="bg-slate-700 text-white p-2 rounded-lg" required/>
-            <input name="discordId" placeholder="Discord-ID" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+        <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
+            <i data-lucide="chevron-right" class="chevron-icon w-5 h-5 open"></i>
+            🏆 Gesamt-Statistik
+        </h2>
+        <div class="collapsible-content open">
+            <table id="statsTableAll" class="min-w-full bg-slate-800 rounded-xl shadow-md text-left overflow-hidden">
+                <thead>
+                <tr class="text-slate-300">
+                    <th class="p-3 w-12 text-center">Rang</th>
+                    <th class="p-3 w-40">Name</th>
+                    <th class="p-3 w-40"><i data-lucide="swords" class="inline w-4 h-4 mr-2"></i>Kills</th>
+                    <th class="p-3 w-40"><i data-lucide="heart-minus" class="inline w-4 h-4 mr-2"></i>Team-Kills</th>
+                    <th class="p-3 w-40"><i data-lucide="skull" class="inline w-4 h-4 mr-2"></i>Tode</th>
+                    <th class="p-3 w-28"><i data-lucide="divide" class="inline w-4 h-4 mr-2"></i>K/D</th>
+                    <th class="p-3 w-40"><i data-lucide="trophy" class="inline w-4 h-4 mr-2"></i>Siege</th>
+                    <th class="p-3 w-40"><i data-lucide="shield-off" class="inline w-4 h-4 mr-2"></i>Losses</th>
+                    <th class="p-3 w-40"><i data-lucide="flame" class="inline w-4 h-4 mr-2"></i>Schaden</th>
+                    <th class="p-3 w-40"><i data-lucide="user-x" class="inline w-4 h-4 mr-2"></i>Teamschaden</th>
+                    <th class="p-3 w-40"><i data-lucide="ghost " class="inline w-4 h-4 mr-2"></i>Traitor</th>
+                    <th class="p-3 w-40"><i data-lucide="pie-chart" class="inline w-4 h-4 mr-2"></i>Winrate</th>
+                </tr>
+                </thead>
+                <tbody id="statsBodyAll"></tbody>
+            </table>
         </div>
-        <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md">
-            <i data-lucide="save" class="inline w-4 h-4 mr-1"></i> Speichern
-        </button>
-    </form>
-
-    <div class="mb-6">
-        <input id="search" placeholder="🔍 Suche..." class="w-full bg-slate-800 p-2 rounded-lg text-white"/>
     </div>
 
-    <div id="bindingsList" class="space-y-2 mb-8 pb-16">
+    <div class="mb-4">
+        <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
+            <i data-lucide="chevron-right" class="chevron-icon w-5 h-5"></i>
+            🎙️ Spieler im Discord
+        </h2>
+        <div class="collapsible-content">
+            <div id="voiceList" class="space-y-2 text-sm pt-2"></div>
+        </div>
     </div>
 
-    <footer class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 py-4">
-        <button id="end-round-button" class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 mx-auto">
-            <i class="w-5 h-5" data-lucide="stop-circle"></i> Runde beenden
-        </button>
-    </footer>
+    <div class="mb-8">
+        <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
+            <i data-lucide="chevron-right" class="chevron-icon w-5 h-5"></i>
+            <i data-lucide="link-2" class="w-6 h-6"></i> Spieler ↔ Discord-Bindings
+        </h2>
+        <div class="collapsible-content">
+            <form id="bindingForm" class="bg-slate-800 p-4 rounded-2xl shadow-md my-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input name="name" placeholder="Name" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+                    <input name="steamId" placeholder="SteamID64" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+                    <input name="discordId" placeholder="Discord-ID" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+                </div>
+                <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md">
+                    <i data-lucide="save" class="inline w-4 h-4 mr-1"></i> Speichern
+                </button>
+            </form>
+
+            <div class="mb-6">
+                <input id="search" placeholder="🔍 Suche..." class="w-full bg-slate-800 p-2 rounded-lg text-white"/>
+            </div>
+
+            <div id="bindingsList" class="space-y-2 mb-8 pb-16">
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">

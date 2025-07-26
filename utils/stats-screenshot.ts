@@ -15,18 +15,15 @@ async function screenshotStats(type: StatsType = 'all', filename: string = 'stat
     try {
         browser = await puppeteer.launch({executablePath: config.CHROMIUM_PATH});
         const page: Page = await browser.newPage();
-
-        let url = 'http://localhost:3000/';
-        if (type === 'session') {
-            url += '?stats=session';
-        }
+        const tableId = type === 'session' ? '#statsTableSession' : '#statsTableAll';
+        const url = 'http://localhost:3000/';
 
         await page.setViewport({width: 1600, height: 900});
         await page.goto(url, {waitUntil: 'networkidle2'});
-        await page.waitForSelector('#statsTable tr', {timeout: 4000});
+        await page.waitForSelector(`${tableId} tr`, {timeout: 4000});
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        const statsElement = await page.$('#statsTable');
+        const statsElement = await page.$(tableId);
         if (statsElement) {
             await statsElement.screenshot({path: filename as ScreenshotPath});
         } else {
