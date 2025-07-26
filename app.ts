@@ -8,7 +8,7 @@ import config from './config';
 import {setWebSocketServer} from './websocket-service';
 
 import {client, loadGuild} from './discord/client';
-import {createUnmuteButton} from './discord/button-handlers';
+import {createUnmuteButton, setupButtonInteraction} from './discord/button-handlers';
 import {updateStatsMessage} from './discord/stats-announcer';
 import {resetSessionStats} from './storage/stats-store';
 
@@ -83,7 +83,9 @@ client.once('ready', async (readyClient: Client) => {
 
     await updateStatsMessage('all');
     await updateStatsMessage('session');
+
     await createUnmuteButton();
+    setupButtonInteraction();
 });
 
 if (!config.token) {

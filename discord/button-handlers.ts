@@ -1,5 +1,5 @@
 // discord/button-handlers.ts
-import {ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, Client, Guild, GuildMember, Interaction, Message, TextChannel} from 'discord.js';
+import {ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, Client, Guild, GuildMember, Interaction, Message, MessageFlags, TextChannel} from 'discord.js';
 import {get, set} from '../storage/meta-store';
 import config from '../config';
 import {getClient, getGuild} from './client';
@@ -44,8 +44,6 @@ async function createUnmuteButton(): Promise<void> {
     } catch (error: any) {
         console.error('❌ Fehler beim Erstellen des Buttons:', error.message);
     }
-
-    setupButtonInteraction();
 }
 
 // Button-Handler für Entmute
@@ -55,21 +53,32 @@ function setupButtonInteraction(): void {
         if (!interaction.isButton() || interaction.customId !== 'self_unmute') return;
 
         const guild: Guild | null = getGuild();
-        const member: GuildMember | undefined = guild?.members.cache.get(interaction.user.id);
+        if (!guild) {
+            await interaction.reply({content: '❌ Fehler: Server nicht gefunden.', flags: [MessageFlags.Ephemeral]});
+            return;
+        }
+
+        const member: GuildMember | undefined = guild.members.cache.get(interaction.user.id);
         if (!member) return;
 
         if (member.voice?.channel) {
             try {
                 await member.voice.setMute(false, 'Selbst entmutet via Button');
-                await interaction.reply({content: '🔊 Du wurdest entmutet.', ephemeral: true});
+                await interaction.reply({content: '🔊 Du wurdest entmutet.', flags: [MessageFlags.Ephemeral]});
             } catch (error) {
                 console.error('❌ Fehler beim Selbstentmuten:', error);
-                await interaction.reply({content: '❌ Fehler beim Entmuten.', ephemeral: true});
+                // Nur antworten, wenn noch nicht geantwortet wurde, um Abstürze zu vermeiden
+                if (!interaction.replied) {
+                    await interaction.reply({content: '❌ Fehler beim Entmuten.', flags: [MessageFlags.Ephemeral]});
+                }
             }
+        } else {
+            await interaction.reply({content: '❌ Du bist in keinem Voice-Kanal.', flags: [MessageFlags.Ephemeral]});
         }
     });
 }
 
 export {
-    createUnmuteButton
+    createUnmuteButton,
+    setupButtonInteraction
 };
