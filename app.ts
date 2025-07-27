@@ -23,6 +23,7 @@ import openBrowser from "./utils/open-browser";
 import indexHtml from "./public/index.html" with {type: "text"};
 import dashboardJs from "./public/js/dashboard.js" with {type: "text"};
 import favicon from "./public/favicon.ico" with {type: "buffer"};
+import {cacheAvatars} from "./utils/player";
 
 const app = express();
 const port = 3000;
@@ -72,6 +73,8 @@ client.once('ready', async (readyClient: Client) => {
     }
 
     await loadGuild();
+    await cacheAvatars();
+
     console.log(`✅  Bot ist bereit als ${readyClient.user.tag}`);
 
     server.listen(port, () => {

@@ -29,9 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- HTML Factories ---
-    const createBindingRowHTML = (binding: BindingWithAvatar): string => `
-        <div class="flex items-center bg-slate-800 px-4 py-3 rounded-xl shadow-md hover:bg-slate-700 transition-all group gap-4" data-steam-id="${binding.steamId}">
-            <img src="${binding.avatarUrl}" alt="Avatar" class="w-8 h-8 rounded-full ring-2 ring-white/10 group-hover:ring-blue-400/30 flex-shrink-0" />
+    const createBindingRowHTML = (binding: BindingWithAvatar): string => {
+        return `
+            <div class="flex items-center bg-slate-800 px-4 py-3 rounded-xl shadow-md hover:bg-slate-700 transition-all group gap-4" data-steam-id="${binding.steamId}">
+                <div class="relative flex-shrink-0">
+                    <img src="${binding.steamAvatarUrl}" alt="Steam Avatar" class="w-10 h-10 rounded-full ring-2 ring-slate-700" />
+                    <img src="${binding.discordAvatarUrl}" alt="Discord Avatar" class="w-5 h-5 rounded-full absolute -bottom-1 -right-1 ring-2 ring-slate-800" />
+                </div>
                 <div class="flex flex-col flex-1 min-w-0">
                     <span class="font-bold text-white text-base truncate">${binding.name}</span>
                     <div class="flex gap-4 text-xs text-slate-400 font-mono mt-1 flex-wrap">
@@ -43,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="text-slate-500">Discord:</span>
                             <a href="https://discordlookup.com/user/${binding.discordId}" target="_blank" class="text-blue-400 underline hover:text-blue-300 break-all">${binding.discordId}</a>
                         </span>
-                  </div>
+                    </div>
                 </div>
                 <div class="flex gap-2 flex-shrink-0">
                     <button data-action="edit" class="rounded-full bg-slate-700 p-2 text-blue-400 hover:bg-blue-600 hover:text-white transition" title="Bearbeiten">
@@ -53,8 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
-        </div>
-    `;
+            </div>
+        `;
+    };
 
     const createVoiceUserHTML = (user: VoiceUser): string => `
         <div class="flex items-center justify-between ${user.muted ? 'bg-red-800' : 'bg-green-800'} p-3 rounded-xl shadow-md" data-discord-id="${user.discordId}">
@@ -162,7 +167,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return `
                 <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
                     <td class="p-3 font-bold text-center text-lg">${idx + 1}</td>
-                    <td class="p-3 font-medium max-w-[160px] truncate" title="${player.name || 'Unbekannter Spieler'}">${player.name || 'Unbekannter Spieler'}</td>
+                    <td class="p-3 font-medium max-w-[200px]">
+                        <div class="flex items-center gap-3">
+                            <div class="relative flex-shrink-0">
+                                <img src="${player.steamAvatarUrl}" alt="Steam Avatar" class="w-8 h-8 rounded-full ring-2 ring-slate-700" />
+                                <img src="${player.discordAvatarUrl}" alt="Discord Avatar" class="w-4 h-4 rounded-full absolute -bottom-1 -right-1 ring-2 ring-slate-800" />
+                            </div>
+                            <span class="truncate" title="${player.name || 'Unbekannter Spieler'}">
+                                ${player.name || 'Unbekannter Spieler'}
+                            </span>
+                        </div>
+                    </td>
                     <td class="p-3">${bar(player.kills, maxValues.kills!, 'green')}</td>
                     <td class="p-3">${bar(player.teamKills, totalKills, 'red')}</td>
                     <td class="p-3">${bar(player.deaths, maxValues.deaths!, 'red')}</td>

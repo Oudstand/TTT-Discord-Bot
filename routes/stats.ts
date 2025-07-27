@@ -38,18 +38,18 @@ function notifyClientsAndDiscord(): void {
 }
 
 // Alle Statistiken abrufen
-router.get('/stats', (req: Request, res: Response): void => {
+router.get('/stats', async (req: Request, res: Response): Promise<void> => {
     try {
-        res.json(getStats());
+        res.json(await getStats());
     } catch (error) {
         res.status(500).send("Fehler beim Abrufen der Gesamtstatistiken.");
     }
 });
 
 // Session Statistiken abrufen
-router.get('/stats/session', (req: Request, res: Response): void => {
+router.get('/stats/session', async (req: Request, res: Response): Promise<void> => {
     try {
-        res.json(getSessionStats());
+        res.json(await getSessionStats());
     } catch (error) {
         res.status(500).send("Fehler beim Abrufen der Session-Statistiken.");
     }

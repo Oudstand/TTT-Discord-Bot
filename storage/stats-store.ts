@@ -1,6 +1,6 @@
 // storage/stats-store.ts
 import db from './database';
-import {getNameBySteamId} from '../utils/player';
+import {getDiscordAvatarUrl, getNameBySteamId, getSteamAvatarUrl} from '../utils/player';
 import {MappedStat, PlayerRoundData, Stat, StatTableName} from "../types";
 
 function createStatStore(tableName: StatTableName) {
@@ -23,6 +23,7 @@ function createStatStore(tableName: StatTableName) {
                 teamDamage    = teamDamage + @teamDamage,
                 traitorRounds = traitorRounds + @traitorRounds;
          `),
+        updateName: db.prepare<null, [string, string]>(`UPDATE ${tableName} SET name = ? WHERE steamId = ?`),
         addKills: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET kills = kills + ? WHERE steamId = ?`),
         addTeamKills: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET teamKills = teamKills + ? WHERE steamId = ?`),
         addDeaths: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET deaths = deaths + ? WHERE steamId = ?`),
@@ -59,6 +60,7 @@ function createStatStore(tableName: StatTableName) {
         has: (steamId: string): boolean => !!statements.has.get(steamId),
         insert: (steamId: string) => statements.insert.run(steamId, getNameBySteamId(steamId)),
         insertOrUpdate: (players: PlayerRoundData[]) => insertOrUpdateTransaction(players),
+        updateName: (name: string, steamId: string) => statements.updateName.run(name, steamId),
         deleteAll: () => statements.deleteAll.run(),
 
         // Funktionen, die einen Wert hinzufügen
@@ -76,24 +78,39 @@ function createStatStore(tableName: StatTableName) {
 const totalStatsStore = createStatStore('stats');
 const sessionStatsStore = createStatStore('stats_session');
 
-function getStats(): MappedStat[] {
-    return totalStatsStore.getAll().map(mapStats);
+async function getStats(): Promise<MappedStat[]> {
+    return Promise.all(totalStatsStore.getAll().map(mapStats));
 }
 
-function getSessionStats(): MappedStat[] {
-    return sessionStatsStore.getAll().map(mapStats);
+function getSessionStats(): Promise<MappedStat[]> {
+    return Promise.all(sessionStatsStore.getAll().map(mapStats));
 }
 
-function mapStats(stat: Stat): MappedStat {
+async function mapStats(stat: Stat): Promise<MappedStat> {
     const kdRatio: number = stat.deaths > 0 ? parseFloat((stat.kills / stat.deaths).toFixed(2)) : stat.kills;
     const totalGames: number = stat.wins + stat.losses;
     const winrate: number = totalGames ? parseFloat(((stat.wins / totalGames) * 100).toFixed(2)) : 0;
-    return {...stat, kdRatio, winrate};
+    return {
+        ...stat,
+        kdRatio,
+        winrate,
+        steamAvatarUrl: await getSteamAvatarUrl(stat.steamId),
+        discordAvatarUrl: await getDiscordAvatarUrl(stat.steamId)
+    };
 }
 
 function updateStats(players: PlayerRoundData[]): void {
     totalStatsStore.insertOrUpdate(players);
     sessionStatsStore.insertOrUpdate(players);
+}
+
+function updateNameInStats(steamId: string, name: string): void {
+    if (totalStatsStore.has(steamId)) {
+        totalStatsStore.updateName(name, steamId);
+    }
+    if (sessionStatsStore.has(steamId)) {
+        sessionStatsStore.updateName(name, steamId);
+    }
 }
 
 function ensureStatsEntry(steamId: string): void {
@@ -170,6 +187,7 @@ export {
     getStats,
     getSessionStats,
     updateStats,
+    updateNameInStats,
     addKills,
     addTeamKills,
     addDeaths,

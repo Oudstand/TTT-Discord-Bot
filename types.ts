@@ -15,7 +15,8 @@ export interface Binding {
 }
 
 export interface BindingWithAvatar extends Binding {
-    avatarUrl?: string;
+    steamAvatarUrl?: string;
+    discordAvatarUrl?: string;
 }
 
 // --- Steam API ---
@@ -70,6 +71,8 @@ export interface Stat {
 export interface MappedStat extends Stat {
     kdRatio: number;
     winrate: number;
+    steamAvatarUrl?: string;
+    discordAvatarUrl?: string;
 }
 
 export interface PlayerRoundData {

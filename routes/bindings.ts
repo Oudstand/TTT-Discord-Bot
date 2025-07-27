@@ -4,7 +4,8 @@ import {deleteBinding, getBinding, getBindings, setBinding} from '../storage/bin
 import {getGuild} from "../discord/client";
 import {Guild, GuildMember} from "discord.js";
 import {Binding, BindingWithAvatar} from "../types";
-import {fallBackAvatarUrl, getAvatarUrl} from "../utils/player";
+import {fallBackAvatarUrl, getSteamAvatarUrl} from "../utils/player";
+import {updateNameInStats} from "../storage/stats-store";
 
 const router: Router = express.Router();
 
@@ -20,12 +21,14 @@ router.get('/bindings', async (req: Request, res: Response): Promise<void> => {
                     const member: GuildMember = await guild.members.fetch(binding.discordId);
                     return {
                         ...binding,
-                        avatarUrl: await getAvatarUrl(binding.steamId)
+                        steamAvatarUrl: await getSteamAvatarUrl(binding.steamId),
+                        discordAvatarUrl: member.user.avatarURL() ?? fallBackAvatarUrl
                     };
                 } catch {
                     return {
                         ...binding,
-                        avatarUrl: fallBackAvatarUrl
+                        steamAvatarUrl: fallBackAvatarUrl,
+                        discordAvatarUrl: fallBackAvatarUrl
                     };
                 }
             }));
@@ -63,6 +66,7 @@ router.post('/bindings', (req: Request<{}, {}, Binding>, res: Response): void =>
         }
 
         setBinding(steamId, discordId, name);
+        updateNameInStats(steamId, name);
         res.status(200).send('Binding erfolgreich gespeichert.');
     } catch (error) {
         console.error('❌ Fehler beim Speichern eines Bindings:', error);

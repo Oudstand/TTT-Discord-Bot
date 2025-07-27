@@ -43,6 +43,7 @@ Dieses Projekt nutzt `bun:sqlite`:
 
 - **Bun:** Lade Bun herunter und installiere es von der [offiziellen Webseite](https://bun.sh/).
 - **Garry's Mod** mit **Trouble in Terrorist Town**.
+- **Steam API-Schlüssel** über [steamcommunity.com/dev/apikey](https://steamcommunity.com/dev/apikey) anlegen
 
 ### 2. Projekt herunterladen
 
@@ -61,6 +62,7 @@ cd TTT-Discord-Bot
   - Anschließend unter `BOT PERMISSIONS` `Send Messages` und `Mute Members` auswählen.
   - Mit dem unten stehenden Link den Bot zum Server hinzufügen.
 - Kopiere die .env.example-Datei zu .env und fülle die Werte aus:
+  - `STEAM_API_KEY`: Dein Steam API-Schlüssel
   - `DISCORD_TOKEN`: Der Token deines Bots
   - `GUILD_ID`: Die ID deines Discord-Servers
   - `COMMAND_CHANNEL_ID`: ID des Kanals für den Mute-Button
