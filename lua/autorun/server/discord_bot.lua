@@ -36,10 +36,23 @@ local function IsActiveRound()
     return GetRoundState() == ROUND_ACTIVE
 end
 
+local function IsLastAliveInTeam(victim)
+    local team = victim:GetTeam()
+    if team == TEAM_UNKNOWN then
+        return false
+    end
+
+    for _, ply in player.Iterator() do
+        if IsValidPlayer(ply) and ply ~= victim and ply:IsTerror() and ply:Alive() and ply:GetTeam() == team then
+            return false
+        end
+    end
+    return true
+end
+
 local function GetPlayerStats(ply)
     local sid = ply:SteamID64()
     if not RoundStats[sid] then
-        -- Erstellt einen Standard-Eintrag, falls noch nicht vorhanden
         RoundStats[sid] = {
             damage = 0,
             teamDamage = 0,
@@ -51,27 +64,37 @@ local function GetPlayerStats(ply)
     return RoundStats[sid]
 end
 
+hook.Add("TTTBeginRound", "TTTDiscordRoundStart", function()
+    http.Post(ApiBase .. "/roundStart")
+end)
+
 hook.Add("PlayerDeath", "TTTDiscordDeath", function(victim, inflictor, attacker)
     if not IsActiveRound() or not IsValidPlayer(victim) then
         return
     end
 
-    http.Post(ApiBase .. "/mute", { steamId = victim:SteamID64() })
-    DeadPlayers[victim:SteamID64()] = true
-
     local victimStats = GetPlayerStats(victim)
     victimStats.deaths = victimStats.deaths + 1
 
-    if not IsValidPlayer(attacker) or victim == attacker then
-        return
+    if IsValidPlayer(attacker) and victim ~= attacker then
+        local attackerStats = GetPlayerStats(attacker)
+        if victim:GetTeam() ~= attacker:GetTeam() then
+            attackerStats.kills = attackerStats.kills + 1
+        else
+            attackerStats.teamKills = attackerStats.teamKills + 1
+        end
     end
 
-    local attackerStats = GetPlayerStats(attacker)
-    if victim:GetTeam() ~= attacker:GetTeam() then
-        attackerStats.kills = attackerStats.kills + 1
-    else
-        attackerStats.teamKills = attackerStats.teamKills + 1
-    end
+    timer.Simple(0, function()
+        if not IsActiveRound() or not IsValidPlayer(victim) then
+            return
+        end
+        if not victim:Alive() and not IsLastAliveInTeam(victim) then
+            -- check to avoid race conditions in TTTEndRound
+            http.Post(ApiBase .. "/dead", { steamId = victim:SteamID64() })
+            DeadPlayers[victim:SteamID64()] = true
+        end
+    end)
 end)
 
 hook.Add("PlayerSpawn", "TTTDiscordSpawn", function(ply)
@@ -79,7 +102,7 @@ hook.Add("PlayerSpawn", "TTTDiscordSpawn", function(ply)
         return
     end
 
-    http.Post(ApiBase .. "/unmute", { steamId = ply:SteamID64() })
+    http.Post(ApiBase .. "/spawn", { steamId = ply:SteamID64() })
     DeadPlayers[ply:SteamID64()] = nil
 end)
 
@@ -109,7 +132,7 @@ end)
 hook.Add("TTTEndRound", "TTTDiscordRoundEnd", function(result)
     local finalPayload = {}
 
-    for _, ply in ipairs(player.GetAll()) do
+    for _, ply in player.Iterator() do
         if IsValidPlayer(ply) and ply:GetRole() then
             local sid = ply:SteamID64()
             local team = ply:GetTeam()

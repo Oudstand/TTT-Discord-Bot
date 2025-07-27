@@ -28,9 +28,20 @@ export interface VoiceUser {
     avatarUrl: string;
 }
 
-export interface UnmuteResult {
+export enum MuteResultCode {
+    OK = 'OK',
+    GUILD_NOT_FOUND = 'GUILD_NOT_FOUND',
+    GUILD_UNAVAILABLE = 'GUILD_UNAVAILABLE',
+    MEMBER_NOT_FOUND = 'MEMBER_NOT_FOUND',
+    MEMBER_NOT_IN_VOICE = 'MEMBER_NOT_IN_VOICE',
+    PERMISSION_DENIED = 'PERMISSION_DENIED',
+    INTERNAL = 'INTERNAL',
+}
+
+export interface MuteResult {
     success: boolean;
-    errors: string[];
+    code: MuteResultCode;
+    message?: string;
 }
 
 // -- Statistics ---
