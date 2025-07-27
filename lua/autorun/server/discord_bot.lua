@@ -113,7 +113,7 @@ hook.Add("TTTEndRound", "TTTDiscordRoundEnd", function(result)
         if IsValidPlayer(ply) and ply:GetRole() then
             local sid = ply:SteamID64()
             local team = ply:GetTeam()
-            local won = (result == WIN_TRAITOR and team == TEAM_TRAITOR) or (result == WIN_INNOCENT and team == TEAM_INNOCENT)
+            local won = (result == WIN_TRAITOR and team == TEAM_TRAITOR) or ((result == WIN_INNOCENT or result == WIN_TIMELIMIT) and team == TEAM_INNOCENT)
             local collectedStats = GetPlayerStats(ply)
 
             table.insert(finalPayload, {
