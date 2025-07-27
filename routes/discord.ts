@@ -2,7 +2,7 @@
 import express, {Request, Response, Router} from 'express';
 import {getGuild} from "../discord/client";
 import {getSteamIdByDiscordId} from "../storage/bindings-store";
-import {getNameBySteamId} from "../utils/name";
+import {fallBackAvatarUrl, getNameBySteamId} from "../utils/player";
 import {setMute, toHttpStatus, unmuteAll} from "../utils/mute";
 import {Guild, GuildMember, VoiceState} from "discord.js";
 import {DiscordIdParams, MuteResult, VoiceUser} from "../types";
@@ -29,7 +29,7 @@ router.get('/voice', async (req: Request, res: Response): Promise<void> => {
                     steamId,
                     discordId: member.id,
                     muted: !!(voiceState.selfMute || voiceState.serverMute),
-                    avatarUrl: member.user.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/0.png'
+                    avatarUrl: member.user.avatarURL() ?? fallBackAvatarUrl
                 };
             });
 

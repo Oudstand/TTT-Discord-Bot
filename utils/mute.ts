@@ -1,6 +1,6 @@
 // utils/mute.ts
 import {getGuild} from "../discord/client";
-import {getNameByDiscordId} from "./name";
+import {getNameByDiscordId} from "./player";
 import {Guild, GuildMember} from "discord.js";
 import {MuteResult, MuteResultCode} from "../types";
 

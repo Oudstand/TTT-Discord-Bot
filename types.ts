@@ -18,6 +18,14 @@ export interface BindingWithAvatar extends Binding {
     avatarUrl?: string;
 }
 
+// --- Steam API ---
+
+export interface SteamPlayer {
+    steamid: string;
+    personaname: string;
+    avatarfull: string;
+}
+
 // --- Voice ---
 
 export interface VoiceUser {

@@ -4,6 +4,7 @@ import {deleteBinding, getBinding, getBindings, setBinding} from '../storage/bin
 import {getGuild} from "../discord/client";
 import {Guild, GuildMember} from "discord.js";
 import {Binding, BindingWithAvatar} from "../types";
+import {fallBackAvatarUrl, getAvatarUrl} from "../utils/player";
 
 const router: Router = express.Router();
 
@@ -19,12 +20,12 @@ router.get('/bindings', async (req: Request, res: Response): Promise<void> => {
                     const member: GuildMember = await guild.members.fetch(binding.discordId);
                     return {
                         ...binding,
-                        avatarUrl: member.user.avatarURL() ?? 'https://cdn.discordapp.com/embed/avatars/0.png'
+                        avatarUrl: await getAvatarUrl(binding.steamId)
                     };
                 } catch {
                     return {
                         ...binding,
-                        avatarUrl: 'https://cdn.discordapp.com/embed/avatars/0.png'
+                        avatarUrl: fallBackAvatarUrl
                     };
                 }
             }));
@@ -32,8 +33,8 @@ router.get('/bindings', async (req: Request, res: Response): Promise<void> => {
 
         res.json(bindings);
     } catch (error) {
-        console.error("❌ Fehler beim Abrufen der Bindings:", error);
-        res.status(500).send("Interner Serverfehler");
+        console.error('❌ Fehler beim Abrufen der Bindings:', error);
+        res.status(500).send('Interner Serverfehler');
     }
 });
 
@@ -47,8 +48,8 @@ router.get('/bindings/:steamId', (req: Request<{ steamId: string }>, res: Respon
             res.status(404).send('Binding nicht gefunden');
         }
     } catch (error) {
-        console.error("❌ Fehler beim Abrufen eines einzelnen Bindings:", error);
-        res.status(500).send("Interner Serverfehler");
+        console.error('❌ Fehler beim Abrufen eines einzelnen Bindings:', error);
+        res.status(500).send('Interner Serverfehler');
     }
 });
 
@@ -62,10 +63,10 @@ router.post('/bindings', (req: Request<{}, {}, Binding>, res: Response): void =>
         }
 
         setBinding(steamId, discordId, name);
-        res.status(200).send("Binding erfolgreich gespeichert.");
+        res.status(200).send('Binding erfolgreich gespeichert.');
     } catch (error) {
-        console.error("❌ Fehler beim Speichern eines Bindings:", error);
-        res.status(500).send("Interner Serverfehler");
+        console.error('❌ Fehler beim Speichern eines Bindings:', error);
+        res.status(500).send('Interner Serverfehler');
     }
 });
 
@@ -74,10 +75,10 @@ router.delete('/bindings/:steamId', (req: Request<{ steamId: string }>, res: Res
     try {
         const {steamId} = req.params;
         deleteBinding(steamId);
-        res.status(200).send("Binding erfolgreich gelöscht.");
+        res.status(200).send('Binding erfolgreich gelöscht.');
     } catch (error) {
-        console.error("❌ Fehler beim Löschen eines Bindings:", error);
-        res.status(500).send("Interner Serverfehler");
+        console.error('❌ Fehler beim Löschen eines Bindings:', error);
+        res.status(500).send('Interner Serverfehler');
     }
 });
 

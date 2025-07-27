@@ -16,7 +16,7 @@ import {
     getSessionStats,
     getStats
 } from '../storage/stats-store';
-import {getNameBySteamId} from '../utils/name';
+import {getNameBySteamId} from '../utils/player';
 import {DamageBody, SteamIdBody, WinLossBody} from "../types";
 
 const router: Router = express.Router();
