@@ -50,6 +50,69 @@ local function IsLastAliveInTeam(victim)
     return true
 end
 
+local function GetEHP(ply)
+    if not IsValidPlayer(ply) then
+        return 0
+    end
+    local hp = math.max(tonumber(ply:Health()) or 0, 0)
+
+    local armor = 0
+    if isfunction(ply.Armor) then
+        armor = tonumber(ply:Armor()) or 0
+    elseif isfunction(ply.GetArmor) then
+        armor = tonumber(ply:GetArmor()) or 0
+    end
+
+    return hp + math.max(armor, 0)
+end
+
+local function ResolveAttacker(dmginfo, target)
+    local attacker = dmginfo:GetAttacker()
+    local inflictor = dmginfo:GetInflictor()
+
+    -- Direkt ein Spieler?
+    if IsValidPlayer(attacker) then
+        return attacker
+    end
+    if IsValidPlayer(inflictor) then
+        return inflictor
+    end
+
+    -- Owner-Kette (z. B. ents, SWEPs, grenades)
+    if IsValid(attacker) and attacker.GetOwner then
+        local owner = attacker:GetOwner()
+        if IsValidPlayer(owner) then
+            return owner
+        end
+    end
+    if IsValid(inflictor) and inflictor.GetOwner then
+        local owner = inflictor:GetOwner()
+        if IsValidPlayer(owner) then
+            return owner
+        end
+    end
+
+    -- Physik-Angreifer (Prop-Push/Throw), 5s Fenster
+    if IsValid(attacker) and attacker.GetPhysicsAttacker then
+        local phys = attacker:GetPhysicsAttacker(5)
+        if IsValidPlayer(phys) then
+            return phys
+        end
+    end
+
+    -- (Optional) CPPI (Prop-Protection) Owner
+    if IsValid(attacker) and attacker.CPPIGetOwner then
+        local owner = attacker:CPPIGetOwner()
+        if IsValidPlayer(owner) then
+            return owner
+        end
+    end
+
+    return nil
+end
+
+local preEHP = {}
+
 local function GetPlayerStats(ply)
     local sid = ply:SteamID64()
     if not RoundStats[sid] then
@@ -66,6 +129,7 @@ end
 
 hook.Add("TTTBeginRound", "TTTDiscordRoundStart", function()
     http.Post(ApiBase .. "/roundStart")
+    preEHP = {}
 end)
 
 hook.Add("PlayerDeath", "TTTDiscordDeath", function(victim, inflictor, attacker)
@@ -111,12 +175,34 @@ hook.Add("EntityTakeDamage", "TTTTrackDamage", function(target, dmginfo)
         return
     end
 
-    local attacker = dmginfo:GetAttacker()
-    if not IsValidPlayer(attacker) or attacker == target then
+    if preEHP[target] == nil then
+        preEHP[target] = GetEHP(target)
+    end
+end)
+
+hook.Add("PostEntityTakeDamage", "TTTTrackDamage_Post", function(target, dmginfo, took)
+    if not IsActiveRound() or not IsValidPlayer(target) then
+        return
+    end
+    -- Schaden wurde abgefangen/negiert
+    if not took then
+        preEHP[target] = nil;
         return
     end
 
-    local dmg = dmginfo:GetDamage() * attacker:GetDamageFactor()
+    local attacker = ResolveAttacker(dmginfo, target)
+    if not IsValidPlayer(attacker) or attacker == target then
+        preEHP[target] = nil
+        return
+    end
+
+    local before = preEHP[target] or GetEHP(target)
+    preEHP[target] = nil
+
+    local after = GetEHP(target)
+    local dmg = before - after
+    dmg = math.Clamp(dmg, 0, before)
+
     if dmg <= 0 then
         return
     end
