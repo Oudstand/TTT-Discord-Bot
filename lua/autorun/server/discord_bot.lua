@@ -5,45 +5,38 @@ end
 print("[TTTDiscordBot] Server-side script loaded")
 
 local ApiBase = "http://ttthost:3000/api"
-local TEAM_TRAITOR = "traitor"
-local TEAM_INNOCENT = "innocent"
-local TEAM_UNKNOWN = "unknown"
 
+-- ========= State =========
 local DeadPlayers = {}
 local RoundStats = {}
+local preEHP = {}
 
-local plyMeta = FindMetaTable("Player")
-if not plyMeta then
-    return
-end
-
-function plyMeta:GetTeam()
-    local role = self:GetRole()
-    if role == ROLE_TRAITOR then
-        return TEAM_TRAITOR
-    end
-    if role == ROLE_INNOCENT or role == ROLE_DETECTIVE then
-        return TEAM_INNOCENT
-    end
-    return TEAM_UNKNOWN
-end
-
-local function IsValidPlayer(player)
-    return IsValid(player) and player:IsPlayer() and not player:IsBot()
+-- ========= Helpers =========
+local function IsValidPlayer(ply)
+    return IsValid(ply) and ply:IsPlayer() and not ply:IsBot()
 end
 
 local function IsActiveRound()
     return GetRoundState() == ROUND_ACTIVE
 end
 
+local function GetTeamId(ply)
+    if not IsValidPlayer(ply) then
+        return TEAM_NONE or -1
+    end
+    local t = ply.GetTeam and ply:GetTeam() or (TEAM_NONE or -1)
+    return t or (TEAM_NONE or -1)
+end
+
 local function IsLastAliveInTeam(victim)
-    local team = victim:GetTeam()
-    if team == TEAM_UNKNOWN then
+    local teamId = GetTeamId(victim)
+    if teamId == (TEAM_NONE or -1) then
         return false
     end
-
     for _, ply in player.Iterator() do
-        if IsValidPlayer(ply) and ply ~= victim and ply:IsTerror() and ply:Alive() and ply:GetTeam() == team then
+        if IsValidPlayer(ply) and ply ~= victim and ply:Alive() and ply:IsTerror()
+                and GetTeamId(ply) == teamId
+        then
             return false
         end
     end
@@ -55,14 +48,12 @@ local function GetEHP(ply)
         return 0
     end
     local hp = math.max(tonumber(ply:Health()) or 0, 0)
-
     local armor = 0
     if isfunction(ply.Armor) then
         armor = tonumber(ply:Armor()) or 0
     elseif isfunction(ply.GetArmor) then
         armor = tonumber(ply:GetArmor()) or 0
     end
-
     return hp + math.max(armor, 0)
 end
 
@@ -70,7 +61,6 @@ local function ResolveAttacker(dmginfo, target)
     local attacker = dmginfo:GetAttacker()
     local inflictor = dmginfo:GetInflictor()
 
-    -- Direkt ein Spieler?
     if IsValidPlayer(attacker) then
         return attacker
     end
@@ -78,7 +68,6 @@ local function ResolveAttacker(dmginfo, target)
         return inflictor
     end
 
-    -- Owner-Kette (z. B. ents, SWEPs, grenades)
     if IsValid(attacker) and attacker.GetOwner then
         local owner = attacker:GetOwner()
         if IsValidPlayer(owner) then
@@ -92,7 +81,6 @@ local function ResolveAttacker(dmginfo, target)
         end
     end
 
-    -- Physik-Angreifer (Prop-Push/Throw), 5s Fenster
     if IsValid(attacker) and attacker.GetPhysicsAttacker then
         local phys = attacker:GetPhysicsAttacker(5)
         if IsValidPlayer(phys) then
@@ -100,7 +88,6 @@ local function ResolveAttacker(dmginfo, target)
         end
     end
 
-    -- (Optional) CPPI (Prop-Protection) Owner
     if IsValid(attacker) and attacker.CPPIGetOwner then
         local owner = attacker:CPPIGetOwner()
         if IsValidPlayer(owner) then
@@ -111,25 +98,47 @@ local function ResolveAttacker(dmginfo, target)
     return nil
 end
 
-local preEHP = {}
-
 local function GetPlayerStats(ply)
     local sid = ply:SteamID64()
-    if not RoundStats[sid] then
-        RoundStats[sid] = {
-            damage = 0,
-            teamDamage = 0,
-            kills = 0,
-            teamKills = 0,
-            deaths = 0
-        }
+    local stats = RoundStats[sid]
+    if not stats then
+        stats = { damage = 0, teamDamage = 0, kills = 0, teamKills = 0, deaths = 0 }
+        RoundStats[sid] = stats
     end
-    return RoundStats[sid]
+    return stats
 end
 
+local function ToTeamKey(v)
+    if isstring(v) then
+        return string.Trim(string.lower(v))
+    end
+
+    if isnumber(v) then
+        if WIN_TIMELIMIT and v == WIN_TIMELIMIT then
+            return "innocents"
+        end
+        if WIN_TRAITOR and v == WIN_TRAITOR then
+            return "traitors"
+        end
+        if WIN_INNOCENT and v == WIN_INNOCENT then
+            return "innocents"
+        end
+    end
+
+    return tostring(v)
+end
+
+local function PlayerWon(ply, result)
+    local teamKey = ToTeamKey(ply:GetTeam())
+    local resKey = ToTeamKey(result)
+
+    return teamKey == resKey
+end
+
+-- ========= Hooks =========
 hook.Add("TTTBeginRound", "TTTDiscordRoundStart", function()
-    http.Post(ApiBase .. "/roundStart")
-    preEHP = {}
+    http.Post(ApiBase .. "/roundStart", {}, nil, nil)
+    table.Empty(preEHP)
 end)
 
 hook.Add("PlayerDeath", "TTTDiscordDeath", function(victim, inflictor, attacker)
@@ -141,11 +150,11 @@ hook.Add("PlayerDeath", "TTTDiscordDeath", function(victim, inflictor, attacker)
     victimStats.deaths = victimStats.deaths + 1
 
     if IsValidPlayer(attacker) and victim ~= attacker then
-        local attackerStats = GetPlayerStats(attacker)
-        if victim:GetTeam() ~= attacker:GetTeam() then
-            attackerStats.kills = attackerStats.kills + 1
+        local atkStats = GetPlayerStats(attacker)
+        if GetTeamId(victim) ~= GetTeamId(attacker) then
+            atkStats.kills = atkStats.kills + 1
         else
-            attackerStats.teamKills = attackerStats.teamKills + 1
+            atkStats.teamKills = atkStats.teamKills + 1
         end
     end
 
@@ -154,8 +163,7 @@ hook.Add("PlayerDeath", "TTTDiscordDeath", function(victim, inflictor, attacker)
             return
         end
         if not victim:Alive() and not IsLastAliveInTeam(victim) then
-            -- check to avoid race conditions in TTTEndRound
-            http.Post(ApiBase .. "/dead", { steamId = victim:SteamID64() })
+            http.Post(ApiBase .. "/dead", { steamId = victim:SteamID64() }, nil, nil)
             DeadPlayers[victim:SteamID64()] = true
         end
     end)
@@ -165,8 +173,7 @@ hook.Add("PlayerSpawn", "TTTDiscordSpawn", function(ply)
     if not IsValidPlayer(ply) or not DeadPlayers[ply:SteamID64()] then
         return
     end
-
-    http.Post(ApiBase .. "/spawn", { steamId = ply:SteamID64() })
+    http.Post(ApiBase .. "/spawn", { steamId = ply:SteamID64() }, nil, nil)
     DeadPlayers[ply:SteamID64()] = nil
 end)
 
@@ -174,7 +181,6 @@ hook.Add("EntityTakeDamage", "TTTTrackDamage", function(target, dmginfo)
     if not IsActiveRound() or not IsValidPlayer(target) then
         return
     end
-
     if preEHP[target] == nil then
         preEHP[target] = GetEHP(target)
     end
@@ -184,7 +190,6 @@ hook.Add("PostEntityTakeDamage", "TTTTrackDamage_Post", function(target, dmginfo
     if not IsActiveRound() or not IsValidPlayer(target) then
         return
     end
-    -- Schaden wurde abgefangen/negiert
     if not took then
         preEHP[target] = nil;
         return
@@ -198,20 +203,18 @@ hook.Add("PostEntityTakeDamage", "TTTTrackDamage_Post", function(target, dmginfo
 
     local before = preEHP[target] or GetEHP(target)
     preEHP[target] = nil
-
     local after = GetEHP(target)
-    local dmg = before - after
-    dmg = math.Clamp(dmg, 0, before)
 
+    local dmg = math.Clamp(before - after, 0, before)
     if dmg <= 0 then
         return
     end
 
-    local attackerStats = GetPlayerStats(attacker)
-    if target:GetTeam() ~= attacker:GetTeam() then
-        attackerStats.damage = attackerStats.damage + dmg
+    local atkStats = GetPlayerStats(attacker)
+    if GetTeamId(target) ~= GetTeamId(attacker) then
+        atkStats.damage = atkStats.damage + dmg
     else
-        attackerStats.teamDamage = attackerStats.teamDamage + dmg
+        atkStats.teamDamage = atkStats.teamDamage + dmg
     end
 end)
 
@@ -221,19 +224,19 @@ hook.Add("TTTEndRound", "TTTDiscordRoundEnd", function(result)
     for _, ply in player.Iterator() do
         if IsValidPlayer(ply) and ply:GetRole() then
             local sid = ply:SteamID64()
-            local team = ply:GetTeam()
-            local won = (result == WIN_TRAITOR and team == TEAM_TRAITOR) or ((result == WIN_INNOCENT or result == WIN_TIMELIMIT) and team == TEAM_INNOCENT)
-            local collectedStats = GetPlayerStats(ply)
+            local team = GetTeamId(ply)
+            local won = PlayerWon(ply, result)
 
+            local stats = GetPlayerStats(ply)
             table.insert(finalPayload, {
                 steamId = sid,
-                kills = collectedStats.kills,
-                teamKills = collectedStats.teamKills,
-                deaths = collectedStats.deaths,
-                damage = collectedStats.damage,
-                teamDamage = collectedStats.teamDamage,
+                kills = stats.kills,
+                teamKills = stats.teamKills,
+                deaths = stats.deaths,
+                damage = stats.damage,
+                teamDamage = stats.teamDamage,
                 win = won,
-                wasTraitor = team == TEAM_TRAITOR
+                wasTraitor = (team == TEAM_TRAITOR)
             })
         end
     end
@@ -247,4 +250,5 @@ hook.Add("TTTEndRound", "TTTDiscordRoundEnd", function(result)
 
     DeadPlayers = {}
     RoundStats = {}
+    table.Empty(preEHP)
 end)
