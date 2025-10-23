@@ -27,6 +27,14 @@ const translations: Record<Language, Translations> = {
         'stats.teamDamage': 'Teamschaden',
         'stats.traitor': 'Traitor',
         'stats.winrate': 'Winrate',
+        'stats.noData': 'Noch keine Statistiken vorhanden.',
+        'stats.unknownPlayer': 'Unbekannter Spieler',
+        'stats.loadError': 'Fehler beim Laden der Statistiken',
+
+        // Status
+        'status.connected': 'Verbunden als',
+        'status.disconnected': 'Keine Verbindung zum Bot',
+        'ws.connected': 'WebSocket verbunden',
 
         // Voice section
         'voice.title': 'Spieler im Discord',
@@ -75,6 +83,14 @@ const translations: Record<Language, Translations> = {
         'stats.teamDamage': 'Team Damage',
         'stats.traitor': 'Traitor',
         'stats.winrate': 'Winrate',
+        'stats.noData': 'No statistics available yet.',
+        'stats.unknownPlayer': 'Unknown Player',
+        'stats.loadError': 'Error loading statistics',
+
+        // Status
+        'status.connected': 'Connected as',
+        'status.disconnected': 'No connection to bot',
+        'ws.connected': 'WebSocket connected',
 
         // Voice section
         'voice.title': 'Players in Discord',
