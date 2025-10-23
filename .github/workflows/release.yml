@@ -24,46 +24,32 @@ jobs:
       - name: Build executable
         run: bun run build
 
-      - name: Copy Chromium binary
-        run: |
-          $chromiumExe = & bunx playwright show-path chromium
-          $chromiumDir = Split-Path -Parent $chromiumExe
-          New-Item -ItemType Directory -Force -Path "release"
-          Copy-Item -Path $chromiumDir -Destination "release/chromium" -Recurse -Force
-          Copy-Item -Path "TTT Discord Bot.exe" -Destination "release/"
-          Copy-Item -Path ".env.example" -Destination "release/"
-
-      - name: Create ZIP archive
-        run: |
-          Compress-Archive -Path "release/*" -DestinationPath "TTT-Discord-Bot.zip"
-
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            TTT-Discord-Bot.zip
+            TTT Discord Bot.exe
+            .env.example
           body: |
             ## 🎮 TTT Discord Bot ${{ github.ref_name }}
 
             Automatic muting/unmuting for Trouble in Terrorist Town with Discord integration.
 
             ### 📥 Installation
-            1. Download `TTT-Discord-Bot.zip`
-            2. Extract the ZIP file (contains .exe, chromium/, .env.example)
-            3. Rename `.env.example` to `.env` and fill in your configuration
-            4. Install Lua addon from Steam Workshop
-            5. Run `TTT Discord Bot.exe`
+            1. Download `TTT Discord Bot.exe` and `.env.example`
+            2. Rename `.env.example` to `.env` and fill in your configuration
+            3. Install Lua addon from Steam Workshop
+            4. Run `TTT Discord Bot.exe`
 
             ### 📋 Requirements
-            - Windows 10/11
+            - Windows 10/11 (with Edge browser pre-installed)
             - Discord Bot Token
             - Steam API Key
             - Garry's Mod Server with TTT2
 
-            ### 📦 What's included
-            - `TTT Discord Bot.exe` - Main executable
-            - `chromium/` - Bundled Chromium browser (~100MB) for screenshot generation
-            - `.env.example` - Configuration template
+            ### 📝 Note
+            The bot uses Microsoft Edge (pre-installed on Windows 10/11) for screenshot generation.
+            No additional browser installation required!
           draft: false
           prerelease: false
         env:

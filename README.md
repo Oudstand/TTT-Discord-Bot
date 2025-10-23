@@ -102,22 +102,15 @@ bun start
 Das Dashboard ist dann unter http://localhost:3000 erreichbar.
 
 
-### Standalone Release erstellen
-Du kannst eine portable Release-Version erstellen, die alle benötigten Dateien enthält.
+### Standalone .exe erstellen
+Du kannst eine einzelne, portable `.exe`-Datei erstellen:
 1. **Bauen:**
   ```bash
   bun run build
   ```
-2. **Chromium kopieren:**
-  ```bash
-  # Chromium-Pfad ermitteln und kopieren
-  mkdir release
-  # Chromium-Ordner manuell aus ~/.cache/ms-playwright/ kopieren
-  # Oder automatisch via GitHub Actions Release (siehe .github/workflows/release.yml)
-  ```
-3. **Ausführen:**
-- Entpacke das Release-ZIP (enthält .exe, chromium/, .env.example)
-- Benenne `.env.example` zu `.env` um und fülle die Werte aus
+2. **Ausführen:**
+- Nimm die erstellte `TTT Discord Bot.exe`
+- Lege deine `.env`-Datei in denselben Ordner
 - Starte die `.exe`
 
-**Hinweis:** Die `.exe` sucht automatisch nach `chromium/` im selben Verzeichnis. In der Entwicklung wird Chromium aus dem Playwright-Cache verwendet.
+**Hinweis:** Die `.exe` nutzt Microsoft Edge (auf Windows 10/11 vorinstalliert) für Screenshot-Generierung. Keine zusätzliche Browser-Installation nötig!
