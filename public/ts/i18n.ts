@@ -32,7 +32,8 @@ const translations: Record<Language, Translations> = {
         'voice.title': 'Spieler im Discord',
         'voice.mute': 'Muten',
         'voice.unmute': 'Entmuten',
-        'voice.noPlayers': 'Keine Spieler im Voice-Channel',
+        'voice.noPlayers': 'Noch ist niemand im Discord',
+        'voice.loadError': 'Voice-Liste konnte nicht geladen werden',
 
         // Bindings section
         'bindings.title': 'Spieler ↔ Discord-Bindings',
@@ -79,7 +80,8 @@ const translations: Record<Language, Translations> = {
         'voice.title': 'Players in Discord',
         'voice.mute': 'Mute',
         'voice.unmute': 'Unmute',
-        'voice.noPlayers': 'No players in voice channel',
+        'voice.noPlayers': 'No players in voice channel yet',
+        'voice.loadError': 'Failed to load voice list',
 
         // Bindings section
         'bindings.title': 'Player ↔ Discord Bindings',
