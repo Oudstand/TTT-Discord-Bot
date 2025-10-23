@@ -1,0 +1,50 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggered by tags like v1.0.0
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build executable
+        run: bun run build
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            TTT Discord Bot.exe
+          body: |
+            ## 🎮 TTT Discord Bot ${{ github.ref_name }}
+
+            Automatic muting/unmuting for Trouble in Terrorist Town with Discord integration.
+
+            ### 📥 Installation
+            1. Download `TTT Discord Bot.exe`
+            2. Create `.env` file (see README)
+            3. Install Lua addon from Steam Workshop
+            4. Run the executable
+
+            ### 📋 Requirements
+            - Windows 10/11
+            - Discord Bot Token
+            - Garry's Mod Server with TTT2
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
