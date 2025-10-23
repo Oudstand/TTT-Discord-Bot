@@ -24,26 +24,46 @@ jobs:
       - name: Build executable
         run: bun run build
 
+      - name: Copy Chromium binary
+        run: |
+          $chromiumExe = & bunx playwright show-path chromium
+          $chromiumDir = Split-Path -Parent $chromiumExe
+          New-Item -ItemType Directory -Force -Path "release"
+          Copy-Item -Path $chromiumDir -Destination "release/chromium" -Recurse -Force
+          Copy-Item -Path "TTT Discord Bot.exe" -Destination "release/"
+          Copy-Item -Path ".env.example" -Destination "release/"
+
+      - name: Create ZIP archive
+        run: |
+          Compress-Archive -Path "release/*" -DestinationPath "TTT-Discord-Bot.zip"
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            TTT Discord Bot.exe
+            TTT-Discord-Bot.zip
           body: |
             ## 🎮 TTT Discord Bot ${{ github.ref_name }}
 
             Automatic muting/unmuting for Trouble in Terrorist Town with Discord integration.
 
             ### 📥 Installation
-            1. Download `TTT Discord Bot.exe`
-            2. Create `.env` file (see README)
-            3. Install Lua addon from Steam Workshop
-            4. Run the executable
+            1. Download `TTT-Discord-Bot.zip`
+            2. Extract the ZIP file (contains .exe, chromium/, .env.example)
+            3. Rename `.env.example` to `.env` and fill in your configuration
+            4. Install Lua addon from Steam Workshop
+            5. Run `TTT Discord Bot.exe`
 
             ### 📋 Requirements
             - Windows 10/11
             - Discord Bot Token
+            - Steam API Key
             - Garry's Mod Server with TTT2
+
+            ### 📦 What's included
+            - `TTT Discord Bot.exe` - Main executable
+            - `chromium/` - Bundled Chromium browser (~100MB) for screenshot generation
+            - `.env.example` - Configuration template
           draft: false
           prerelease: false
         env:

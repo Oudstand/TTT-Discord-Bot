@@ -8,3 +8,8 @@ stats_session.png
 .idea
 TTT Discord Bot.exe
 public/js
+
+# Build artifacts
+release/
+chromium/
+TTT-Discord-Bot.zip
