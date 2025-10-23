@@ -14,7 +14,7 @@ router.get('/voice', async (req: Request, res: Response): Promise<void> => {
     try {
         const guild: Guild | null = getGuild();
         if (!guild) {
-            res.status(503).send('Guild nicht bereit');
+            res.status(503).send('Guild not ready');
             return;
         }
 
@@ -35,19 +35,19 @@ router.get('/voice', async (req: Request, res: Response): Promise<void> => {
 
         res.json(results);
     } catch (error) {
-        console.error('❌ Fehler beim Voice-Check:', error);
-        res.status(500).send('Interner Serverfehler beim Voice-Check');
+        console.error('❌ Error during voice check:', error);
+        res.status(500).send('Internal server error during voice check');
     }
 });
 
-// Spieler muten/entmuten per DiscordID
+// Mute/unmute player by DiscordID
 router.post('/mute/:discordId', async (req: Request<DiscordIdParams>, res: Response): Promise<void> => {
     try {
         const result: MuteResult = await setMute(req.params.discordId, true);
         res.status(toHttpStatus(result.code)).json(result);
     } catch (error) {
-        console.error(`❌ Fehler bei /mute/${req.params.discordId}:`, error);
-        res.status(500).send("Ein unerwarteter Fehler ist aufgetreten.");
+        console.error(`❌ Error at /mute/${req.params.discordId}:`, error);
+        res.status(500).send("An unexpected error occurred.");
     }
 });
 router.post('/unmute/:discordId', async (req: Request<DiscordIdParams>, res: Response): Promise<void> => {
@@ -55,19 +55,19 @@ router.post('/unmute/:discordId', async (req: Request<DiscordIdParams>, res: Res
         const result: MuteResult = await setMute(req.params.discordId, false);
         res.status(toHttpStatus(result.code)).json(result);
     } catch (error) {
-        console.error(`❌ Fehler bei /unmute/${req.params.discordId}:`, error);
-        res.status(500).send("Ein unerwarteter Fehler ist aufgetreten.");
+        console.error(`❌ Error at /unmute/${req.params.discordId}:`, error);
+        res.status(500).send("An unexpected error occurred.");
     }
 });
 
-// Alle entmuten
+// Unmute all
 router.post('/unmuteAll', async (req: Request, res: Response): Promise<void> => {
     try {
         const result: MuteResult = await unmuteAll();
         res.status(toHttpStatus(result.code)).json(result);
     } catch (error) {
-        console.error("❌ Fehler bei /unmuteAll:", error);
-        res.status(500).send("Ein unerwarteter Fehler ist aufgetreten.");
+        console.error("❌ Error at /unmuteAll:", error);
+        res.status(500).send("An unexpected error occurred.");
     }
 });
 

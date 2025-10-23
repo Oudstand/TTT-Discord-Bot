@@ -35,14 +35,14 @@ let guild: Guild | null = null;
 
 async function loadGuild() {
     if (!config.guildId) {
-        console.error('❌ Server-ID (GUILD_ID) ist nicht in der Konfiguration gesetzt.');
+        console.error('❌ Guild ID (GUILD_ID) is not set in configuration.');
         return;
     }
 
     try {
         guild = await client.guilds.fetch(config.guildId);
     } catch (error: any) {
-        console.error('❌ Fehler beim Laden der Guild:', error.message);
+        console.error('❌ Error loading guild:', error.message);
     }
 }
 

@@ -8,12 +8,12 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
 
     try {
         // Use 'msedge' channel on Windows to use pre-installed Edge browser
-        // Falls back to bundled Chromium if Edge not found
+        // Fallback to bundled Chromium if Edge not found
         browser = await chromium.launch({
             headless: true,
             channel: 'msedge'
         }).catch(() => {
-            console.log('⚠️ Edge not found, falling back to bundled Chromium');
+            console.log('⚠️  Edge not found, falling back to bundled Chromium');
             return chromium.launch({headless: true});
         });
 
@@ -42,11 +42,11 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
         if (await statsElement.count() > 0) {
             await statsElement.screenshot({path: filename});
         } else {
-            console.error('❌ Tabelle nicht gefunden – mache Full-Page-Screenshot.');
+            console.error('❌ Table not found – taking full-page screenshot.');
             await page.screenshot({path: filename, fullPage: true});
         }
     } catch (error) {
-        console.error('❌ Fehler beim Erstellen des Screenshots:', error);
+        console.error('❌ Error creating screenshot:', error);
     } finally {
         try { await page?.close(); } catch {}
         try { await browser?.close(); } catch {}

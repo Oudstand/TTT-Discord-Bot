@@ -1,4 +1,4 @@
-// app.ts (Haupteinstiegspunkt)
+// app.ts (Main entry point)
 import express, {Request, Response} from 'express';
 import http from 'http';
 import {WebSocketServer} from "ws";
@@ -68,17 +68,17 @@ app.get('/favicon.ico', (req: Request, res: Response): void => {
 // Discord Login & Bot Start
 client.once('ready', async (readyClient: Client) => {
     if (!readyClient.user) {
-        console.error('❌ Client ist bereit, aber der Benutzer konnte nicht ermittelt werden.');
+        console.error('❌ Client is ready, but user could not be determined.');
         return;
     }
 
     await loadGuild();
     await cacheAvatars();
 
-    console.log(`✅  Bot ist bereit als ${readyClient.user.tag}`);
+    console.log(`✅  Bot is ready as ${readyClient.user.tag}`);
 
     server.listen(port, () => {
-        console.log(`🌐 Dashboard läuft auf http://localhost:${port}`)
+        console.log(`🌐 Dashboard running on http://localhost:${port}`)
         openBrowser('http://localhost:3000');
     });
 
@@ -92,7 +92,7 @@ client.once('ready', async (readyClient: Client) => {
 });
 
 if (!config.token) {
-    throw new Error('❌ Discord-Bot-Token (DISCORD_TOKEN) fehlt in der Konfiguration. Der Bot kann nicht gestartet werden.');
+    throw new Error('❌ Discord bot token (DISCORD_TOKEN) is missing from configuration. Bot cannot start.');
 }
 
 void client.login(config.token);

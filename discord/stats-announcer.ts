@@ -16,14 +16,14 @@ class StatsAnnouncer {
 
     constructor(type: StatsType) {
         this.type = type;
-        this.messageName = type === 'all' ? 'Gesamt-Statistik' : 'Session-Statistik';
+        this.messageName = type === 'all' ? 'Total Statistics' : 'Session Statistics';
         this.metaKey = type === 'all' ? 'statsMessageIdAll' : 'statsMessageIdSession';
         this.content = type === 'all' ? `\u200B**🏆 TTT ${this.messageName}**` : `\u200B**📊 TTT ${this.messageName}**`;
         this.imagePath = `stats_${type}.png`;
     }
 
     /**
-     * Aktualisiert die gespeicherte Nachricht mit dem neuen Embed.
+     * Updates the stored message with the new embed.
      */
     public async update(): Promise<void> {
         if (!this.message) {
@@ -36,8 +36,8 @@ class StatsAnnouncer {
             const attachment: AttachmentBuilder = new AttachmentBuilder(this.imagePath);
             await this.message.edit({content: this.content, files: [attachment]});
         } catch (error: any) {
-            console.error(`❌ Fehler beim Aktualisieren der ${this.messageName}-Nachricht:`, error.message);
-            // Fehler 10008 = "Unknown Message", tritt auf, wenn die Nachricht gelöscht wurde.
+            console.error(`❌ Error updating ${this.messageName} message:`, error.message);
+            // Error 10008 = "Unknown Message", occurs when the message was deleted
             if (error.code === 10008) {
                 this.message = null;
                 set(this.metaKey, undefined);
@@ -47,13 +47,13 @@ class StatsAnnouncer {
     }
 
     /**
-     * Sucht eine bestehende Statistik-Nachricht oder erstellt eine neue.
+     * Finds an existing statistics message or creates a new one.
      */
     private async initializeStatsMessage(): Promise<void> {
         if (this.message) return;
 
         if (!config.statsChannelId) {
-            console.error('❌ Statistik-Kanal-ID (STATS_CHANNEL_ID) ist nicht in der Konfiguration gesetzt.');
+            console.error('❌ Stats channel ID (STATS_CHANNEL_ID) is not set in configuration.');
             return;
         }
 
@@ -61,7 +61,7 @@ class StatsAnnouncer {
         try {
             const channel: Channel | null = await client.channels.fetch(config.statsChannelId);
             if (!channel || !(channel instanceof TextChannel)) {
-                console.error(`❌ Statistik-Kanal mit ID ${config.statsChannelId} nicht gefunden.`);
+                console.error(`❌ Stats channel with ID ${config.statsChannelId} not found.`);
                 return;
             }
 
@@ -70,30 +70,30 @@ class StatsAnnouncer {
                 try {
                     this.message = await channel.messages.fetch(messageId);
                 } catch (error: any) {
-                    // Fehler 10008 = "Unknown Message", d.h. sie wurde gelöscht
+                    // Error 10008 = "Unknown Message", i.e. it was deleted
                     if (error.code === 10008) {
-                        console.log(`🔎 ${this.messageName}-Nachricht wurde gelöscht. Erstelle eine neue.`);
+                        console.log(`🔎 ${this.messageName} message was deleted. Creating new one.`);
                         set(this.metaKey, undefined);
                         await this.createNewMessage(channel);
                     } else {
-                        console.error(`❌ Fehler beim Abrufen der ${this.messageName}-Statistik-Nachricht (ID: ${messageId})`, error.message);
+                        console.error(`❌ Error fetching ${this.messageName} stats message (ID: ${messageId})`, error.message);
                     }
                 }
             } else {
                 await this.createNewMessage(channel);
             }
         } catch (error) {
-            console.error(`❌ Fehler bei der Initialisierung der ${this.messageName}-Statistik-Nachricht:`, error);
+            console.error(`❌ Error initializing ${this.messageName} stats message:`, error);
         }
     }
 
     private async createNewMessage(channel: TextChannel): Promise<void> {
         try {
-            const msg = await channel.send({content: `*${this.messageName} wird initialisiert...*`});
+            const msg = await channel.send({content: `*${this.messageName} is being initialized...*`});
             this.message = msg;
             set(this.metaKey, msg.id);
         } catch (error) {
-            console.error(`❌ Fehler beim Erstellen einer neuen ${this.messageName}-Nachricht:`, error);
+            console.error(`❌ Error creating new ${this.messageName} message:`, error);
         }
     }
 }

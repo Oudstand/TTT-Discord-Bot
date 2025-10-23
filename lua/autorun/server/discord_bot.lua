@@ -11,7 +11,7 @@ local DeadPlayers = {}
 local RoundStats = {}
 local preEHP = {}
 
--- ========= Helpers =========
+-- ========= Helper Functions =========
 local function IsValidPlayer(ply)
     return IsValid(ply) and ply:IsPlayer() and not ply:IsBot()
 end

@@ -25,7 +25,7 @@ router.post('/roundStart', async (req: Request, res: Response, next: NextFunctio
     }
 });
 
-// Spieler gestorben => muten per SteamID
+// Player died => mute by SteamID
 router.post('/dead', async (req: Request<{}, {}, SteamIdBody>, res: Response, next: NextFunction): Promise<void> => {
     try {
         if (isRoundActive()) {
@@ -38,7 +38,7 @@ router.post('/dead', async (req: Request<{}, {}, SteamIdBody>, res: Response, ne
     }
 });
 
-// Spieler gespawned => entmuten per SteamID
+// Player spawned => unmute by SteamID
 router.post('/spawn', async (req: Request<{}, {}, SteamIdBody>, res: Response, next: NextFunction): Promise<void> => {
     try {
         return await setMuteBySteamId(req.body.steamId, false, res);
@@ -49,12 +49,12 @@ router.post('/spawn', async (req: Request<{}, {}, SteamIdBody>, res: Response, n
 
 async function setMuteBySteamId(steamId: string, mute: boolean, res: Response): Promise<void> {
     if (!steamId) {
-        return void res.status(400).send('SteamID fehlt');
+        return void res.status(400).send('SteamID missing');
     }
 
     const binding: Binding | null = getBinding(steamId);
     if (!binding) {
-        return void res.status(404).send(`Binding für die SteamID ${steamId} nicht gefunden`);
+        return void res.status(404).send(`Binding for SteamID ${steamId} not found`);
     }
 
     const result: MuteResult = await setMute(binding.discordId, mute);
@@ -67,11 +67,11 @@ router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Respons
         void unmuteAll();
         const {players} = req.body;
         if (!Array.isArray(players)) {
-            res.status(400).send('Spielerliste fehlt oder ist kein Array.');
+            res.status(400).send('Player list missing or not an array.');
             return;
         }
 
-        console.log('📊 Rundenende empfangen, Statistiken werden aktualisiert...');
+        console.log('📊 Round end received, updating statistics...');
 
         updateStats(players);
 
@@ -88,10 +88,10 @@ router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Respons
             });
         }
 
-        res.status(200).send('Rundenende erfolgreich verarbeitet.');
+        res.status(200).send('Round end processed successfully.');
     } catch (error) {
-        console.error("❌ Fehler bei der Verarbeitung des Rundenendes:", error);
-        res.status(500).send("Interner Serverfehler beim Verarbeiten des Rundenendes.");
+        console.error("❌ Error processing round end:", error);
+        res.status(500).send("Internal server error processing round end.");
     }
 });
 

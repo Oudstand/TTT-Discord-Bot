@@ -1,7 +1,7 @@
 {
   "name": "ttt-discord-bot",
   "version": "1.0.0",
-  "description": "Ein Discord-Bot zur automatischen Mute-/Unmute-Steuerung für TTT und Darstellung von Statistiken.",
+  "description": "A Discord bot for automatic mute/unmute control in Trouble in Terrorist Town (Garry's Mod) with statistics tracking and web dashboard.",
   "author": "Oudstand",
   "main": "app.ts",
   "scripts": {

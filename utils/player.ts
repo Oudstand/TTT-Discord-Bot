@@ -24,7 +24,7 @@ async function cacheAvatars(): Promise<void> {
             players.forEach((player: SteamPlayer) => steamAvatarMap.set(player.steamid, player.avatarfull ?? fallBackAvatarUrl));
         }
     } catch (error) {
-        console.error('❌ Fehler beim Cachen der Steam-Avatare', error);
+        console.error('❌ Error caching Steam avatars', error);
     }
 
     // cache discord avatars
@@ -39,10 +39,10 @@ async function cacheAvatars(): Promise<void> {
                 }
             });
         } else {
-            console.error(`❌ Guild wurde nicht gefunden oder ist nicht verfügbar`);
+            console.error(`❌ Guild not found or not available`);
         }
     } catch (error) {
-        console.error('❌ Fehler beim Cachen der Discord-Avatare', error);
+        console.error('❌ Error caching Discord avatars', error);
     }
 }
 
@@ -67,10 +67,10 @@ async function getSteamAvatarUrl(steamId?: string): Promise<string> {
                 url = player.avatarfull;
             }
         } else {
-            console.error(`❌ Fehler bei der Steam API-Anfrage für Steam-ID "${steamId}":`, response.statusText);
+            console.error(`❌ Error with Steam API request for Steam ID "${steamId}":`, response.statusText);
         }
     } catch (error) {
-        console.error(`❌ Fehler bei der Steam API-Anfrage für Steam-ID "${steamId}":`, error);
+        console.error(`❌ Error with Steam API request for Steam ID "${steamId}":`, error);
     }
 
     steamAvatarMap.set(steamId, url);
@@ -97,13 +97,13 @@ async function getDiscordAvatarUrl(steamId: string): Promise<string> {
                     url = member.user.avatarURL()!;
                 }
             } else {
-                console.error(`❌ Guild wurde nicht gefunden oder ist nicht verfügbar`);
+                console.error(`❌ Guild not found or not available`);
             }
         } else {
-            console.error(`❌ Binding konnte für die Steam-ID "${steamId}" nicht gefunden werden.`);
+            console.error(`❌ Binding not found for Steam ID "${steamId}".`);
         }
     } catch (error) {
-        console.error('❌ Fehler beim Anfragen der Avatar-URL:', error);
+        console.error('❌ Error fetching avatar URL:', error);
     }
 
     discordAvatarMap.set(steamId, url);

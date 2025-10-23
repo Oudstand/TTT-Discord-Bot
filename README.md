@@ -4,33 +4,33 @@
 
 ![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)
 
-🎮 Ein Discord-Bot zur automatischen Mute-/Unmute-Steuerung für Trouble in Terrorist Town (Garry's Mod), inkl. Web-Dashboard, Spielerbindungen und Statistiken.
+🎮 A Discord bot for automatic mute/unmute control in Trouble in Terrorist Town (Garry's Mod), including web dashboard, player bindings, and statistics.
 
 ---
 
 ## ⚡ Features
 
-- Automatisches Muten/Entmuten der Spieler im Discord-Voice-Channel, basierend auf Spielereignissen.
-- Web-Dashboard für den Einblick in Statistiken, Verwaltung der Bindings, Übersicht wer im Discord ist
-  - Bindings (SteamID ↔ DiscordID ↔ Name).
-  - Statistiken (insgesamt und pro Session):
-    - Kills, Team-Kills, Tode, K/D
-    - Siege, Niederlagen, Winrate
-    - Schaden, Teamschaden, Traitor-Runden
-- Statistiken werden zusätzlich am Ende jeder Runde in einem Discord-Kanal gepostet.
-- Persistente Speicherung in einer SQLite-Datenbank (via `bun:sqlite`).
+- Automatic muting/unmuting of players in Discord voice channels based on in-game events
+- Web dashboard for statistics overview, bindings management, and Discord voice channel monitoring
+  - Bindings (SteamID ↔ DiscordID ↔ Name)
+  - Statistics (total and per session):
+    - Kills, Team Kills, Deaths, K/D Ratio
+    - Wins, Losses, Winrate
+    - Damage, Team Damage, Traitor Rounds
+- Statistics are automatically posted to a Discord channel at the end of each round
+- Persistent storage in SQLite database (via `bun:sqlite`)
 
 ![TTT Dashboard Screenshot](dashboard.png)
-*Die Namen, Avatare, SteamIDs und DiscordIDs wurden im Screenshot anonymisiert.*
+*Names, avatars, SteamIDs, and DiscordIDs have been anonymized in this screenshot.*
 
 ---
 
-## 🗃️ Datenbank
+## 🗃️ Database
 
-Dieses Projekt nutzt `bun:sqlite`:
+This project uses `bun:sqlite`:
 
-- Datenbank-Datei: `database.sqlite` (wird beim Start automatisch erstellt)
-- Tabellen:
+- Database file: `database.sqlite` (created automatically on first run)
+- Tables:
   - bindings → SteamID, DiscordID, Name
   - stats → SteamID, Name, Kills, TeamKills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
   - stats_session → SteamID, Name, Kills, TeamKills, Deaths, Wins, Losses, TraitorRounds, Damage, TeamDamage
@@ -39,78 +39,84 @@ Dieses Projekt nutzt `bun:sqlite`:
 
 ## ⚙️ Setup & Installation
 
-### 1. Voraussetzungen
+### 1. Requirements
 
-- **Bun:** Lade Bun herunter und installiere es von der [offiziellen Webseite](https://bun.sh/).
-- **Garry's Mod** mit **Trouble in Terrorist Town**.
-- **Steam API-Schlüssel** über [steamcommunity.com/dev/apikey](https://steamcommunity.com/dev/apikey) anlegen
+- **Bun:** Download and install Bun from the [official website](https://bun.sh/)
+- **Garry's Mod** with **Trouble in Terrorist Town**
+- **Steam API Key** from [steamcommunity.com/dev/apikey](https://steamcommunity.com/dev/apikey)
 
-### 2. Projekt herunterladen
+### 2. Download Project
 
-Lade den Code herunter oder klone das Repository:
+Download the code or clone the repository:
 ```bash
-git clone [https://github.com/Oudstand/TTT-Discord-Bot.git](https://github.com/Oudstand/TTT-Discord-Bot.git)
+git clone https://github.com/Oudstand/TTT-Discord-Bot.git
 cd TTT-Discord-Bot
-````
+```
 
-### 3. Discord Bot
+### 3. Discord Bot Setup
 
-- Erstellen einen Bot in dem [Discord Developer Portal](https://discord.com/developers/applications)
-- Zum Server hinzufügen:
-  - Auf den Reiter `OAuth2` wechseln.
-  - Dort unter `OAuth2 URL Generator` unter `SCOPES` `bot` auswählen.
-  - Anschließend unter `BOT PERMISSIONS` `Send Messages` und `Mute Members` auswählen.
-  - Mit dem unten stehenden Link den Bot zum Server hinzufügen.
-- Kopiere die .env.example-Datei zu .env und fülle die Werte aus:
-  - `STEAM_API_KEY`: Dein Steam API-Schlüssel
-  - `DISCORD_TOKEN`: Der Token deines Bots
-  - `GUILD_ID`: Die ID deines Discord-Servers
-  - `COMMAND_CHANNEL_ID`: ID des Kanals für den Mute-Button
-  - `STATS_CHANNEL_ID`: ID des Kanals für die Statistik-Nachrichten
-  
-### 4. Lokales Netzwerk für GMod einrichten (nur Windows)
-Damit Garry's Mod mit dem Bot kommunizieren kann, muss eine spezielle Loopback-Adresse eingerichtet werden.
-1. **IP hinzufügen:** Öffne eine Eingabeaufforderung als Administrator und führe aus:
+- Create a bot in the [Discord Developer Portal](https://discord.com/developers/applications)
+- Add the bot to your server:
+  - Go to the `OAuth2` tab
+  - Under `OAuth2 URL Generator`, select `bot` under `SCOPES`
+  - Under `BOT PERMISSIONS`, select `Send Messages` and `Mute Members`
+  - Use the generated link to invite the bot to your server
+- Copy `.env.example` to `.env` and fill in the values:
+  - `STEAM_API_KEY`: Your Steam API key
+  - `DISCORD_TOKEN`: Your bot's token
+  - `GUILD_ID`: Your Discord server ID
+  - `COMMAND_CHANNEL_ID`: Channel ID for the unmute button
+  - `STATS_CHANNEL_ID`: Channel ID for statistics messages
+
+### 4. Local Network Setup for GMod (Windows only)
+
+To allow Garry's Mod to communicate with the bot, a special loopback address must be configured.
+
+1. **Add IP address:** Open Command Prompt as Administrator and run:
   ```bash
   netsh interface ipv4 add address "Loopback Pseudo-Interface 1" 192.178.0.1 255.255.255.255
   ```
-2. **Hosts-Datei bearbeiten:** Füge die folgende Zeile am Ende deiner Hosts-Datei (`C:\Windows\System32\drivers\etc\hosts`) hinzu:
-  ```bash 
+2. **Edit hosts file:** Add the following line at the end of your hosts file (`C:\Windows\System32\drivers\etc\hosts`):
+  ```bash
   192.178.0.1    ttthost
   ```
 
-### 5. GMod Addon installieren
-Verschiebe die Datei `lua/autorun/server/discord_bot.lua` in deinen GMod-Serverordner: `<pfad-zu-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
+### 5. Install GMod Addon
 
-### 6. Abhängigkeiten installieren
-Führe im Projektordner folgenden Befehl aus:
+Move the file `lua/autorun/server/discord_bot.lua` to your GMod server folder: `<path-to-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`.
+
+### 6. Install Dependencies
+
+Run the following command in the project folder:
   ```bash
   bun install
   ```
 
 ---
 
-## 🔥 Ausführen
+## 🔥 Running the Bot
 
-### Bot starten
-Führe im Projektordner aus:
+### Start Bot
+
+Run in the project folder:
 
 ```bash
 bun start
 ```
 
-Das Dashboard ist dann unter http://localhost:3000 erreichbar.
+The dashboard will then be available at http://localhost:3000.
 
 
-### Standalone .exe erstellen
-Du kannst eine einzelne, portable `.exe`-Datei erstellen:
-1. **Bauen:**
+### Build Standalone .exe
+
+You can create a single, portable `.exe` file:
+1. **Build:**
   ```bash
   bun run build
   ```
-2. **Ausführen:**
-- Nimm die erstellte `TTT Discord Bot.exe`
-- Lege deine `.env`-Datei in denselben Ordner
-- Starte die `.exe`
+2. **Run:**
+- Take the created `TTT Discord Bot.exe`
+- Place your `.env` file in the same folder
+- Start the `.exe`
 
-**Hinweis:** Die `.exe` nutzt Microsoft Edge (auf Windows 10/11 vorinstalliert) für Screenshot-Generierung. Keine zusätzliche Browser-Installation nötig!
+**Note:** The `.exe` uses Microsoft Edge (pre-installed on Windows 10/11) for screenshot generation. No additional browser installation required!
