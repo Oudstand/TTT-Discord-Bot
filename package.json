@@ -5,6 +5,7 @@
   "author": "Oudstand",
   "main": "app.ts",
   "scripts": {
+    "postinstall": "playwright install chromium",
     "prestart": "bun run build:frontend",
     "start": "bun run app.ts",
     "dev": "bun run --watch app.ts",
