@@ -19,7 +19,8 @@
         }
 
         .collapsible-content.open {
-            max-height: 100vh;
+            max-height: none;
+            overflow: visible;
         }
 
         .chevron-icon {
@@ -35,12 +36,7 @@
 <div class="container mx-auto px-2 py-6">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold" data-i18n="header.title">TTT Dashboard</h1>
-        <div class="flex items-center gap-4">
-            <button id="lang-switcher" class="text-sm bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded-lg transition" data-i18n="lang.switch">
-                Switch to English
-            </button>
-            <span id="status" class="text-sm text-gray-300" data-i18n="header.loading">🔄 Loading...</span>
-        </div>
+        <span id="status" class="text-sm text-gray-300" data-i18n="header.loading">🔄 Loading...</span>
     </div>
 
     <div class="mb-4">

@@ -142,13 +142,7 @@ class I18n {
             return storedLang;
         }
 
-        // 3. Detect browser language
-        const browserLang = navigator.language.toLowerCase();
-        if (browserLang.startsWith('de')) {
-            return 'de';
-        }
-
-        // 4. Default to English
+        // 3. Default to English
         return 'en';
     }
 
@@ -195,12 +189,6 @@ class I18n {
                 element.setAttribute('title', this.t(key));
             }
         });
-
-        // Update language button text
-        const langButton = document.getElementById('lang-switcher');
-        if (langButton) {
-            langButton.textContent = this.t('lang.switch');
-        }
     }
 
     public toggleLanguage(): void {

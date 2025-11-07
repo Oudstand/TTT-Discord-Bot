@@ -12,6 +12,7 @@
 
 - Automatic muting/unmuting of players in Discord voice channels based on in-game events
 - Web dashboard for statistics overview, bindings management, and Discord voice channel monitoring
+  - **Multi-language support:** Dashboard available in English and German (configurable via `.env`)
   - Bindings (SteamID ↔ DiscordID ↔ Name)
   - Statistics (total and per session):
     - Kills, Team Kills, Deaths, K/D Ratio
@@ -19,6 +20,8 @@
     - Damage, Team Damage, Traitor Rounds
 - Statistics are automatically posted to a Discord channel at the end of each round
 - Persistent storage in SQLite database (via `bun:sqlite`)
+- Screenshot generation using **Playwright** with Microsoft Edge (pre-installed on Windows 10/11)
+- Automated builds and releases via **GitHub Actions**
 
 ![TTT Dashboard Screenshot](dashboard.png)
 *Names, avatars, SteamIDs, and DiscordIDs have been anonymized in this screenshot.*
@@ -67,6 +70,7 @@ cd TTT-Discord-Bot
   - `GUILD_ID`: Your Discord server ID
   - `COMMAND_CHANNEL_ID`: Channel ID for the unmute button
   - `STATS_CHANNEL_ID`: Channel ID for statistics messages
+  - `DASHBOARD_LANGUAGE`: Dashboard language (`en` for English, `de` for German, default: `en`)
 
 ### 4. Local Network Setup for GMod (Windows only)
 
@@ -105,6 +109,9 @@ bun start
 ```
 
 The dashboard will then be available at http://localhost:3000.
+
+**Language Selection:**
+The dashboard opens in the language specified in your `.env` file (`DASHBOARD_LANGUAGE`). You can also manually change the language by adding `?lang=en` or `?lang=de` to the URL.
 
 
 ### Build Standalone .exe

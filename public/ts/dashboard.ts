@@ -5,11 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize i18n and update DOM
     i18n.updateDOM();
 
-    // Setup language switcher
-    const langSwitcher = document.getElementById('lang-switcher');
-    langSwitcher?.addEventListener('click', () => {
-        i18n.toggleLanguage();
-    });
     // --- Element-Caching ---
     function $<T extends HTMLElement>(selector: string): T | null {
         return document.querySelector<T>(selector);

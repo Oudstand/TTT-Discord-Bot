@@ -79,7 +79,8 @@ client.once('ready', async (readyClient: Client) => {
 
     server.listen(port, () => {
         console.log(`🌐 Dashboard running on http://localhost:${port}`)
-        openBrowser('http://localhost:3000');
+        const language = config.dashboardLanguage || 'en';
+        openBrowser(`http://localhost:3000?lang=${language}`);
     });
 
     resetSessionStats();
