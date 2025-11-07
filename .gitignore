@@ -9,6 +9,10 @@ stats_session.png
 TTT Discord Bot.exe
 public/js
 
+# Compiled JavaScript files
+*.js
+!lua/**/*.js
+
 # Build artifacts
 release/
 chromium/
