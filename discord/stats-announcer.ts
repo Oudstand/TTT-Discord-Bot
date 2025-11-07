@@ -14,11 +14,12 @@ class StatsAnnouncer {
     private readonly metaKey: 'statsMessageIdAll' | 'statsMessageIdSession';
     private readonly content: string;
     private readonly imagePath: ScreenshotPath;
+    private readonly lang: Language;
 
     constructor(type: StatsType) {
         this.type = type;
-        const lang = (config.dashboardLanguage || 'en') as Language;
-        this.messageName = type === 'all' ? t('discord.stats.total', lang) : t('discord.stats.session', lang);
+        this.lang = (config.dashboardLanguage || 'en') as Language;
+        this.messageName = type === 'all' ? t('discord.stats.total', this.lang) : t('discord.stats.session', this.lang);
         this.metaKey = type === 'all' ? 'statsMessageIdAll' : 'statsMessageIdSession';
         this.content = type === 'all' ? `\u200B**🏆 TTT ${this.messageName}**` : `\u200B**📊 TTT ${this.messageName}**`;
         this.imagePath = `stats_${type}.png`;
@@ -74,7 +75,7 @@ class StatsAnnouncer {
                 } catch (error: any) {
                     // Error 10008 = "Unknown Message", i.e. it was deleted
                     if (error.code === 10008) {
-                        console.log(`🔎 ${this.messageName} message was deleted. Creating new one.`);
+                        console.log(`🔎 ${this.messageName} ${t('discord.stats.messageDeleted', this.lang)}`);
                         set(this.metaKey, undefined);
                         await this.createNewMessage(channel);
                     } else {

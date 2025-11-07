@@ -25,6 +25,7 @@ import dashboardJs from "./public/js/dashboard.js" with {type: "text"};
 import {cacheAvatars} from "./utils/player";
 import {readFileSync} from 'fs';
 import {join} from 'path';
+import {t, Language} from './i18n/translations';
 
 const app = express();
 const port = 3000;
@@ -84,12 +85,12 @@ client.once('ready', async (readyClient: Client) => {
     await loadGuild();
     await cacheAvatars();
 
-    console.log(`✅  Bot is ready as ${readyClient.user.tag}`);
+    const lang = (config.dashboardLanguage || 'en') as Language;
+    console.log(`✅  ${t('console.botReady', lang)} ${readyClient.user.tag}`);
 
     server.listen(port, () => {
-        console.log(`🌐 Dashboard running on http://localhost:${port}`)
-        const language = config.dashboardLanguage || 'en';
-        openBrowser(`http://localhost:3000?lang=${language}`);
+        console.log(`🌐 ${t('console.dashboardRunning', lang)} http://localhost:${port}`)
+        openBrowser(`http://localhost:3000?lang=${lang}`);
     });
 
     resetSessionStats();

@@ -63,6 +63,7 @@ export const translations: Record<Language, Translations> = {
         // Discord - Stats announcer
         'discord.stats.total': 'Gesamt-Statistik',
         'discord.stats.session': 'Session-Statistik',
+        'discord.stats.messageDeleted': 'Nachricht wurde gelöscht. Erstelle neue.',
 
         // Discord - Unmute button
         'discord.button.unmute': 'Entmute dich selbst',
@@ -70,6 +71,10 @@ export const translations: Record<Language, Translations> = {
         'discord.button.unmuteError': '❌ Fehler beim Entmuten.',
         'discord.button.notInVoice': '❌ Du bist nicht in einem Voice-Channel.',
         'discord.button.guildNotFound': '❌ Fehler: Server nicht gefunden.',
+
+        // Console logs
+        'console.botReady': 'Bot ist bereit als',
+        'console.dashboardRunning': 'Dashboard läuft auf',
     },
     en: {
         // Dashboard - Header
@@ -127,6 +132,7 @@ export const translations: Record<Language, Translations> = {
         // Discord - Stats announcer
         'discord.stats.total': 'Total Statistics',
         'discord.stats.session': 'Session Statistics',
+        'discord.stats.messageDeleted': 'message was deleted. Creating new one.',
 
         // Discord - Unmute button
         'discord.button.unmute': 'Unmute yourself',
@@ -134,6 +140,10 @@ export const translations: Record<Language, Translations> = {
         'discord.button.unmuteError': '❌ Error unmuting.',
         'discord.button.notInVoice': '❌ You are not in a voice channel.',
         'discord.button.guildNotFound': '❌ Error: Guild not found.',
+
+        // Console logs
+        'console.botReady': 'Bot is ready as',
+        'console.dashboardRunning': 'Dashboard running on',
     }
 };
 
