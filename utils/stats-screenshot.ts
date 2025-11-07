@@ -1,5 +1,5 @@
 // utils/stats-screenshot.ts
-import {chromium, Browser, Page} from "playwright";
+import puppeteer, {Browser, Page} from "puppeteer";
 import {ScreenshotPath, StatsType} from "../types";
 import config from "../config";
 
@@ -8,32 +8,19 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
     let page: Page | null = null;
 
     try {
-        // Try to use pre-installed browsers: Edge (Windows 10/11) or Chrome
-        try {
-            browser = await chromium.launch({
-                headless: true,
-                channel: 'msedge'
-            });
-        } catch {
-            console.log('⚠️  Edge not found, trying Chrome');
-            try {
-                browser = await chromium.launch({
-                    headless: true,
-                    channel: 'chrome'
-                });
-            } catch {
-                throw new Error('No supported browser found. Please install Microsoft Edge or Google Chrome.');
-            }
-        }
+        browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
 
         page = await browser.newPage();
-        await page.setViewportSize({width: 1600, height: 900});
+        await page.setViewport({width: 1600, height: 900});
 
         const tableId = type === 'session' ? '#statsTableSession' : '#statsTableAll';
         const language = config.dashboardLanguage || 'en';
         const url = `http://localhost:3000/?lang=${language}`;
 
-        await page.goto(url, {waitUntil: 'networkidle'});
+        await page.goto(url, {waitUntil: 'networkidle0'});
         await page.waitForSelector(`${tableId} tr`);
         await page.waitForFunction(
             (sel) => {
@@ -41,15 +28,15 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
                 if (!el) return false;
                 const rows = el.querySelectorAll('tr');
                 return rows.length > 1 && (el as HTMLElement).offsetParent !== null;
-            }, tableId);
+            }, {}, tableId);
 
         await page.evaluate((sel) => {
             const el = document.querySelector(sel);
             el?.scrollIntoView({block: 'center', inline: 'center'});
         }, tableId);
 
-        const statsElement = await page.locator(tableId);
-        if (await statsElement.count() > 0) {
+        const statsElement = await page.$(tableId);
+        if (statsElement) {
             await statsElement.screenshot({path: filename});
         } else {
             console.error('❌ Table not found – taking full-page screenshot.');

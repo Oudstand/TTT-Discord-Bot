@@ -10,12 +10,13 @@
     "dev": "bun run --watch app.ts",
     "build:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --minify",
     "watch:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --watch --minify",
-    "build": "bun run build:frontend && bun build ./app.ts --compile --outfile \"TTT Discord Bot.exe\" --external playwright --external playwright-core"
+    "build": "bun run build:frontend && bun build ./app.ts --compile --outfile \"TTT Discord Bot.exe\"",
+    "postinstall": "node node_modules/puppeteer/install.mjs"
   },
   "dependencies": {
     "discord.js": "^14.21.0",
     "express": "^5.1.0",
-    "playwright": "^1.48.2",
+    "puppeteer": "^23.11.1",
     "ws": "^8.18.3"
   },
   "devDependencies": {

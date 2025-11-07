@@ -20,7 +20,7 @@
     - Damage, Team Damage, Traitor Rounds
 - Statistics are automatically posted to a Discord channel at the end of each round
 - Persistent storage in SQLite database (via `bun:sqlite`)
-- Screenshot generation using **Playwright** with Microsoft Edge (pre-installed on Windows 10/11)
+- Screenshot generation using **Puppeteer** with bundled Chromium (fully standalone)
 - Automated builds and releases via **GitHub Actions**
 
 ![TTT Dashboard Screenshot](dashboard.png)
@@ -126,4 +126,4 @@ You can create a single, portable `.exe` file:
 - Place your `.env` file in the same folder
 - Start the `.exe`
 
-**Note:** The `.exe` uses Microsoft Edge (pre-installed on Windows 10/11) for screenshot generation. No additional browser installation required!
+**Note:** The `.exe` bundles Chromium internally for screenshot generation. The executable is fully standalone and portable - no additional browser installation required!
