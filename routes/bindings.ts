@@ -6,6 +6,10 @@ import {Guild, GuildMember} from "discord.js";
 import {Binding, BindingWithAvatar} from "../types";
 import {fallBackAvatarUrl, getSteamAvatarUrl} from "../utils/player";
 import {updateNameInStats} from "../storage/stats-store";
+import config from "../config";
+import {t, Language} from "../i18n/translations";
+
+const lang = () => (config.language || 'en') as Language;
 
 const router: Router = express.Router();
 
@@ -36,7 +40,7 @@ router.get('/bindings', async (req: Request, res: Response): Promise<void> => {
 
         res.json(bindings);
     } catch (error) {
-        console.error('❌ Error fetching bindings:', error);
+        console.error(`❌ ${t('routes.errorFetchingBindings', lang())}`, error);
         res.status(500).send('Internal server error');
     }
 });
@@ -51,7 +55,7 @@ router.get('/bindings/:steamId', (req: Request<{ steamId: string }>, res: Respon
             res.status(404).send('Binding not found');
         }
     } catch (error) {
-        console.error('❌ Error fetching single binding:', error);
+        console.error(`❌ ${t('routes.errorFetchingSingleBinding', lang())}`, error);
         res.status(500).send('Internal server error');
     }
 });
@@ -69,7 +73,7 @@ router.post('/bindings', (req: Request<{}, {}, Binding>, res: Response): void =>
         updateNameInStats(steamId, name);
         res.status(200).send('Binding saved successfully.');
     } catch (error) {
-        console.error('❌ Error saving binding:', error);
+        console.error(`❌ ${t('routes.errorSavingBinding', lang())}`, error);
         res.status(500).send('Internal server error');
     }
 });
@@ -81,7 +85,7 @@ router.delete('/bindings/:steamId', (req: Request<{ steamId: string }>, res: Res
         deleteBinding(steamId);
         res.status(200).send('Binding deleted successfully.');
     } catch (error) {
-        console.error('❌ Error deleting binding:', error);
+        console.error(`❌ ${t('routes.errorDeletingBinding', lang())}`, error);
         res.status(500).send('Internal server error');
     }
 });

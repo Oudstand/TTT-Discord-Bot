@@ -22,7 +22,7 @@ import openBrowser from "./utils/open-browser";
 
 import indexHtml from "./public/index.html" with {type: "text"};
 import dashboardJs from "./public/js/dashboard.js" with {type: "text"};
-import faviconIco from "./public/favicon.ico" with {type: "file"};
+import {faviconBase64} from './favicon-embedded';
 import {cacheAvatars} from "./utils/player";
 import {t, Language} from './i18n/translations';
 
@@ -63,14 +63,15 @@ app.get('/js/dashboard.js', (_req: Request, res: Response): void => {
 
 app.get('/favicon.ico', (_req: Request, res: Response): void => {
     res.setHeader('Content-Type', 'image/x-icon');
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
-    res.send(faviconIco);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    const buffer = Buffer.from(faviconBase64, 'base64');
+    res.send(buffer);
 });
 
 // Discord Login & Bot Start
 client.once('ready', async (readyClient: Client) => {
     if (!readyClient.user) {
-        console.error('❌ Client is ready, but user could not be determined.');
+        console.error(`❌ ${t('config.clientUserNotDetermined', (config.language || 'en') as Language)}`);
         return;
     }
 
@@ -87,8 +88,11 @@ client.once('ready', async (readyClient: Client) => {
 
     resetSessionStats();
 
-    await updateStatsMessage('all');
-    await updateStatsMessage('session');
+    // Small delay to let Edge initialize properly on first launch
+    setTimeout(async () => {
+        await updateStatsMessage('all');
+        await updateStatsMessage('session');
+    }, 2000);
 
     await createUnmuteButton();
     setupButtonInteraction();

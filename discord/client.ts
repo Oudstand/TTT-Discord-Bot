@@ -3,6 +3,9 @@ import {Client, GatewayIntentBits, Guild, Partials, VoiceState} from 'discord.js
 import {getWebSocketServer} from '../websocket-service';
 import WebSocket, {WebSocketServer} from 'ws';
 import config from '../config';
+import {t, Language} from '../i18n/translations';
+
+const lang = () => (config.language || 'en') as Language;
 
 const client: Client = new Client({
     intents: [
@@ -35,14 +38,14 @@ let guild: Guild | null = null;
 
 async function loadGuild() {
     if (!config.guildId) {
-        console.error('❌ Guild ID (GUILD_ID) is not set in configuration.');
+        console.error(`❌ ${t('config.guildIdNotSet', lang())}`);
         return;
     }
 
     try {
         guild = await client.guilds.fetch(config.guildId);
     } catch (error: any) {
-        console.error('❌ Error loading guild:', error.message);
+        console.error(`❌ ${t('discord.errorLoadingGuild', lang())}`, error.message);
     }
 }
 

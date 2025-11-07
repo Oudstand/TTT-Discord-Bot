@@ -25,7 +25,7 @@
     - Damage, Team Damage, Traitor Rounds
 - Statistics are automatically posted to a Discord channel at the end of each round
 - Persistent storage in SQLite database (via `bun:sqlite`)
-- Screenshot generation using **Puppeteer** with bundled Chromium (fully standalone)
+- Screenshot generation using **Puppeteer** with Microsoft Edge (pre-installed on Windows 10/11)
 - Automated builds and releases via **GitHub Actions**
 
 ![TTT Dashboard Screenshot](dashboard.png)
@@ -50,7 +50,7 @@ This project uses `bun:sqlite`:
 
 ## 📋 Requirements
 
-- **Windows 10/11**
+- **Windows 10/11** (Microsoft Edge is used for screenshot generation)
 - **Garry's Mod** with **Trouble in Terrorist Town**
 - **Discord Bot** (create one in the [Discord Developer Portal](https://discord.com/developers/applications))
 - **Steam API Key** from [steamcommunity.com/dev/apikey](https://steamcommunity.com/dev/apikey)
@@ -142,7 +142,7 @@ The easiest way to use the bot is to download the pre-built executable from GitH
 **Language Selection:**
 The dashboard opens in the language specified in your `.env` file (`LANGUAGE`). You can also manually change the language by adding `?lang=en` or `?lang=de` to the URL.
 
-**Note:** The `.exe` bundles Chromium internally for screenshot generation. The executable is fully standalone and portable - no additional browser installation required!
+**Note:** The `.exe` is fully standalone and portable. Screenshot generation uses Microsoft Edge, which is pre-installed on Windows 10/11.
 
 ---
 

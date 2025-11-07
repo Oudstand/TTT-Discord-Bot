@@ -1,4 +1,10 @@
 // utils/open-browser.ts
+import config from "../config";
+import {t, Language} from "../i18n/translations";
+
+function lang(): Language {
+    return (config.language || 'en') as Language;
+}
 
 function openBrowser(url: string): void {
     const platform = process.platform;
@@ -11,7 +17,7 @@ function openBrowser(url: string): void {
             Bun.spawn(['xdg-open', url]);
         }
     } catch (error) {
-        console.error('❌ Error opening browser:', error);
+        console.error(`❌ ${t('utils.openBrowserError', lang())}`, error);
     }
 }
 

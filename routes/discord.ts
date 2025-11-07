@@ -6,6 +6,10 @@ import {fallBackAvatarUrl, getNameBySteamId} from "../utils/player";
 import {setMute, toHttpStatus, unmuteAll} from "../utils/mute";
 import {Guild, GuildMember, VoiceState} from "discord.js";
 import {DiscordIdParams, MuteResult, VoiceUser} from "../types";
+import config from "../config";
+import {t, Language} from "../i18n/translations";
+
+const lang = () => (config.language || 'en') as Language;
 
 const router: Router = express.Router();
 
@@ -35,7 +39,7 @@ router.get('/voice', async (req: Request, res: Response): Promise<void> => {
 
         res.json(results);
     } catch (error) {
-        console.error('❌ Error during voice check:', error);
+        console.error(`❌ ${t('routes.errorVoiceCheck', lang())}`, error);
         res.status(500).send('Internal server error during voice check');
     }
 });
@@ -66,7 +70,7 @@ router.post('/unmuteAll', async (req: Request, res: Response): Promise<void> => 
         const result: MuteResult = await unmuteAll();
         res.status(toHttpStatus(result.code)).json(result);
     } catch (error) {
-        console.error("❌ Error at /unmuteAll:", error);
+        console.error(`❌ ${t('routes.errorUnmuteAll', lang())}`, error);
         res.status(500).send("An unexpected error occurred.");
     }
 });

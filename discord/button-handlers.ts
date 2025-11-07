@@ -10,7 +10,7 @@ const lang = () => (config.language || 'en') as Language;
 // Send button message once
 async function createUnmuteButton(): Promise<void> {
     if (!config.commandChannelId) {
-        console.error('❌ Button channel ID (COMMAND_CHANNEL_ID) is not set in configuration.');
+        console.error(`❌ ${t('config.commandChannelNotSet', lang())}`);
         return;
     }
 
@@ -45,7 +45,7 @@ async function createUnmuteButton(): Promise<void> {
             set('unmuteButtonMessageId', unmuteMessage.id);
         }
     } catch (error: any) {
-        console.error('❌ Error creating button:', error.message);
+        console.error(`❌ ${t('discord.errorCreatingButton', lang())}`, error.message);
     }
 }
 
@@ -69,7 +69,7 @@ function setupButtonInteraction(): void {
                 await member.voice.setMute(false, 'Self-unmuted via button');
                 await interaction.reply({content: t('discord.button.unmuted', lang()), flags: [MessageFlags.Ephemeral]});
             } catch (error) {
-                console.error('❌ Error during self-unmute:', error);
+                console.error(`❌ ${t('discord.errorSelfUnmute', lang())}`, error);
                 // Only reply if not already replied to avoid crashes
                 if (!interaction.replied) {
                     await interaction.reply({content: t('discord.button.unmuteError', lang()), flags: [MessageFlags.Ephemeral]});

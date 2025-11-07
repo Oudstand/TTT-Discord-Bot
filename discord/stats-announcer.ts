@@ -56,7 +56,7 @@ class StatsAnnouncer {
         if (this.message) return;
 
         if (!config.statsChannelId) {
-            console.error('❌ Stats channel ID (STATS_CHANNEL_ID) is not set in configuration.');
+            console.error(`❌ ${t('config.statsChannelNotSet', lang())}`);
             return;
         }
 

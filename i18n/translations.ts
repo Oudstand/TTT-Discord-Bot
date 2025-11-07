@@ -110,6 +110,42 @@ export const translations: Record<Language, Translations> = {
         // Storage errors
         'storage.meta.errorLoading': 'Fehler beim Laden von meta.json:',
         'storage.meta.errorSaving': 'Fehler beim Speichern von meta.json:',
+
+        // Screenshot errors
+        'screenshot.launchAttempt': 'Browser-Start Versuch {attempt}/{maxRetries} fehlgeschlagen:',
+        'screenshot.retrying': 'Erneuter Versuch in 2 Sekunden...',
+        'screenshot.edgeNotFound': 'Microsoft Edge nicht gefunden. Bitte stellen Sie sicher, dass Edge auf Windows 10/11 installiert ist.',
+        'screenshot.edgeInitRequired': 'Edge-Initialisierung erforderlich (normal beim ersten Start).',
+        'screenshot.restartBot': 'Bitte starten Sie den Bot neu - Screenshots funktionieren danach.',
+        'screenshot.launchFailed': 'Edge konnte nicht gestartet werden. Screenshot wird übersprungen.',
+        'screenshot.tableNotFound': 'Tabelle nicht gefunden – erstelle Vollbild-Screenshot.',
+        'screenshot.errorCreating': 'Fehler beim Erstellen des Screenshots:',
+
+        // Utils errors
+        'utils.steamAvatarError': 'Fehler beim Cachen der Steam-Avatare',
+        'utils.discordAvatarError': 'Fehler beim Cachen der Discord-Avatare',
+        'utils.fetchAvatarError': 'Fehler beim Abrufen der Avatar-URL:',
+        'utils.openBrowserError': 'Fehler beim Öffnen des Browsers:',
+
+        // Configuration errors
+        'config.clientUserNotDetermined': 'Client ist bereit, aber Benutzer konnte nicht ermittelt werden.',
+        'config.commandChannelNotSet': 'Button-Kanal-ID (COMMAND_CHANNEL_ID) ist nicht in der Konfiguration gesetzt.',
+        'config.guildIdNotSet': 'Guild-ID (GUILD_ID) ist nicht in der Konfiguration gesetzt.',
+        'config.statsChannelNotSet': 'Stats-Kanal-ID (STATS_CHANNEL_ID) ist nicht in der Konfiguration gesetzt.',
+
+        // Discord errors
+        'discord.errorCreatingButton': 'Fehler beim Erstellen des Buttons:',
+        'discord.errorSelfUnmute': 'Fehler beim Selbst-Entmuten:',
+        'discord.errorLoadingGuild': 'Fehler beim Laden der Guild:',
+
+        // Routes errors
+        'routes.errorFetchingBindings': 'Fehler beim Abrufen der Bindings:',
+        'routes.errorFetchingSingleBinding': 'Fehler beim Abrufen eines einzelnen Bindings:',
+        'routes.errorSavingBinding': 'Fehler beim Speichern des Bindings:',
+        'routes.errorDeletingBinding': 'Fehler beim Löschen des Bindings:',
+        'routes.errorVoiceCheck': 'Fehler bei Voice-Check:',
+        'routes.errorUnmuteAll': 'Fehler bei /unmuteAll:',
+        'routes.errorRoundEnd': 'Fehler bei der Rundenende-Verarbeitung:',
     },
     en: {
         // Dashboard - Header
@@ -214,6 +250,42 @@ export const translations: Record<Language, Translations> = {
         // Storage errors
         'storage.meta.errorLoading': 'Error loading meta.json:',
         'storage.meta.errorSaving': 'Error saving meta.json:',
+
+        // Screenshot errors
+        'screenshot.launchAttempt': 'Browser launch attempt {attempt}/{maxRetries} failed:',
+        'screenshot.retrying': 'Retrying in 2 seconds...',
+        'screenshot.edgeNotFound': 'Microsoft Edge not found. Please ensure Edge is installed on Windows 10/11.',
+        'screenshot.edgeInitRequired': 'Edge initialization required (normal on first start).',
+        'screenshot.restartBot': 'Please restart the bot - screenshots will work afterwards.',
+        'screenshot.launchFailed': 'Failed to launch Edge. Skipping screenshot.',
+        'screenshot.tableNotFound': 'Table not found – taking full-page screenshot.',
+        'screenshot.errorCreating': 'Error creating screenshot:',
+
+        // Utils errors
+        'utils.steamAvatarError': 'Error caching Steam avatars',
+        'utils.discordAvatarError': 'Error caching Discord avatars',
+        'utils.fetchAvatarError': 'Error fetching avatar URL:',
+        'utils.openBrowserError': 'Error opening browser:',
+
+        // Configuration errors
+        'config.clientUserNotDetermined': 'Client is ready, but user could not be determined.',
+        'config.commandChannelNotSet': 'Button channel ID (COMMAND_CHANNEL_ID) is not set in configuration.',
+        'config.guildIdNotSet': 'Guild ID (GUILD_ID) is not set in configuration.',
+        'config.statsChannelNotSet': 'Stats channel ID (STATS_CHANNEL_ID) is not set in configuration.',
+
+        // Discord errors
+        'discord.errorCreatingButton': 'Error creating button:',
+        'discord.errorSelfUnmute': 'Error during self-unmute:',
+        'discord.errorLoadingGuild': 'Error loading guild:',
+
+        // Routes errors
+        'routes.errorFetchingBindings': 'Error fetching bindings:',
+        'routes.errorFetchingSingleBinding': 'Error fetching single binding:',
+        'routes.errorSavingBinding': 'Error saving binding:',
+        'routes.errorDeletingBinding': 'Error deleting binding:',
+        'routes.errorVoiceCheck': 'Error during voice check:',
+        'routes.errorUnmuteAll': 'Error at /unmuteAll:',
+        'routes.errorRoundEnd': 'Error processing round end:',
     }
 };
 

@@ -8,6 +8,7 @@ stats_session.png
 .idea
 TTT Discord Bot.exe
 public/js
+favicon-embedded.ts
 
 # Compiled JavaScript files
 *.js

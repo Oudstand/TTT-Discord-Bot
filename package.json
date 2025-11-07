@@ -11,14 +11,15 @@
     "dev": "bun run --watch app.ts",
     "build:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --minify",
     "watch:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --watch --minify",
+    "build:favicon": "node -e \"const fs = require('fs'); const data = fs.readFileSync('public/favicon.ico', 'base64'); fs.writeFileSync('favicon-embedded.ts', 'export const faviconBase64 = \\\"' + data + '\\\";');\"",
     "build:exe": "bun build ./app.ts --compile --windows-icon=icon.ico --outfile \"TTT Discord Bot.exe\"",
-    "build": "bun run build:frontend && bun run build:exe",
-    "postinstall": "node node_modules/puppeteer/install.mjs"
+    "build": "bun run build:frontend && bun run build:favicon && bun run build:exe"
   },
   "dependencies": {
     "discord.js": "^14.21.0",
+    "edge-paths": "^3.0.5",
     "express": "^5.1.0",
-    "puppeteer": "^23.11.1",
+    "puppeteer-core": "^23.11.1",
     "ws": "^8.18.3"
   },
   "devDependencies": {

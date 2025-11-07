@@ -4,6 +4,11 @@ import config from "../config";
 import {Binding, SteamPlayer} from "../types";
 import {Collection, Guild, GuildMember} from "discord.js";
 import {getGuild} from "../discord/client";
+import {t, Language} from "../i18n/translations";
+
+function lang(): Language {
+    return (config.language || 'en') as Language;
+}
 
 const steamAvatarMap: Map<string, string> = new Map<string, string>();
 const discordAvatarMap: Map<string, string> = new Map<string, string>();
@@ -24,7 +29,7 @@ async function cacheAvatars(): Promise<void> {
             players.forEach((player: SteamPlayer) => steamAvatarMap.set(player.steamid, player.avatarfull ?? fallBackAvatarUrl));
         }
     } catch (error) {
-        console.error('❌ Error caching Steam avatars', error);
+        console.error(`❌ ${t('utils.steamAvatarError', lang())}`, error);
     }
 
     // cache discord avatars
@@ -42,7 +47,7 @@ async function cacheAvatars(): Promise<void> {
             console.error(`❌ Guild not found or not available`);
         }
     } catch (error) {
-        console.error('❌ Error caching Discord avatars', error);
+        console.error(`❌ ${t('utils.discordAvatarError', lang())}`, error);
     }
 }
 
@@ -103,7 +108,7 @@ async function getDiscordAvatarUrl(steamId: string): Promise<string> {
             console.error(`❌ Binding not found for Steam ID "${steamId}".`);
         }
     } catch (error) {
-        console.error('❌ Error fetching avatar URL:', error);
+        console.error(`❌ ${t('utils.fetchAvatarError', lang())}`, error);
     }
 
     discordAvatarMap.set(steamId, url);

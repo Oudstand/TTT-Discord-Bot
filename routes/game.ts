@@ -93,7 +93,7 @@ router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Respons
 
         res.status(200).send('Round end processed successfully.');
     } catch (error) {
-        console.error("❌ Error processing round end:", error);
+        console.error(`❌ ${t('routes.errorRoundEnd', lang())}`, error);
         res.status(500).send("Internal server error processing round end.");
     }
 });

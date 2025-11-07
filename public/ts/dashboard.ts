@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res: Response = await fetch('/api/bindings');
             if (!res.ok) {
-                console.error('Error loading bindings:', res.statusText);
+                console.error(`${i18n.t('bindings.loadError')}:`, res.statusText);
                 bindingsListEl.innerHTML = errorHtml;
                 return;
             }
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res: Response = await fetch('/api/voice');
             if (!res.ok) {
-                console.error('Error loading voice list:', res.statusText);
+                console.error(`${i18n.t('voice.loadError')}:`, res.statusText);
                 voiceListEl.innerHTML = errorHtml;
                 return;
             }
