@@ -60,9 +60,6 @@ export const translations: Record<Language, Translations> = {
         'modal.deleteButton': 'Löschen',
         'modal.cancelButton': 'Abbrechen',
 
-        // Dashboard - Language switcher
-        'lang.switch': 'Switch to English',
-
         // Discord - Stats announcer
         'discord.stats.total': 'Gesamt-Statistik',
         'discord.stats.session': 'Session-Statistik',
@@ -126,9 +123,6 @@ export const translations: Record<Language, Translations> = {
         'modal.confirmText': 'Do you really want to delete this entry?',
         'modal.deleteButton': 'Delete',
         'modal.cancelButton': 'Cancel',
-
-        // Dashboard - Language switcher
-        'lang.switch': 'Auf Deutsch wechseln',
 
         // Discord - Stats announcer
         'discord.stats.total': 'Total Statistics',

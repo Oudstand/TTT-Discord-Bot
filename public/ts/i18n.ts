@@ -71,14 +71,6 @@ class I18n {
             }
         });
     }
-
-    public toggleLanguage(): void {
-        const newLang: Language = this.currentLanguage === 'de' ? 'en' : 'de';
-        this.setLanguage(newLang);
-
-        // Trigger custom event so dashboard can reload content
-        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: newLang } }));
-    }
 }
 
 // Create global instance
