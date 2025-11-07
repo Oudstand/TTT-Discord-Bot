@@ -8,6 +8,8 @@ import {getWebSocketServer} from "../websocket-service";
 import {Binding, MuteResult, RoundEndBody, SteamIdBody} from "../types";
 import {getBinding} from "../storage/bindings-store";
 import {get, set} from "../storage/meta-store";
+import {t, Language} from '../i18n/translations';
+import config from '../config';
 
 const router: Router = express.Router();
 const isActiveRoundMetaKey = 'isActiveRound';
@@ -71,7 +73,8 @@ router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Respons
             return;
         }
 
-        console.log('📊 Round end received, updating statistics...');
+        const lang = (config.dashboardLanguage || 'en') as Language;
+        console.log(`📊 ${t('console.roundEnd', lang)}`);
 
         updateStats(players);
 

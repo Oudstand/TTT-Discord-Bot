@@ -75,6 +75,12 @@ export const translations: Record<Language, Translations> = {
         // Console logs
         'console.botReady': 'Bot ist bereit als',
         'console.dashboardRunning': 'Dashboard läuft auf',
+        'console.muted': 'Gemutet',
+        'console.unmuted': 'Entmutet',
+        'console.unmuteAllStart': 'Versuche, alle Spieler zu entmuten...',
+        'console.unmuteAllSuccess': 'Alle Spieler erfolgreich entmutet.',
+        'console.unmuteAllErrors': 'Entmutung abgeschlossen mit {count} Fehlern.',
+        'console.roundEnd': 'Rundenende empfangen, aktualisiere Statistiken...',
     },
     en: {
         // Dashboard - Header
@@ -144,6 +150,12 @@ export const translations: Record<Language, Translations> = {
         // Console logs
         'console.botReady': 'Bot is ready as',
         'console.dashboardRunning': 'Dashboard running on',
+        'console.muted': 'Muted',
+        'console.unmuted': 'Unmuted',
+        'console.unmuteAllStart': 'Attempting to unmute all players...',
+        'console.unmuteAllSuccess': 'All players successfully unmuted.',
+        'console.unmuteAllErrors': 'Unmute completed with {count} errors.',
+        'console.roundEnd': 'Round end received, updating statistics...',
     }
 };
 
