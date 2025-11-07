@@ -8,15 +8,23 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
     let page: Page | null = null;
 
     try {
-        // Use 'msedge' channel on Windows to use pre-installed Edge browser
-        // Fallback to bundled Chromium if Edge not found
-        browser = await chromium.launch({
-            headless: true,
-            channel: 'msedge'
-        }).catch(() => {
-            console.log('⚠️  Edge not found, falling back to bundled Chromium');
-            return chromium.launch({headless: true});
-        });
+        // Try to use pre-installed browsers: Edge (Windows 10/11) or Chrome
+        try {
+            browser = await chromium.launch({
+                headless: true,
+                channel: 'msedge'
+            });
+        } catch {
+            console.log('⚠️  Edge not found, trying Chrome');
+            try {
+                browser = await chromium.launch({
+                    headless: true,
+                    channel: 'chrome'
+                });
+            } catch {
+                throw new Error('No supported browser found. Please install Microsoft Edge or Google Chrome.');
+            }
+        }
 
         page = await browser.newPage();
         await page.setViewportSize({width: 1600, height: 900});
