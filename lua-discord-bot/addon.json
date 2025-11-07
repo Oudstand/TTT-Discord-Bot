@@ -1,0 +1,13 @@
+{
+	"title": "TTT Discord Bot",
+	"type": "ServerContent",
+	"tags": [
+		"roleplay",
+		"fun"
+	],
+	"ignore": [
+		"*.psd",
+		"*.vcproj",
+		"*.svn*"
+	]
+}

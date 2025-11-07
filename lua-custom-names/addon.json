@@ -1,0 +1,13 @@
+{
+	"title": "TTT Custom Names",
+	"type": "ServerContent",
+	"tags": [
+		"roleplay",
+		"fun"
+	],
+	"ignore": [
+		"*.psd",
+		"*.vcproj",
+		"*.svn*"
+	]
+}

@@ -1,10 +1,15 @@
 [![GitHub](https://img.shields.io/badge/Repo-ttt--discord--bot-blue?logo=github)](https://github.com/Oudstand/TTT-Discord-Bot.git)
+[![Steam Workshop](https://img.shields.io/badge/Steam-Discord_Bot-blue?logo=steam)](https://steamcommunity.com/sharedfiles/filedetails/?id=3601367840)
+[![Steam Workshop](https://img.shields.io/badge/Steam-Custom_Names-blue?logo=steam)](https://steamcommunity.com/sharedfiles/filedetails/?id=3601388257)
+[![Release](https://img.shields.io/github/v/release/Oudstand/TTT-Discord-Bot)](https://github.com/Oudstand/TTT-Discord-Bot/releases/latest)
 
 # TTT Discord Bot
 
 ![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)
 
 🎮 A Discord bot for automatic mute/unmute control in Trouble in Terrorist Town (Garry's Mod), including web dashboard, player bindings, and statistics.
+
+**📥 [Download Latest Release](https://github.com/Oudstand/TTT-Discord-Bot/releases/latest) | 🎮 [Discord Bot Addon](https://steamcommunity.com/sharedfiles/filedetails/?id=3601367840) | 🎭 [Custom Names Addon](https://steamcommunity.com/sharedfiles/filedetails/?id=3601388257)**
 
 ---
 
@@ -25,6 +30,9 @@
 
 ![TTT Dashboard Screenshot](dashboard.png)
 *Names, avatars, SteamIDs, and DiscordIDs have been anonymized in this screenshot.*
+
+![TTT Dashboard Screenshot](stats.png)
+*Each section can be collapsed and expanded.*
 
 ---
 
@@ -94,10 +102,21 @@ To allow Garry's Mod to communicate with the bot, a special loopback address mus
    192.178.0.1    ttthost
    ```
 
-### 4. Install GMod Addon
+### 4. Install GMod Addons
 
-Move the file `lua/autorun/server/discord_bot.lua` to your GMod server folder:
-`<path-to-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server`
+Subscribe to the addons on Steam Workshop:
+
+**[→ TTT Discord Bot on Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3601367840)** (required)
+**[→ TTT Custom Names on Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3601388257)** (optional - for custom display names)
+
+Alternatively, you can manually install the Lua files:
+- **Discord Bot:** Move `lua-discord-bot/lua/autorun/server/discord_bot.lua` to:
+  `<path-to-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server\discord_bot.lua`
+- **Custom Names:** Move both files:
+  - `lua-custom-names/lua/autorun/server/custom_names_server.lua` to:
+    `<path-to-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\server\custom_names_server.lua`
+  - `lua-custom-names/lua/autorun/client/custom_names_client.lua` to:
+    `<path-to-steam>\steamapps\common\GarrysMod\garrysmod\lua\autorun\client\custom_names_client.lua`
 
 ---
 
