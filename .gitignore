@@ -8,3 +8,13 @@ stats_session.png
 .idea
 TTT Discord Bot.exe
 public/js
+
+# Compiled JavaScript files
+*.js
+!lua/**/*.js
+
+# Build artifacts
+release/
+chromium/
+TTT-Discord-Bot.zip
+/.claude/settings.local.json

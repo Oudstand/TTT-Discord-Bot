@@ -3,11 +3,14 @@ import {ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, Client, Guild, Gu
 import {get, set} from '../storage/meta-store';
 import config from '../config';
 import {getClient, getGuild} from './client';
+import {t, Language} from '../i18n/translations';
 
-// Button-Nachricht einmalig senden
+const lang = () => (config.language || 'en') as Language;
+
+// Send button message once
 async function createUnmuteButton(): Promise<void> {
     if (!config.commandChannelId) {
-        console.error('❌ Button-Kanal-ID (COMMAND_CHANNEL_ID) ist nicht in der Konfiguration gesetzt.');
+        console.error('❌ Button channel ID (COMMAND_CHANNEL_ID) is not set in configuration.');
         return;
     }
 
@@ -15,7 +18,7 @@ async function createUnmuteButton(): Promise<void> {
     try {
         const channel: Channel | null = await client.channels.fetch(config.commandChannelId);
         if (!channel || !(channel instanceof TextChannel)) {
-            console.error(`❌ Button-Kanal mit ID ${config.commandChannelId} nicht gefunden.`);
+            console.error(`❌ Button channel with ID ${config.commandChannelId} not found.`);
             return;
         }
 
@@ -24,7 +27,7 @@ async function createUnmuteButton(): Promise<void> {
             try {
                 await channel.messages.fetch(messageId);
             } catch (error: any) {
-                // Fehler 10008 = "Unknown Message", d.h. sie wurde gelöscht
+                // Error 10008 = "Unknown Message", i.e. it was deleted
                 if (error.code === 10008) {
                     set('unmuteButtonMessageId', undefined);
                     await createUnmuteButton();
@@ -34,7 +37,7 @@ async function createUnmuteButton(): Promise<void> {
             const button: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder<ButtonBuilder>().addComponents(
                 new ButtonBuilder()
                     .setCustomId('self_unmute')
-                    .setLabel('Selbst entmuten')
+                    .setLabel(t('discord.button.unmute', lang()))
                     .setStyle(ButtonStyle.Danger)
                     .setEmoji('🔊')
             );
@@ -42,11 +45,11 @@ async function createUnmuteButton(): Promise<void> {
             set('unmuteButtonMessageId', unmuteMessage.id);
         }
     } catch (error: any) {
-        console.error('❌ Fehler beim Erstellen des Buttons:', error.message);
+        console.error('❌ Error creating button:', error.message);
     }
 }
 
-// Button-Handler für Entmute
+// Button handler for unmute
 function setupButtonInteraction(): void {
     const client: Client = getClient();
     client.on('interactionCreate', async (interaction: Interaction) => {
@@ -54,7 +57,7 @@ function setupButtonInteraction(): void {
 
         const guild: Guild | null = getGuild();
         if (!guild) {
-            await interaction.reply({content: '❌ Fehler: Server nicht gefunden.', flags: [MessageFlags.Ephemeral]});
+            await interaction.reply({content: t('discord.button.guildNotFound', lang()), flags: [MessageFlags.Ephemeral]});
             return;
         }
 
@@ -63,17 +66,17 @@ function setupButtonInteraction(): void {
 
         if (member.voice?.channel) {
             try {
-                await member.voice.setMute(false, 'Selbst entmutet via Button');
-                await interaction.reply({content: '🔊 Du wurdest entmutet.', flags: [MessageFlags.Ephemeral]});
+                await member.voice.setMute(false, 'Self-unmuted via button');
+                await interaction.reply({content: t('discord.button.unmuted', lang()), flags: [MessageFlags.Ephemeral]});
             } catch (error) {
-                console.error('❌ Fehler beim Selbstentmuten:', error);
-                // Nur antworten, wenn noch nicht geantwortet wurde, um Abstürze zu vermeiden
+                console.error('❌ Error during self-unmute:', error);
+                // Only reply if not already replied to avoid crashes
                 if (!interaction.replied) {
-                    await interaction.reply({content: '❌ Fehler beim Entmuten.', flags: [MessageFlags.Ephemeral]});
+                    await interaction.reply({content: t('discord.button.unmuteError', lang()), flags: [MessageFlags.Ephemeral]});
                 }
             }
         } else {
-            await interaction.reply({content: '❌ Du bist in keinem Voice-Kanal.', flags: [MessageFlags.Ephemeral]});
+            await interaction.reply({content: t('discord.button.notInVoice', lang()), flags: [MessageFlags.Ephemeral]});
         }
     });
 }

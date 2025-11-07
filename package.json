@@ -1,8 +1,9 @@
 {
   "name": "ttt-discord-bot",
   "version": "1.0.0",
-  "description": "Ein Discord-Bot zur automatischen Mute-/Unmute-Steuerung für TTT und Darstellung von Statistiken.",
+  "description": "A Discord bot for automatic mute/unmute control in Trouble in Terrorist Town (Garry's Mod) with statistics tracking and web dashboard.",
   "author": "Oudstand",
+  "license": "MIT",
   "main": "app.ts",
   "scripts": {
     "prestart": "bun run build:frontend",
@@ -10,12 +11,14 @@
     "dev": "bun run --watch app.ts",
     "build:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --minify",
     "watch:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --watch --minify",
-    "build": "bun run build:frontend && bun build ./app.ts --compile --outfile \"TTT Discord Bot.exe\""
+    "build:exe": "bun build ./app.ts --compile --windows-icon=icon.ico --outfile \"TTT Discord Bot.exe\"",
+    "build": "bun run build:frontend && bun run build:exe",
+    "postinstall": "node node_modules/puppeteer/install.mjs"
   },
   "dependencies": {
     "discord.js": "^14.21.0",
     "express": "^5.1.0",
-    "puppeteer": "^24.12.1",
+    "puppeteer": "^23.11.1",
     "ws": "^8.18.3"
   },
   "devDependencies": {

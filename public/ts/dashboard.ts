@@ -1,6 +1,10 @@
 import {Binding, BindingWithAvatar, MappedStat, Stat, StatsType, VoiceUser} from "../../types";
+import i18n from "./i18n";
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize i18n and update DOM
+    i18n.updateDOM();
+
     // --- Element-Caching ---
     function $<T extends HTMLElement>(selector: string): T | null {
         return document.querySelector<T>(selector);
@@ -50,10 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 <div class="flex gap-2 flex-shrink-0">
-                    <button data-action="edit" class="rounded-full bg-slate-700 p-2 text-blue-400 hover:bg-blue-600 hover:text-white transition" title="Bearbeiten">
+                    <button data-action="edit" class="rounded-full bg-slate-700 p-2 text-blue-400 hover:bg-blue-600 hover:text-white transition" title="${i18n.t('bindings.edit')}">
                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                     </button>
-                    <button data-action="delete" class="rounded-full bg-slate-700 p-2 text-red-400 hover:bg-red-600 hover:text-white transition" title="Löschen">
+                    <button data-action="delete" class="rounded-full bg-slate-700 p-2 text-red-400 hover:bg-red-600 hover:text-white transition" title="${i18n.t('bindings.delete')}">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -64,10 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const createVoiceUserHTML = (user: VoiceUser): string => `
         <div class="flex items-center justify-between ${user.muted ? 'bg-red-800' : 'bg-green-800'} p-3 rounded-xl shadow-md" data-discord-id="${user.discordId}">
             <div class="flex items-center gap-3">
-                <img src="${user.avatarUrl}" class="w-10 h-10 rounded-full ring-2 ring-white/20" alt="Avatar von ${user.name}" />
+                <img src="${user.avatarUrl}" class="w-10 h-10 rounded-full ring-2 ring-white/20" alt="Avatar" />
                 <span>${user.name}</span>
             </div>
-            <button data-action="toggle-mute" class="text-white hover:text-white/80" title="${user.muted ? 'Entmuten' : 'Muten'}">
+            <button data-action="toggle-mute" class="text-white hover:text-white/80" title="${user.muted ? i18n.t('voice.unmute') : i18n.t('voice.mute')}">
                 <i data-lucide="${user.muted ? 'mic' : 'mic-off'}" class="w-5 h-5"></i>
             </button>
         </div>
@@ -76,11 +80,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Load Functions ---
     async function loadBindings(): Promise<void> {
         if (!bindingsListEl || !searchInput) return;
-        const errorHtml: string = `<p class="text-red-400">Bindings konnten nicht geladen werden.</p>`;
+        const errorHtml: string = `<p class="text-red-400">${i18n.t('bindings.loadError')}</p>`;
         try {
             const res: Response = await fetch('/api/bindings');
             if (!res.ok) {
-                console.error('Fehler beim Laden der Bindings:', res.statusText);
+                console.error('Error loading bindings:', res.statusText);
                 bindingsListEl.innerHTML = errorHtml;
                 return;
             }
@@ -109,13 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const errorHtml: string = `
                 <div class="bg-slate-800 rounded-xl p-4 text-center flex items-center justify-center gap-2">
                     <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400 opacity-80"></i>
-                    <span class="text-red-400 text-base">Voice-Liste konnte nicht geladen werden.</span>
+                    <span class="text-red-400 text-base">${i18n.t('voice.loadError')}</span>
                 </div>
             `;
         try {
             const res: Response = await fetch('/api/voice');
             if (!res.ok) {
-                console.error('Fehler beim Laden der Voice-Liste:', res.statusText);
+                console.error('Error loading voice list:', res.statusText);
                 voiceListEl.innerHTML = errorHtml;
                 return;
             }
@@ -125,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 voiceListEl.innerHTML = `
                     <div class="bg-slate-800 rounded-xl p-4 text-center flex items-center justify-center gap-2">
                         <i data-lucide="mic-off" class="w-5 h-5 opacity-70"></i>
-                        <span class="text-white text-base">Noch ist niemand im Discord.</span>
+                        <span class="text-white text-base">${i18n.t('voice.noPlayers')}</span>
                     </div>
                 `;
             } else {
@@ -173,8 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <img src="${player.steamAvatarUrl}" alt="Steam Avatar" class="w-8 h-8 rounded-full ring-2 ring-slate-700" />
                                 <img src="${player.discordAvatarUrl}" alt="Discord Avatar" class="w-4 h-4 rounded-full absolute -bottom-1 -right-1 ring-2 ring-slate-800" />
                             </div>
-                            <span class="truncate" title="${player.name || 'Unbekannter Spieler'}">
-                                ${player.name || 'Unbekannter Spieler'}
+                            <span class="truncate" title="${player.name || i18n.t('stats.unknownPlayer')}">
+                                ${player.name || i18n.t('stats.unknownPlayer')}
                             </span>
                         </div>
                     </td>
@@ -209,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const stats: MappedStat[] = await res.json();
             renderStats(stats, statsBodySessionEl);
         } catch (err) {
-            console.error('Fehler beim Laden der Session-Statistiken:', err);
+            console.error(i18n.t('stats.loadError') + ':', err);
         }
     }
 
@@ -221,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const stats: MappedStat[] = await res.json();
             renderStats(stats, statsBodyAllEl);
         } catch (err) {
-            console.error('Fehler beim Laden der Gesamt-Statistiken:', err);
+            console.error(i18n.t('stats.loadError') + ':', err);
         }
     }
 
@@ -252,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Confirm Dialog ---
-    function showConfirmDialog(text = "Soll der Eintrag wirklich gelöscht werden?"): Promise<boolean> {
+    function showConfirmDialog(text = i18n.t('modal.confirmText')): Promise<boolean> {
         return new Promise(resolve => {
             if (!overlay || !overlayText || !confirmBtn || !cancelBtn) return resolve(false);
 
@@ -352,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createWebSocket(): void {
         const ws = new WebSocket(`ws://${window.location.host}`);
-        ws.addEventListener('open', () => console.log('WebSocket verbunden'));
+        ws.addEventListener('open', () => console.log(i18n.t('ws.connected')));
         ws.addEventListener('message', async (event: MessageEvent<StatsType>) => {
             try {
                 const msg = JSON.parse(event.data);

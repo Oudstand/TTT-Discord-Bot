@@ -3,6 +3,10 @@ import {getGuild} from "../discord/client";
 import {getNameByDiscordId} from "./player";
 import {Guild, GuildMember} from "discord.js";
 import {MuteResult, MuteResultCode} from "../types";
+import {t, Language} from '../i18n/translations';
+import config from '../config';
+
+const lang = () => (config.language || 'en') as Language;
 
 function ok(message?: string): MuteResult {
     return {code: MuteResultCode.OK, success: true, message};
@@ -40,7 +44,8 @@ async function setMute(discordId: string, mute: boolean): Promise<MuteResult> {
 
         await member.voice.setMute(mute);
         const name = getNameByDiscordId(discordId) ?? member.displayName;
-        console.log(`${mute ? '🔇 Gemutet' : '🔊 Entmutet'}: ${name}`);
+        const muteText = mute ? `🔇 ${t('console.muted', lang())}` : `🔊 ${t('console.unmuted', lang())}`;
+        console.log(`${muteText}: ${name}`);
         return ok(`Benutzer ${name} wurde ${mute ? 'gemutet' : 'entmutet'}.`);
     } catch (error: any) {
         const code = error?.code === 50013 ? MuteResultCode.PERMISSION_DENIED : MuteResultCode.INTERNAL;
@@ -79,7 +84,7 @@ async function unmuteAll(): Promise<MuteResult> {
         return fail(MuteResultCode.GUILD_UNAVAILABLE, 'Guild momentan nicht verfügbar.');
     }
 
-    console.log('🔊 Versuche, alle Spieler zu entmuten...');
+    console.log(`🔊 ${t('console.unmuteAllStart', lang())}`);
 
     const errors: string[] = [];
     const unmutePromises: Promise<void | GuildMember>[] = [];
@@ -100,11 +105,13 @@ async function unmuteAll(): Promise<MuteResult> {
     await Promise.all(unmutePromises);
 
     if (errors.length > 0) {
-        console.log(`🔊 Entmutung abgeschlossen mit ${errors.length} Fehlern.`);
+        const message = t('console.unmuteAllErrors', lang()).replace('{count}', errors.length.toString());
+        console.log(`🔊 ${message}`);
         return fail(MuteResultCode.INTERNAL, errors.join('\n'));
     } else {
-        console.log('🔊 Alle Spieler erfolgreich entmutet.');
-        return ok('Alle Spieler erfolgreich entmutet.');
+        const message = t('console.unmuteAllSuccess', lang());
+        console.log(`🔊 ${message}`);
+        return ok(message);
     }
 }
 

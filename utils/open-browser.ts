@@ -11,7 +11,7 @@ function openBrowser(url: string): void {
             Bun.spawn(['xdg-open', url]);
         }
     } catch (error) {
-        console.error('❌ Fehler beim Öffnen des Browsers:', error);
+        console.error('❌ Error opening browser:', error);
     }
 }
 

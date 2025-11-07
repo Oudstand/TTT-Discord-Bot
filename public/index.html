@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>TTT Dashboard</title>
@@ -19,7 +19,8 @@
         }
 
         .collapsible-content.open {
-            max-height: 100vh; /* Genug Höhe, um den Inhalt anzuzeigen */
+            max-height: none;
+            overflow: visible;
         }
 
         .chevron-icon {
@@ -34,31 +35,31 @@
 <body class="bg-slate-900 text-white min-h-screen font-sans">
 <div class="container mx-auto px-2 py-6">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold">TTT Dashboard</h1>
-        <span id="status" class="text-sm text-gray-300">🔄 Lade...</span>
+        <h1 class="text-3xl font-bold" data-i18n="header.title">TTT Dashboard</h1>
+        <span id="status" class="text-sm text-gray-300" data-i18n="header.loading">🔄 Loading...</span>
     </div>
 
     <div class="mb-4">
         <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
             <i data-lucide="chevron-right" class="chevron-icon w-5 h-5 open"></i>
-            📊 Session-Statistik
+            <span data-i18n="stats.session">📊 Session Statistics</span>
         </h2>
         <div class="collapsible-content open">
             <table id="statsTableSession" class="min-w-full bg-slate-800 rounded-xl shadow-md text-left overflow-hidden">
                 <thead>
                 <tr class="text-slate-300">
-                    <th class="p-3 w-8 text-center">Rang</th>
-                    <th class="p-3 w-40">Spieler</th>
-                    <th class="p-3 w-40"><i data-lucide="swords" class="inline w-4 h-4 mr-2"></i>Kills</th>
-                    <th class="p-3 w-40"><i data-lucide="heart-minus" class="inline w-4 h-4 mr-2"></i>Team-Kills</th>
-                    <th class="p-3 w-40"><i data-lucide="skull" class="inline w-4 h-4 mr-2"></i>Tode</th>
-                    <th class="p-3 w-28"><i data-lucide="divide" class="inline w-4 h-4 mr-2"></i>K/D</th>
-                    <th class="p-3 w-40"><i data-lucide="trophy" class="inline w-4 h-4 mr-2"></i>Siege</th>
-                    <th class="p-3 w-40"><i data-lucide="shield-off" class="inline w-4 h-4 mr-2"></i>Losses</th>
-                    <th class="p-3 w-40"><i data-lucide="flame" class="inline w-4 h-4 mr-2"></i>Schaden</th>
-                    <th class="p-3 w-40"><i data-lucide="user-x" class="inline w-4 h-4 mr-2"></i>Teamschaden</th>
-                    <th class="p-3 w-40"><i data-lucide="ghost " class="inline w-4 h-4 mr-2"></i>Traitor</th>
-                    <th class="p-3 w-40"><i data-lucide="pie-chart" class="inline w-4 h-4 mr-2"></i>Winrate</th>
+                    <th class="p-3 w-8 text-center" data-i18n="stats.rank">Rank</th>
+                    <th class="p-3 w-40" data-i18n="stats.player">Player</th>
+                    <th class="p-3 w-40"><i data-lucide="swords" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.kills">Kills</span></th>
+                    <th class="p-3 w-40"><i data-lucide="heart-minus" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.teamKills">Team Kills</span></th>
+                    <th class="p-3 w-40"><i data-lucide="skull" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.deaths">Deaths</span></th>
+                    <th class="p-3 w-28"><i data-lucide="divide" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.kd">K/D</span></th>
+                    <th class="p-3 w-40"><i data-lucide="trophy" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.wins">Wins</span></th>
+                    <th class="p-3 w-40"><i data-lucide="shield-off" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.losses">Losses</span></th>
+                    <th class="p-3 w-40"><i data-lucide="flame" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.damage">Damage</span></th>
+                    <th class="p-3 w-40"><i data-lucide="user-x" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.teamDamage">Team Damage</span></th>
+                    <th class="p-3 w-40"><i data-lucide="ghost " class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.traitor">Traitor</span></th>
+                    <th class="p-3 w-40"><i data-lucide="pie-chart" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.winrate">Winrate</span></th>
                 </tr>
                 </thead>
                 <tbody id="statsBodySession"></tbody>
@@ -69,24 +70,24 @@
     <div class="mb-8">
         <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
             <i data-lucide="chevron-right" class="chevron-icon w-5 h-5 open"></i>
-            🏆 Gesamt-Statistik
+            <span data-i18n="stats.total">🏆 Total Statistics</span>
         </h2>
         <div class="collapsible-content open">
             <table id="statsTableAll" class="min-w-full bg-slate-800 rounded-xl shadow-md text-left overflow-hidden">
                 <thead>
                 <tr class="text-slate-300">
-                    <th class="p-3 w-8 text-center">Rang</th>
-                    <th class="p-3 w-40">Spieler</th>
-                    <th class="p-3 w-40"><i data-lucide="swords" class="inline w-4 h-4 mr-2"></i>Kills</th>
-                    <th class="p-3 w-40"><i data-lucide="heart-minus" class="inline w-4 h-4 mr-2"></i>Team-Kills</th>
-                    <th class="p-3 w-40"><i data-lucide="skull" class="inline w-4 h-4 mr-2"></i>Tode</th>
-                    <th class="p-3 w-28"><i data-lucide="divide" class="inline w-4 h-4 mr-2"></i>K/D</th>
-                    <th class="p-3 w-40"><i data-lucide="trophy" class="inline w-4 h-4 mr-2"></i>Siege</th>
-                    <th class="p-3 w-40"><i data-lucide="shield-off" class="inline w-4 h-4 mr-2"></i>Losses</th>
-                    <th class="p-3 w-40"><i data-lucide="flame" class="inline w-4 h-4 mr-2"></i>Schaden</th>
-                    <th class="p-3 w-40"><i data-lucide="user-x" class="inline w-4 h-4 mr-2"></i>Teamschaden</th>
-                    <th class="p-3 w-40"><i data-lucide="ghost " class="inline w-4 h-4 mr-2"></i>Traitor</th>
-                    <th class="p-3 w-40"><i data-lucide="pie-chart" class="inline w-4 h-4 mr-2"></i>Winrate</th>
+                    <th class="p-3 w-8 text-center" data-i18n="stats.rank">Rank</th>
+                    <th class="p-3 w-40" data-i18n="stats.player">Player</th>
+                    <th class="p-3 w-40"><i data-lucide="swords" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.kills">Kills</span></th>
+                    <th class="p-3 w-40"><i data-lucide="heart-minus" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.teamKills">Team Kills</span></th>
+                    <th class="p-3 w-40"><i data-lucide="skull" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.deaths">Deaths</span></th>
+                    <th class="p-3 w-28"><i data-lucide="divide" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.kd">K/D</span></th>
+                    <th class="p-3 w-40"><i data-lucide="trophy" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.wins">Wins</span></th>
+                    <th class="p-3 w-40"><i data-lucide="shield-off" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.losses">Losses</span></th>
+                    <th class="p-3 w-40"><i data-lucide="flame" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.damage">Damage</span></th>
+                    <th class="p-3 w-40"><i data-lucide="user-x" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.teamDamage">Team Damage</span></th>
+                    <th class="p-3 w-40"><i data-lucide="ghost " class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.traitor">Traitor</span></th>
+                    <th class="p-3 w-40"><i data-lucide="pie-chart" class="inline w-4 h-4 mr-2"></i><span data-i18n="stats.winrate">Winrate</span></th>
                 </tr>
                 </thead>
                 <tbody id="statsBodyAll"></tbody>
@@ -97,7 +98,7 @@
     <div class="mb-4">
         <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
             <i data-lucide="chevron-right" class="chevron-icon w-5 h-5"></i>
-            🎙️ Spieler im Discord
+            <span data-i18n="voice.title">🎙️ Players in Discord</span>
         </h2>
         <div class="collapsible-content">
             <div id="voiceList" class="space-y-2 text-sm pt-2"></div>
@@ -107,22 +108,22 @@
     <div class="mb-8">
         <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
             <i data-lucide="chevron-right" class="chevron-icon w-5 h-5"></i>
-            <i data-lucide="link-2" class="w-6 h-6"></i> Spieler ↔ Discord-Bindings
+            <span><i data-lucide="link-2" class="inline w-6 h-6"></i> <span data-i18n="bindings.title">Player ↔ Discord Bindings</span></span>
         </h2>
         <div class="collapsible-content">
             <form id="bindingForm" class="bg-slate-800 p-4 rounded-2xl shadow-md my-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input name="name" placeholder="Name" class="bg-slate-700 text-white p-2 rounded-lg" required/>
-                    <input name="steamId" placeholder="SteamID64" class="bg-slate-700 text-white p-2 rounded-lg" required/>
-                    <input name="discordId" placeholder="Discord-ID" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+                    <input name="name" data-i18n-placeholder="bindings.name" placeholder="Name" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+                    <input name="steamId" data-i18n-placeholder="bindings.steamId" placeholder="SteamID64" class="bg-slate-700 text-white p-2 rounded-lg" required/>
+                    <input name="discordId" data-i18n-placeholder="bindings.discordId" placeholder="Discord ID" class="bg-slate-700 text-white p-2 rounded-lg" required/>
                 </div>
                 <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md">
-                    <i data-lucide="save" class="inline w-4 h-4 mr-1"></i> Speichern
+                    <i data-lucide="save" class="inline w-4 h-4 mr-1"></i> <span data-i18n="bindings.save">Save</span>
                 </button>
             </form>
 
             <div class="mb-6">
-                <input id="search" placeholder="🔍 Suche..." class="w-full bg-slate-800 p-2 rounded-lg text-white"/>
+                <input id="search" data-i18n-placeholder="bindings.search" placeholder="🔍 Search..." class="w-full bg-slate-800 p-2 rounded-lg text-white"/>
             </div>
 
             <div id="bindingsList" class="space-y-2 mb-8 pb-16">
@@ -133,11 +134,11 @@
 
 <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
     <div class="bg-slate-800 rounded-2xl shadow-xl p-8 max-w-md text-center">
-        <h2 class="text-xl font-bold mb-4">Wirklich löschen?</h2>
-        <p class="mb-6">Soll der Eintrag wirklich gelöscht werden?</p>
+        <h2 class="text-xl font-bold mb-4" data-i18n="modal.confirmDelete">Really delete?</h2>
+        <p class="mb-6" data-i18n="modal.confirmText">Do you really want to delete this entry?</p>
         <div class="flex justify-center gap-4">
-            <button id="modal-confirm" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-md">Löschen</button>
-            <button id="modal-cancel" class="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded-lg shadow-md">Abbrechen</button>
+            <button id="modal-confirm" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-md" data-i18n="modal.deleteButton">Delete</button>
+            <button id="modal-cancel" class="bg-slate-600 hover:bg-slate-500 text-white px-4 py-2 rounded-lg shadow-md" data-i18n="modal.cancelButton">Cancel</button>
         </div>
     </div>
 </div>

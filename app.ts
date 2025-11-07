@@ -1,4 +1,4 @@
-// app.ts (Haupteinstiegspunkt)
+// app.ts (Main entry point)
 import express, {Request, Response} from 'express';
 import http from 'http';
 import {WebSocketServer} from "ws";
@@ -22,8 +22,10 @@ import openBrowser from "./utils/open-browser";
 
 import indexHtml from "./public/index.html" with {type: "text"};
 import dashboardJs from "./public/js/dashboard.js" with {type: "text"};
-import favicon from "./public/favicon.ico" with {type: "buffer"};
 import {cacheAvatars} from "./utils/player";
+import {readFileSync} from 'fs';
+import {join} from 'path';
+import {t, Language} from './i18n/translations';
 
 const app = express();
 const port = 3000;
@@ -60,26 +62,35 @@ app.get('/js/dashboard.js', (_req: Request, res: Response): void => {
     res.send(dashboardJs);
 });
 
-app.get('/favicon.ico', (req: Request, res: Response): void => {
-    res.setHeader('Content-Type', 'image/x-icon');
-    res.send(favicon);
+app.get('/favicon.ico', (_req: Request, res: Response): void => {
+    try {
+        const faviconPath = join(__dirname, 'public', 'favicon.ico');
+        const faviconBuffer = readFileSync(faviconPath);
+        res.setHeader('Content-Type', 'image/x-icon');
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+        res.send(faviconBuffer);
+    } catch (error) {
+        console.error('❌ Error loading favicon:', error);
+        res.status(404).send('Favicon not found');
+    }
 });
 
 // Discord Login & Bot Start
 client.once('ready', async (readyClient: Client) => {
     if (!readyClient.user) {
-        console.error('❌ Client ist bereit, aber der Benutzer konnte nicht ermittelt werden.');
+        console.error('❌ Client is ready, but user could not be determined.');
         return;
     }
 
     await loadGuild();
     await cacheAvatars();
 
-    console.log(`✅  Bot ist bereit als ${readyClient.user.tag}`);
+    const lang = (config.language || 'en') as Language;
+    console.log(`✅  ${t('console.botReady', lang)} ${readyClient.user.tag}`);
 
     server.listen(port, () => {
-        console.log(`🌐 Dashboard läuft auf http://localhost:${port}`)
-        openBrowser('http://localhost:3000');
+        console.log(`🌐 ${t('console.dashboardRunning', lang)} http://localhost:${port}`)
+        openBrowser(`http://localhost:3000?lang=${lang}`);
     });
 
     resetSessionStats();
@@ -92,7 +103,7 @@ client.once('ready', async (readyClient: Client) => {
 });
 
 if (!config.token) {
-    throw new Error('❌ Discord-Bot-Token (DISCORD_TOKEN) fehlt in der Konfiguration. Der Bot kann nicht gestartet werden.');
+    throw new Error('❌ Discord bot token (DISCORD_TOKEN) is missing from configuration. Bot cannot start.');
 }
 
 void client.login(config.token);
