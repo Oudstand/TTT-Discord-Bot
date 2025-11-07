@@ -11,7 +11,8 @@
     "dev": "bun run --watch app.ts",
     "build:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --minify",
     "watch:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --watch --minify",
-    "build": "bun run build:frontend && bun build ./app.ts --compile --outfile \"TTT Discord Bot.exe\"",
+    "build:exe": "bun build ./app.ts --compile --windows-icon=icon.ico --outfile \"TTT Discord Bot.exe\"",
+    "build": "bun run build:frontend && bun run build:exe",
     "postinstall": "node node_modules/puppeteer/install.mjs"
   },
   "dependencies": {
