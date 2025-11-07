@@ -5,6 +5,7 @@ import {getClient} from './client';
 import {screenshotStats} from '../utils/stats-screenshot';
 import {AttachmentBuilder, Channel, Client, Message, TextChannel} from 'discord.js';
 import {ScreenshotPath, StatsType} from "../types";
+import {t, Language} from '../i18n/translations';
 
 class StatsAnnouncer {
     private message: Message | null = null;
@@ -16,18 +17,8 @@ class StatsAnnouncer {
 
     constructor(type: StatsType) {
         this.type = type;
-        const lang = config.dashboardLanguage || 'en';
-        const translations = {
-            en: {
-                total: 'Total Statistics',
-                session: 'Session Statistics'
-            },
-            de: {
-                total: 'Gesamt-Statistik',
-                session: 'Session-Statistik'
-            }
-        };
-        this.messageName = type === 'all' ? translations[lang as 'en' | 'de'].total : translations[lang as 'en' | 'de'].session;
+        const lang = (config.dashboardLanguage || 'en') as Language;
+        this.messageName = type === 'all' ? t('discord.stats.total', lang) : t('discord.stats.session', lang);
         this.metaKey = type === 'all' ? 'statsMessageIdAll' : 'statsMessageIdSession';
         this.content = type === 'all' ? `\u200B**🏆 TTT ${this.messageName}**` : `\u200B**📊 TTT ${this.messageName}**`;
         this.imagePath = `stats_${type}.png`;
