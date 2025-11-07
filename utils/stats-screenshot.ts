@@ -1,6 +1,7 @@
 // utils/stats-screenshot.ts
 import {chromium, Browser, Page} from "playwright";
 import {ScreenshotPath, StatsType} from "../types";
+import config from "../config";
 
 async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath = 'stats_all.png'): Promise<void> {
     let browser: Browser | null = null;
@@ -21,7 +22,8 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
         await page.setViewportSize({width: 1600, height: 900});
 
         const tableId = type === 'session' ? '#statsTableSession' : '#statsTableAll';
-        const url = 'http://localhost:3000/';
+        const language = config.dashboardLanguage || 'en';
+        const url = `http://localhost:3000/?lang=${language}`;
 
         await page.goto(url, {waitUntil: 'networkidle'});
         await page.waitForSelector(`${tableId} tr`);
