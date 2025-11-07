@@ -1,8 +1,11 @@
 // storage/meta-store.ts
 import fs from 'fs';
 import path from 'path';
+import {t, Language} from '../i18n/translations';
+import config from '../config';
 
 const metaPath = path.join(process.cwd(), 'meta.json');
+const lang = () => (config.language || 'en') as Language;
 
 let meta: Record<string, any> = {};
 
@@ -14,7 +17,7 @@ try {
         save();
     }
 } catch (error) {
-    console.error('❌ Fehler beim Laden von meta.json:', error);
+    console.error(`❌ ${t('storage.meta.errorLoading', lang())}`, error);
 }
 
 /**
@@ -24,7 +27,7 @@ function save(): void {
     try {
         fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
     } catch (error) {
-        console.error('❌ Fehler beim Speichern von meta.json:', error);
+        console.error(`❌ ${t('storage.meta.errorSaving', lang())}`, error);
     }
 }
 

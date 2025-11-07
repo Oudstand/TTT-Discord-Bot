@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const createVoiceUserHTML = (user: VoiceUser): string => `
         <div class="flex items-center justify-between ${user.muted ? 'bg-red-800' : 'bg-green-800'} p-3 rounded-xl shadow-md" data-discord-id="${user.discordId}">
             <div class="flex items-center gap-3">
-                <img src="${user.avatarUrl}" class="w-10 h-10 rounded-full ring-2 ring-white/20" alt="Avatar von ${user.name}" />
+                <img src="${user.avatarUrl}" class="w-10 h-10 rounded-full ring-2 ring-white/20" alt="Avatar" />
                 <span>${user.name}</span>
             </div>
             <button data-action="toggle-mute" class="text-white hover:text-white/80" title="${user.muted ? i18n.t('voice.unmute') : i18n.t('voice.mute')}">
@@ -177,8 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <img src="${player.steamAvatarUrl}" alt="Steam Avatar" class="w-8 h-8 rounded-full ring-2 ring-slate-700" />
                                 <img src="${player.discordAvatarUrl}" alt="Discord Avatar" class="w-4 h-4 rounded-full absolute -bottom-1 -right-1 ring-2 ring-slate-800" />
                             </div>
-                            <span class="truncate" title="${player.name || 'Unbekannter Spieler'}">
-                                ${player.name || 'Unbekannter Spieler'}
+                            <span class="truncate" title="${player.name || i18n.t('stats.unknownPlayer')}">
+                                ${player.name || i18n.t('stats.unknownPlayer')}
                             </span>
                         </div>
                     </td>
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const stats: MappedStat[] = await res.json();
             renderStats(stats, statsBodySessionEl);
         } catch (err) {
-            console.error('Fehler beim Laden der Session-Statistiken:', err);
+            console.error(i18n.t('stats.loadError') + ':', err);
         }
     }
 
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const stats: MappedStat[] = await res.json();
             renderStats(stats, statsBodyAllEl);
         } catch (err) {
-            console.error('Fehler beim Laden der Gesamt-Statistiken:', err);
+            console.error(i18n.t('stats.loadError') + ':', err);
         }
     }
 
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Confirm Dialog ---
-    function showConfirmDialog(text = "Soll der Eintrag wirklich gelöscht werden?"): Promise<boolean> {
+    function showConfirmDialog(text = i18n.t('modal.confirmText')): Promise<boolean> {
         return new Promise(resolve => {
             if (!overlay || !overlayText || !confirmBtn || !cancelBtn) return resolve(false);
 
@@ -356,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createWebSocket(): void {
         const ws = new WebSocket(`ws://${window.location.host}`);
-        ws.addEventListener('open', () => console.log('WebSocket verbunden'));
+        ws.addEventListener('open', () => console.log(i18n.t('ws.connected')));
         ws.addEventListener('message', async (event: MessageEvent<StatsType>) => {
             try {
                 const msg = JSON.parse(event.data);

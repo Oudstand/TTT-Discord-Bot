@@ -85,7 +85,7 @@ client.once('ready', async (readyClient: Client) => {
     await loadGuild();
     await cacheAvatars();
 
-    const lang = (config.dashboardLanguage || 'en') as Language;
+    const lang = (config.language || 'en') as Language;
     console.log(`✅  ${t('console.botReady', lang)} ${readyClient.user.tag}`);
 
     server.listen(port, () => {

@@ -81,6 +81,35 @@ export const translations: Record<Language, Translations> = {
         'console.unmuteAllSuccess': 'Alle Spieler erfolgreich entmutet.',
         'console.unmuteAllErrors': 'Entmutung abgeschlossen mit {count} Fehlern.',
         'console.roundEnd': 'Rundenende empfangen, aktualisiere Statistiken...',
+        'console.statsUpdate': 'Statistiken werden aktualisiert und Clients benachrichtigt...',
+        'console.deathTracked': 'Death-Stat',
+        'console.killTracked': 'Kill-Stat',
+        'console.teamKillTracked': 'TeamKill-Stat',
+        'console.winTracked': 'Spieler {player} hat gewonnen',
+        'console.lossTracked': 'Spieler {player} hat verloren',
+        'console.traitorTracked': 'Traitor-Runde',
+        'console.damageTracked': 'Schaden',
+        'console.teamDamageTracked': 'Teamschaden',
+
+        // API responses
+        'api.stats.errorAll': 'Fehler beim Abrufen der Gesamtstatistiken.',
+        'api.stats.errorSession': 'Fehler beim Abrufen der Session-Statistiken.',
+        'api.stats.updating': 'Statistiken werden aktualisiert.',
+        'api.stats.errorUpdate': 'Fehler beim manuellen Update der Statistiken.',
+        'api.stats.missingSteamId': 'SteamID fehlt',
+        'api.stats.invalidWinStatus': 'SteamID fehlt oder ungültiger Win-Status',
+        'api.stats.missingDamage': 'SteamID oder Schaden fehlen oder haben ein falsches Format',
+        'api.stats.deathRecorded': 'Death erfasst.',
+        'api.stats.killRecorded': 'Kill erfasst.',
+        'api.stats.teamKillRecorded': 'TeamKill erfasst.',
+        'api.stats.winLossRecorded': 'Win/Loss erfasst.',
+        'api.stats.traitorRecorded': 'Traitor-Runde erfasst.',
+        'api.stats.damageRecorded': 'Schaden erfasst.',
+        'api.stats.teamDamageRecorded': 'Teamschaden erfasst.',
+
+        // Storage errors
+        'storage.meta.errorLoading': 'Fehler beim Laden von meta.json:',
+        'storage.meta.errorSaving': 'Fehler beim Speichern von meta.json:',
     },
     en: {
         // Dashboard - Header
@@ -156,10 +185,47 @@ export const translations: Record<Language, Translations> = {
         'console.unmuteAllSuccess': 'All players successfully unmuted.',
         'console.unmuteAllErrors': 'Unmute completed with {count} errors.',
         'console.roundEnd': 'Round end received, updating statistics...',
+        'console.statsUpdate': 'Updating statistics and notifying clients...',
+        'console.deathTracked': 'Death-Stat',
+        'console.killTracked': 'Kill-Stat',
+        'console.teamKillTracked': 'TeamKill-Stat',
+        'console.winTracked': 'Player {player} won',
+        'console.lossTracked': 'Player {player} lost',
+        'console.traitorTracked': 'Traitor-Round',
+        'console.damageTracked': 'Damage',
+        'console.teamDamageTracked': 'Team Damage',
+
+        // API responses
+        'api.stats.errorAll': 'Error fetching total statistics.',
+        'api.stats.errorSession': 'Error fetching session statistics.',
+        'api.stats.updating': 'Statistics are being updated.',
+        'api.stats.errorUpdate': 'Error during manual statistics update.',
+        'api.stats.missingSteamId': 'SteamID missing',
+        'api.stats.invalidWinStatus': 'SteamID missing or invalid win status',
+        'api.stats.missingDamage': 'SteamID or damage missing or have wrong format',
+        'api.stats.deathRecorded': 'Death recorded.',
+        'api.stats.killRecorded': 'Kill recorded.',
+        'api.stats.teamKillRecorded': 'TeamKill recorded.',
+        'api.stats.winLossRecorded': 'Win/Loss recorded.',
+        'api.stats.traitorRecorded': 'Traitor round recorded.',
+        'api.stats.damageRecorded': 'Damage recorded.',
+        'api.stats.teamDamageRecorded': 'Team damage recorded.',
+
+        // Storage errors
+        'storage.meta.errorLoading': 'Error loading meta.json:',
+        'storage.meta.errorSaving': 'Error saving meta.json:',
     }
 };
 
-// Helper function to get translation
-export function t(key: string, lang: Language = 'en'): string {
-    return translations[lang][key] || key;
+// Helper function to get translation with placeholder replacement
+export function t(key: string, lang: Language = 'en', replacements?: Record<string, string>): string {
+    let text = translations[lang][key] || key;
+
+    if (replacements) {
+        Object.keys(replacements).forEach(placeholder => {
+            text = text.replace(`{${placeholder}}`, replacements[placeholder]);
+        });
+    }
+
+    return text;
 }

@@ -5,7 +5,7 @@ import config from '../config';
 import {getClient, getGuild} from './client';
 import {t, Language} from '../i18n/translations';
 
-const lang = () => (config.dashboardLanguage || 'en') as Language;
+const lang = () => (config.language || 'en') as Language;
 
 // Send button message once
 async function createUnmuteButton(): Promise<void> {

@@ -6,7 +6,7 @@ import {MuteResult, MuteResultCode} from "../types";
 import {t, Language} from '../i18n/translations';
 import config from '../config';
 
-const lang = () => (config.dashboardLanguage || 'en') as Language;
+const lang = () => (config.language || 'en') as Language;
 
 function ok(message?: string): MuteResult {
     return {code: MuteResultCode.OK, success: true, message};

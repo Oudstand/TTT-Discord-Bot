@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "A Discord bot for automatic mute/unmute control in Trouble in Terrorist Town (Garry's Mod) with statistics tracking and web dashboard.",
   "author": "Oudstand",
+  "license": "MIT",
   "main": "app.ts",
   "scripts": {
     "prestart": "bun run build:frontend",

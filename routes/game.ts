@@ -73,7 +73,7 @@ router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Respons
             return;
         }
 
-        const lang = (config.dashboardLanguage || 'en') as Language;
+        const lang = (config.language || 'en') as Language;
         console.log(`📊 ${t('console.roundEnd', lang)}`);
 
         updateStats(players);

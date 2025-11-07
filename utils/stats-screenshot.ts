@@ -17,7 +17,7 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
         await page.setViewport({width: 1600, height: 900});
 
         const tableId = type === 'session' ? '#statsTableSession' : '#statsTableAll';
-        const language = config.dashboardLanguage || 'en';
+        const language = config.language || 'en';
         const url = `http://localhost:3000/?lang=${language}`;
 
         await page.goto(url, {waitUntil: 'networkidle0'});
