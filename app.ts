@@ -22,8 +22,9 @@ import openBrowser from "./utils/open-browser";
 
 import indexHtml from "./public/index.html" with {type: "text"};
 import dashboardJs from "./public/js/dashboard.js" with {type: "text"};
-import favicon from "./public/favicon.ico" with {type: "buffer"};
 import {cacheAvatars} from "./utils/player";
+import {readFileSync} from 'fs';
+import {join} from 'path';
 
 const app = express();
 const port = 3000;
@@ -60,9 +61,17 @@ app.get('/js/dashboard.js', (_req: Request, res: Response): void => {
     res.send(dashboardJs);
 });
 
-app.get('/favicon.ico', (req: Request, res: Response): void => {
-    res.setHeader('Content-Type', 'image/x-icon');
-    res.send(favicon);
+app.get('/favicon.ico', (_req: Request, res: Response): void => {
+    try {
+        const faviconPath = join(__dirname, 'public', 'favicon.ico');
+        const faviconBuffer = readFileSync(faviconPath);
+        res.setHeader('Content-Type', 'image/x-icon');
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
+        res.send(faviconBuffer);
+    } catch (error) {
+        console.error('❌ Error loading favicon:', error);
+        res.status(404).send('Favicon not found');
+    }
 });
 
 // Discord Login & Bot Start

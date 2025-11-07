@@ -16,7 +16,18 @@ class StatsAnnouncer {
 
     constructor(type: StatsType) {
         this.type = type;
-        this.messageName = type === 'all' ? 'Total Statistics' : 'Session Statistics';
+        const lang = config.dashboardLanguage || 'en';
+        const translations = {
+            en: {
+                total: 'Total Statistics',
+                session: 'Session Statistics'
+            },
+            de: {
+                total: 'Gesamt-Statistik',
+                session: 'Session-Statistik'
+            }
+        };
+        this.messageName = type === 'all' ? translations[lang as 'en' | 'de'].total : translations[lang as 'en' | 'de'].session;
         this.metaKey = type === 'all' ? 'statsMessageIdAll' : 'statsMessageIdSession';
         this.content = type === 'all' ? `\u200B**🏆 TTT ${this.messageName}**` : `\u200B**📊 TTT ${this.messageName}**`;
         this.imagePath = `stats_${type}.png`;
