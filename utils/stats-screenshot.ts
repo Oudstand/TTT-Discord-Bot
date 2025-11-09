@@ -1,37 +1,41 @@
 // utils/stats-screenshot.ts
-import puppeteer, {Browser, Page} from "puppeteer-core";
-import {getEdgePath} from "edge-paths";
-import {ScreenshotPath, StatsType} from "../types";
-import config from "../config";
-import {t, Language} from "../i18n/translations";
+import puppeteer, {Browser, Page} from 'puppeteer-core';
+import {ScreenshotPath, StatsType} from '../types';
+import config from '../config';
+import {t, Language} from '../i18n/translations';
+import {ensureChromiumInstalled} from './chromium-downloader';
 
 function lang(): Language {
     return (config.language || 'en') as Language;
 }
 
-let edgeInitialized = false;
+let portableChromium: {executablePath: string} | null = null;
 
-async function launchBrowserWithRetry(edgePath: string, maxRetries: number = 2): Promise<Browser | null> {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-        try {
-            const browser = await puppeteer.launch({
-                executablePath: edgePath,
-                headless: true,
-                timeout: 30000 // Shorter timeout
-            });
-            edgeInitialized = true; // Mark as successful
-            return browser;
-        } catch (error: any) {
-            console.error(`❌ ${t('screenshot.launchAttempt', lang(), {attempt: attempt.toString(), maxRetries: maxRetries.toString()})}`, error.message);
-
-            if (attempt < maxRetries) {
-                console.log(`   ${t('screenshot.retrying', lang())}`);
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-        }
+async function launchBrowser(): Promise<Browser | null> {
+    // Ensure portable Chromium Headless Shell is available
+    if (!portableChromium) {
+        portableChromium = await ensureChromiumInstalled();
     }
 
-    return null;
+    if (!portableChromium) {
+        console.error(`❌ ${t('screenshot.chromiumFailed', lang())}`);
+        return null;
+    }
+
+    try {
+        return await puppeteer.launch({
+            executablePath: portableChromium.executablePath,
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage'
+            ]
+        });
+    } catch (error: any) {
+        console.error(`❌ ${t('screenshot.launchFailed', lang())}`, error.message);
+        return null;
+    }
 }
 
 async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath = 'stats_all.png'): Promise<void> {
@@ -39,22 +43,9 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
     let page: Page | null = null;
 
     try {
-        const edgePath = getEdgePath();
-
-        if (!edgePath) {
-            console.error(`❌ ${t('screenshot.edgeNotFound', lang())}`);
-            return;
-        }
-
-        browser = await launchBrowserWithRetry(edgePath);
+        browser = await launchBrowser();
 
         if (!browser) {
-            if (!edgeInitialized) {
-                console.log(`ℹ️  ${t('screenshot.edgeInitRequired', lang())}`);
-                console.log(`   ${t('screenshot.restartBot', lang())}`);
-            } else {
-                console.error(`❌ ${t('screenshot.launchFailed', lang())}`);
-            }
             return;
         }
 
@@ -67,6 +58,8 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
 
         await page.goto(url, {waitUntil: 'networkidle0'});
         await page.waitForSelector(`${tableId} tr`);
+
+        // Wait for table to be visible and have data
         await page.waitForFunction(
             (sel) => {
                 const el = document.querySelector(sel);
@@ -75,6 +68,7 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
                 return rows.length > 1 && (el as HTMLElement).offsetParent !== null;
             }, {}, tableId);
 
+        // Scroll element into view
         await page.evaluate((sel) => {
             const el = document.querySelector(sel);
             el?.scrollIntoView({block: 'center', inline: 'center'});

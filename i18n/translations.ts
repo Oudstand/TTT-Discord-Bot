@@ -111,14 +111,18 @@ export const translations: Record<Language, Translations> = {
         'storage.meta.errorLoading': 'Fehler beim Laden von meta.json:',
         'storage.meta.errorSaving': 'Fehler beim Speichern von meta.json:',
 
+        // Chromium downloader
+        'chromium.found': 'Chrome Headless Shell für Screenshots gefunden',
+        'chromium.downloading': 'Lade Chrome Headless Shell für Screenshots herunter...',
+        'chromium.downloadSize': 'Download-Größe: ~60-80 MB (nur beim ersten Start)',
+        'chromium.downloaded': 'Chrome Headless Shell erfolgreich heruntergeladen',
+        'chromium.cannotDownload': 'Chrome Headless Shell kann nicht heruntergeladen werden',
+        'chromium.downloadError': 'Fehler beim Herunterladen von Chrome Headless Shell:',
+
         // Screenshot errors
-        'screenshot.launchAttempt': 'Browser-Start Versuch {attempt}/{maxRetries} fehlgeschlagen:',
-        'screenshot.retrying': 'Erneuter Versuch in 2 Sekunden...',
-        'screenshot.edgeNotFound': 'Microsoft Edge nicht gefunden. Bitte stellen Sie sicher, dass Edge auf Windows 10/11 installiert ist.',
-        'screenshot.edgeInitRequired': 'Edge-Initialisierung erforderlich (normal beim ersten Start).',
-        'screenshot.restartBot': 'Bitte starten Sie den Bot neu - Screenshots funktionieren danach.',
-        'screenshot.launchFailed': 'Edge konnte nicht gestartet werden. Screenshot wird übersprungen.',
-        'screenshot.tableNotFound': 'Tabelle nicht gefunden – erstelle Vollbild-Screenshot.',
+        'screenshot.chromiumFailed': 'Chrome Headless Shell konnte nicht installiert werden',
+        'screenshot.launchFailed': 'Browser konnte nicht gestartet werden',
+        'screenshot.tableNotFound': 'Tabelle nicht gefunden – erstelle Vollbild-Screenshot',
         'screenshot.errorCreating': 'Fehler beim Erstellen des Screenshots:',
 
         // Utils errors
@@ -251,14 +255,18 @@ export const translations: Record<Language, Translations> = {
         'storage.meta.errorLoading': 'Error loading meta.json:',
         'storage.meta.errorSaving': 'Error saving meta.json:',
 
+        // Chromium downloader
+        'chromium.found': 'Chrome Headless Shell for screenshots found',
+        'chromium.downloading': 'Downloading Chrome Headless Shell for screenshots...',
+        'chromium.downloadSize': 'Download size: ~60-80 MB (only on first start)',
+        'chromium.downloaded': 'Chrome Headless Shell successfully downloaded',
+        'chromium.cannotDownload': 'Cannot download Chrome Headless Shell',
+        'chromium.downloadError': 'Error downloading Chrome Headless Shell:',
+
         // Screenshot errors
-        'screenshot.launchAttempt': 'Browser launch attempt {attempt}/{maxRetries} failed:',
-        'screenshot.retrying': 'Retrying in 2 seconds...',
-        'screenshot.edgeNotFound': 'Microsoft Edge not found. Please ensure Edge is installed on Windows 10/11.',
-        'screenshot.edgeInitRequired': 'Edge initialization required (normal on first start).',
-        'screenshot.restartBot': 'Please restart the bot - screenshots will work afterwards.',
-        'screenshot.launchFailed': 'Failed to launch Edge. Skipping screenshot.',
-        'screenshot.tableNotFound': 'Table not found – taking full-page screenshot.',
+        'screenshot.chromiumFailed': 'Chrome Headless Shell could not be installed',
+        'screenshot.launchFailed': 'Failed to launch browser',
+        'screenshot.tableNotFound': 'Table not found – taking full-page screenshot',
         'screenshot.errorCreating': 'Error creating screenshot:',
 
         // Utils errors

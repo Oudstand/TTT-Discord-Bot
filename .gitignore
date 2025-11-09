@@ -17,5 +17,6 @@ favicon-embedded.ts
 # Build artifacts
 release/
 chromium/
+browser/
 TTT-Discord-Bot.zip
 /.claude/settings.local.json
