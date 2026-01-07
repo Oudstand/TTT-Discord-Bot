@@ -1,6 +1,6 @@
 // public/ts/i18n.ts - Internationalization system
 
-import {translations, Language} from '../../i18n/translations';
+import { translations, Language } from '../../i18n/translations';
 
 class I18n {
     private currentLanguage: Language;
@@ -42,8 +42,16 @@ class I18n {
         return this.currentLanguage;
     }
 
-    public t(key: string): string {
-        return translations[this.currentLanguage][key] || key;
+    public t(key: string, replacements?: Record<string, string>): string {
+        let text = translations[this.currentLanguage][key] || key;
+
+        if (replacements) {
+            Object.keys(replacements).forEach(placeholder => {
+                text = text.replace(`{${placeholder}}`, replacements[placeholder]);
+            });
+        }
+
+        return text;
     }
 
     public updateDOM(): void {

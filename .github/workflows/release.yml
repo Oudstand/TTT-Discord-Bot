@@ -41,20 +41,19 @@ jobs:
             Automatic muting/unmuting for Trouble in Terrorist Town with Discord integration.
 
             ### 📥 Installation
-            1. Download `TTT Discord Bot.exe` and `.env.example`
-            2. Rename `.env.example` to `.env` and fill in your configuration
+            1. Download `TTT Discord Bot.exe` and `default.env.example` (appears with "default" prefix due to GitHub)
+            2. Rename `default.env.example` to `.env` and fill in your configuration
             3. Install Lua addon from Steam Workshop
             4. Run `TTT Discord Bot.exe`
 
             ### 📋 Requirements
-            - Windows 10/11 (with Edge browser pre-installed)
+            - Windows 10/11
             - Discord Bot Token
             - Steam API Key
-            - Garry's Mod Server with TTT2
+            - Garry's Mod Server with TTT
 
             ### 📝 Note
-            The bot uses Microsoft Edge (pre-installed on Windows 10/11) for screenshot generation.
-            No additional browser installation required!
+            On first start, Chrome Headless Shell (~60-80 MB) will be automatically downloaded for screenshot generation.
           draft: false
           prerelease: false
         env:

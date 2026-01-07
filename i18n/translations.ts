@@ -57,6 +57,8 @@ export const translations: Record<Language, Translations> = {
         // Dashboard - Modal
         'modal.confirmDelete': 'Wirklich löschen?',
         'modal.confirmText': 'Soll der Eintrag wirklich gelöscht werden?',
+        'modal.confirmDeleteStats': 'Sollen die Statistiken von "{name}" wirklich gelöscht werden?',
+        'modal.confirmDeleteStatsSession': 'Sollen die Session-Statistiken von "{name}" wirklich gelöscht werden?',
         'modal.deleteButton': 'Löschen',
         'modal.cancelButton': 'Abbrechen',
 
@@ -90,6 +92,8 @@ export const translations: Record<Language, Translations> = {
         'console.traitorTracked': 'Traitor-Runde',
         'console.damageTracked': 'Schaden',
         'console.teamDamageTracked': 'Teamschaden',
+        'console.statsDeleted': 'Statistiken gelöscht für',
+        'console.sessionStatsDeleted': 'Session-Statistiken gelöscht für',
 
         // API responses
         'api.stats.errorAll': 'Fehler beim Abrufen der Gesamtstatistiken.',
@@ -106,6 +110,8 @@ export const translations: Record<Language, Translations> = {
         'api.stats.traitorRecorded': 'Traitor-Runde erfasst.',
         'api.stats.damageRecorded': 'Schaden erfasst.',
         'api.stats.teamDamageRecorded': 'Teamschaden erfasst.',
+        'api.stats.statsDeleted': 'Statistiken gelöscht.',
+        'api.stats.sessionStatsDeleted': 'Session-Statistiken gelöscht.',
 
         // Storage errors
         'storage.meta.errorLoading': 'Fehler beim Laden von meta.json:',
@@ -201,6 +207,8 @@ export const translations: Record<Language, Translations> = {
         // Dashboard - Modal
         'modal.confirmDelete': 'Really delete?',
         'modal.confirmText': 'Do you really want to delete this entry?',
+        'modal.confirmDeleteStats': 'Do you really want to delete the statistics for "{name}"?',
+        'modal.confirmDeleteStatsSession': 'Do you really want to delete the session statistics for "{name}"?',
         'modal.deleteButton': 'Delete',
         'modal.cancelButton': 'Cancel',
 
@@ -234,6 +242,8 @@ export const translations: Record<Language, Translations> = {
         'console.traitorTracked': 'Traitor-Round',
         'console.damageTracked': 'Damage',
         'console.teamDamageTracked': 'Team Damage',
+        'console.statsDeleted': 'Stats deleted for',
+        'console.sessionStatsDeleted': 'Session stats deleted for',
 
         // API responses
         'api.stats.errorAll': 'Error fetching total statistics.',
@@ -250,6 +260,8 @@ export const translations: Record<Language, Translations> = {
         'api.stats.traitorRecorded': 'Traitor round recorded.',
         'api.stats.damageRecorded': 'Damage recorded.',
         'api.stats.teamDamageRecorded': 'Team damage recorded.',
+        'api.stats.statsDeleted': 'Stats deleted.',
+        'api.stats.sessionStatsDeleted': 'Session stats deleted.',
 
         // Storage errors
         'storage.meta.errorLoading': 'Error loading meta.json:',

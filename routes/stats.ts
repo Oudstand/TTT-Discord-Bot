@@ -1,8 +1,8 @@
 // routes/stats.ts
-import express, {Request, Response, Router} from 'express';
+import express, { Request, Response, Router } from 'express';
 import WebSocket from 'ws';
-import {getWebSocketServer} from '../websocket-service';
-import {updateStatsMessage} from '../discord/stats-announcer';
+import { getWebSocketServer } from '../websocket-service';
+import { updateStatsMessage } from '../discord/stats-announcer';
 import {
     addDamage,
     addDeaths,
@@ -13,11 +13,13 @@ import {
     addTraitorRound,
     addWin,
     getSessionStats,
-    getStats
+    getStats,
+    deleteStatsBySteamId,
+    deleteSessionStatsBySteamId
 } from '../storage/stats-store';
-import {getNameBySteamId} from '../utils/player';
-import {DamageBody, SteamIdBody, WinLossBody} from "../types";
-import {t, Language} from '../i18n/translations';
+import { getNameBySteamId } from '../utils/player';
+import { DamageBody, SteamIdBody, WinLossBody } from "../types";
+import { t, Language } from '../i18n/translations';
 import config from '../config';
 
 const router: Router = express.Router();
@@ -30,7 +32,7 @@ function notifyClientsAndDiscord(): void {
 
     const wss = getWebSocketServer();
     if (wss) {
-        const message = JSON.stringify({type: 'statsUpdate'});
+        const message = JSON.stringify({ type: 'statsUpdate' });
         wss.clients.forEach(ws => {
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(message);
@@ -69,7 +71,7 @@ router.post('/updateStats', (req: Request, res: Response): void => {
 
 // Death-Tracking
 router.post('/trackDeath', (req: Request<{}, {}, SteamIdBody>, res: Response): void => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) {
         res.status(400).send(t('api.stats.missingSteamId', lang()));
         return;
@@ -82,7 +84,7 @@ router.post('/trackDeath', (req: Request<{}, {}, SteamIdBody>, res: Response): v
 
 // Kill-Tracking
 router.post('/trackKill', (req: Request<{}, {}, SteamIdBody>, res: Response): void => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) {
         res.status(400).send(t('api.stats.missingSteamId', lang()));
         return;
@@ -95,7 +97,7 @@ router.post('/trackKill', (req: Request<{}, {}, SteamIdBody>, res: Response): vo
 
 // Team-Kill-Tracking
 router.post('/trackTeamKill', (req: Request<{}, {}, SteamIdBody>, res: Response): void => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) {
         res.status(400).send(t('api.stats.missingSteamId', lang()));
         return;
@@ -108,7 +110,7 @@ router.post('/trackTeamKill', (req: Request<{}, {}, SteamIdBody>, res: Response)
 
 // Win/Loss-Tracking
 router.post('/trackWin', (req: Request<{}, {}, WinLossBody>, res: Response): void => {
-    const {steamId, win} = req.body;
+    const { steamId, win } = req.body;
     if (!steamId || (win !== '1' && win !== '0')) {
         res.status(400).send(t('api.stats.invalidWinStatus', lang()));
         return;
@@ -122,7 +124,7 @@ router.post('/trackWin', (req: Request<{}, {}, WinLossBody>, res: Response): voi
 
 // Traitor-Tracking
 router.post('/trackTraitorRound', (req: Request<{}, {}, SteamIdBody>, res: Response): void => {
-    const {steamId} = req.body;
+    const { steamId } = req.body;
     if (!steamId) {
         res.status(400).send(t('api.stats.missingSteamId', lang()));
         return;
@@ -135,7 +137,7 @@ router.post('/trackTraitorRound', (req: Request<{}, {}, SteamIdBody>, res: Respo
 
 // Damage-Tracking
 router.post('/trackDamage', (req: Request<{}, {}, DamageBody>, res: Response): void => {
-    const {steamId, damage} = req.body;
+    const { steamId, damage } = req.body;
     if (!steamId || typeof damage !== 'number') {
         res.status(400).send(t('api.stats.missingDamage', lang()));
         return;
@@ -148,7 +150,7 @@ router.post('/trackDamage', (req: Request<{}, {}, DamageBody>, res: Response): v
 
 // Team-Damage-Tracking
 router.post('/trackTeamDamage', (req: Request<{}, {}, DamageBody>, res: Response): void => {
-    const {steamId, damage} = req.body;
+    const { steamId, damage } = req.body;
     if (!steamId || typeof damage !== 'number') {
         res.status(400).send(t('api.stats.missingDamage', lang()));
         return;
@@ -157,6 +159,34 @@ router.post('/trackTeamDamage', (req: Request<{}, {}, DamageBody>, res: Response
     addTeamDamage(steamId, damage);
     console.log(`📊 ${t('console.teamDamageTracked', lang())}: ${getNameBySteamId(steamId) ?? steamId} - ${damage}`);
     res.status(200).send(t('api.stats.teamDamageRecorded', lang()));
+});
+
+// Delete stats for a player (total stats)
+router.delete('/stats/:steamId', (req: Request, res: Response): void => {
+    const { steamId } = req.params;
+    if (!steamId) {
+        res.status(400).send(t('api.stats.missingSteamId', lang()));
+        return;
+    }
+
+    deleteStatsBySteamId(steamId);
+    notifyClientsAndDiscord();
+    console.log(`🗑️ ${t('console.statsDeleted', lang())}: ${getNameBySteamId(steamId) ?? steamId}`);
+    res.status(200).send(t('api.stats.statsDeleted', lang()));
+});
+
+// Delete stats for a player (session stats)
+router.delete('/stats/session/:steamId', (req: Request, res: Response): void => {
+    const { steamId } = req.params;
+    if (!steamId) {
+        res.status(400).send(t('api.stats.missingSteamId', lang()));
+        return;
+    }
+
+    deleteSessionStatsBySteamId(steamId);
+    notifyClientsAndDiscord();
+    console.log(`🗑️ ${t('console.sessionStatsDeleted', lang())}: ${getNameBySteamId(steamId) ?? steamId}`);
+    res.status(200).send(t('api.stats.sessionStatsDeleted', lang()));
 });
 
 export default router;

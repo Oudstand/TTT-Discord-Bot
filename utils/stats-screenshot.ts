@@ -9,9 +9,14 @@ function lang(): Language {
     return (config.language || 'en') as Language;
 }
 
-let portableChromium: {executablePath: string} | null = null;
+let portableChromium: { executablePath: string } | null = null;
+let browserInstance: Browser | null = null;
 
-async function launchBrowser(): Promise<Browser | null> {
+async function getBrowser(): Promise<Browser | null> {
+    if (browserInstance &&  browserInstance.connected) {
+        return browserInstance;
+    }
+
     // Ensure portable Chromium Headless Shell is available
     if (!portableChromium) {
         portableChromium = await ensureChromiumInstalled();
@@ -23,7 +28,7 @@ async function launchBrowser(): Promise<Browser | null> {
     }
 
     try {
-        return await puppeteer.launch({
+        browserInstance = await puppeteer.launch({
             executablePath: portableChromium.executablePath,
             headless: true,
             args: [
@@ -32,6 +37,15 @@ async function launchBrowser(): Promise<Browser | null> {
                 '--disable-dev-shm-usage'
             ]
         });
+
+        // Ensure browser is closed when process exits
+        process.on('exit', async () => {
+            if (browserInstance) {
+                await browserInstance.close();
+            }
+        });
+
+        return browserInstance;
     } catch (error: any) {
         console.error(`❌ ${t('screenshot.launchFailed', lang())}`, error.message);
         return null;
@@ -39,16 +53,14 @@ async function launchBrowser(): Promise<Browser | null> {
 }
 
 async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath = 'stats_all.png'): Promise<void> {
-    let browser: Browser | null = null;
     let page: Page | null = null;
+    const browser = await getBrowser();
+
+    if (!browser) {
+        return;
+    }
 
     try {
-        browser = await launchBrowser();
-
-        if (!browser) {
-            return;
-        }
-
         page = await browser.newPage();
         await page.setViewport({width: 1600, height: 900});
 
@@ -84,8 +96,10 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
     } catch (error) {
         console.error(`❌ ${t('screenshot.errorCreating', lang())}`, error);
     } finally {
-        try { await page?.close(); } catch {}
-        try { await browser?.close(); } catch {}
+        try {
+            await page?.close();
+        } catch {
+        }
     }
 }
 

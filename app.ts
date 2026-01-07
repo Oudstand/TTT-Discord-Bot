@@ -79,7 +79,7 @@ client.once('ready', async (readyClient: Client) => {
     await cacheAvatars();
 
     const lang = (config.language || 'en') as Language;
-    console.log(`✅  ${t('console.botReady', lang)} ${readyClient.user.tag}`);
+    console.log(`✅ ${t('console.botReady', lang)} ${readyClient.user.tag}`);
 
     server.listen(port, () => {
         console.log(`🌐 ${t('console.dashboardRunning', lang)} http://localhost:${port}`)

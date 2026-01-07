@@ -1,4 +1,4 @@
-import {Binding, BindingWithAvatar, MappedStat, Stat, StatsType, VoiceUser} from "../../types";
+import { Binding, BindingWithAvatar, MappedStat, Stat, StatsType, VoiceUser } from "../../types";
 import i18n from "./i18n";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- API Helper ---
     const apiCall = (endpoint: string, body: object = {}) => fetch(endpoint, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
     });
 
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </span>
                         <span>
                             <span class="text-slate-500">Discord:</span>
-                            <a href="https://discordlookup.com/user/${binding.discordId}" target="_blank" class="text-blue-400 underline hover:text-blue-300 break-all">${binding.discordId}</a>
+                            <a href="https://discord.com/users/${binding.discordId}" target="_blank" class="text-blue-400 underline hover:text-blue-300 break-all">${binding.discordId}</a>
                         </span>
                     </div>
                 </div>
@@ -143,12 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();
     }
 
-    const renderStats = (stats: MappedStat[], targetElement: HTMLTableSectionElement) => {
+    const renderStats = (stats: MappedStat[], targetElement: HTMLTableSectionElement, isSession: boolean = false) => {
         if (!stats.length) {
             targetElement.innerHTML = `
                 <tr>
-                    <td colspan="12" class="text-center p-4">
-                        Noch keine Statistiken vorhanden.
+                    <td colspan="13" class="text-center p-4">
+                        ${i18n.t('stats.noData')}
                     </td>
                 </tr>`;
             return;
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const totalDamage: number = player.damage + player.teamDamage;
 
             return `
-                <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}">
+                <tr class="border-t border-slate-700 transition-colors duration-200 ${rankClass}" data-steam-id="${player.steamId}" data-is-session="${isSession}">
                     <td class="p-3 font-bold text-center text-lg">${idx + 1}</td>
                     <td class="p-3 font-medium max-w-[200px]">
                         <div class="flex items-center gap-3">
@@ -192,9 +192,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="p-3">${bar(player.teamDamage, totalDamage, 'red', 0)}</td>
                     <td class="p-3">${bar(player.traitorRounds, maxValues.traitorRounds!, 'sky', 1)}</td>
                     <td class="p-3">${bar(player.winrate, 100, 'blue', 1, '%')}</td>
+                    <td class="p-3 text-center">
+                        <button data-action="delete-stats" class="rounded-full bg-slate-700 p-2 text-red-400 hover:bg-red-600 hover:text-white transition" title="${i18n.t('bindings.delete')}">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
         }).join('');
+
+        lucide.createIcons();
 
         setTimeout(() => {
             requestAnimationFrame(() => {
@@ -211,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/stats/session');
             if (!res.ok) throw new Error(res.statusText);
             const stats: MappedStat[] = await res.json();
-            renderStats(stats, statsBodySessionEl);
+            renderStats(stats, statsBodySessionEl, true);
         } catch (err) {
             console.error(i18n.t('stats.loadError') + ':', err);
         }
@@ -223,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/stats');
             if (!res.ok) throw new Error(res.statusText);
             const stats: MappedStat[] = await res.json();
-            renderStats(stats, statsBodyAllEl);
+            renderStats(stats, statsBodyAllEl, false);
         } catch (err) {
             console.error(i18n.t('stats.loadError') + ':', err);
         }
@@ -324,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (action === 'delete') {
             if (await showConfirmDialog()) {
-                await fetch('/api/bindings/' + steamId, {method: 'DELETE'});
+                await fetch('/api/bindings/' + steamId, { method: 'DELETE' });
                 row.remove();
             }
         } else if (action === 'edit') {
@@ -351,6 +358,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const isMuted: boolean = row.classList.contains('bg-red-800');
         await apiCall(`/api/${isMuted ? 'unmute' : 'mute'}/${discordId}`);
     });
+
+    // Event handler for deleting stats
+    const handleStatsDelete = async (e: MouseEvent): Promise<void> => {
+        const target: HTMLElement = e.target as HTMLElement;
+        const button: HTMLButtonElement | null = target.closest('button[data-action="delete-stats"]');
+        if (!button) return;
+
+        const row: HTMLTableRowElement | null = button.closest<HTMLTableRowElement>('tr[data-steam-id]');
+        if (!row) return;
+
+        const steamId: string | undefined = row.dataset.steamId;
+        const isSession: boolean = row.dataset.isSession === 'true';
+
+        if (!steamId) return;
+
+        // Get player name from the row
+        const nameSpan: HTMLSpanElement | null = row.querySelector('td:nth-child(2) span.truncate');
+        const playerName: string = nameSpan?.textContent?.trim() || steamId;
+
+        // Build confirmation message
+        const confirmKey = isSession ? 'modal.confirmDeleteStatsSession' : 'modal.confirmDeleteStats';
+        const confirmMessage = i18n.t(confirmKey, { name: playerName });
+
+        if (await showConfirmDialog(confirmMessage)) {
+            const endpoint = isSession ? `/api/stats/session/${steamId}` : `/api/stats/${steamId}`;
+            await fetch(endpoint, { method: 'DELETE' });
+            row.remove();
+        }
+    };
+
+    statsBodySessionEl?.addEventListener('click', handleStatsDelete);
+    statsBodyAllEl?.addEventListener('click', handleStatsDelete);
 
     searchInput?.addEventListener('input', loadBindings);
 
@@ -379,9 +418,9 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const res = await fetch('/api/status');
                 const data = await res.json();
-                statusEl.textContent = `🟢 Verbunden als: ${data.tag}`;
+                statusEl.textContent = `🟢 ${i18n.t('status.connected')}: ${data.tag}`;
             } catch {
-                statusEl.textContent = '🔴 Keine Verbindung zum Bot';
+                statusEl.textContent = `🔴 ${i18n.t('status.disconnected')}`;
             }
         }
 

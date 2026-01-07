@@ -63,6 +63,10 @@ This project uses `bun:sqlite`:
 ### 1. Discord Bot Setup
 
 - Create a bot in the [Discord Developer Portal](https://discord.com/developers/applications)
+- Enable **Message Content Intent**:
+  - Go to the `Bot` tab
+  - Scroll down to `Privileged Gateway Intents`
+  - Enable `Message Content Intent`
 - Add the bot to your server:
   - Go to the `OAuth2` tab
   - Under `OAuth2 URL Generator`, select `bot` under `SCOPES`

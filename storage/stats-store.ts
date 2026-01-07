@@ -1,7 +1,7 @@
 // storage/stats-store.ts
 import db from './database';
-import {getDiscordAvatarUrl, getNameBySteamId, getSteamAvatarUrl} from '../utils/player';
-import {MappedStat, PlayerRoundData, Stat, StatTableName} from "../types";
+import { getDiscordAvatarUrl, getNameBySteamId, getSteamAvatarUrl } from '../utils/player';
+import { MappedStat, PlayerRoundData, Stat, StatTableName } from "../types";
 
 function createStatStore(tableName: StatTableName) {
     // 1. Dynamisch vorbereitete Statements für die gegebene Tabelle
@@ -32,7 +32,8 @@ function createStatStore(tableName: StatTableName) {
         addTraitorRounds: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET traitorRounds = traitorRounds + ? WHERE steamId = ?`),
         addDamage: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET damage = damage + ? WHERE steamId = ?`),
         addTeamDamage: db.prepare<null, [number, string]>(`UPDATE ${tableName} SET teamDamage = teamDamage + ? WHERE steamId = ?`),
-        deleteAll: db.prepare<null, []>(`DELETE FROM ${tableName}`)
+        deleteAll: db.prepare<null, []>(`DELETE FROM ${tableName}`),
+        deleteBySteamId: db.prepare<null, [string]>(`DELETE FROM ${tableName} WHERE steamId = ?`)
         // @formatter:on
     };
 
@@ -62,6 +63,7 @@ function createStatStore(tableName: StatTableName) {
         insertOrUpdate: (players: PlayerRoundData[]) => insertOrUpdateTransaction(players),
         updateName: (name: string, steamId: string) => statements.updateName.run(name, steamId),
         deleteAll: () => statements.deleteAll.run(),
+        deleteBySteamId: (steamId: string) => statements.deleteBySteamId.run(steamId),
 
         // Funktionen, die einen Wert hinzufügen
         addKills: (steamId: string, value: number) => statements.addKills.run(value, steamId),
@@ -183,6 +185,14 @@ function resetSessionStats(): void {
     deleteAllSessionStats();
 }
 
+function deleteStatsBySteamId(steamId: string): void {
+    totalStatsStore.deleteBySteamId(steamId);
+}
+
+function deleteSessionStatsBySteamId(steamId: string): void {
+    sessionStatsStore.deleteBySteamId(steamId);
+}
+
 export {
     getStats,
     getSessionStats,
@@ -198,5 +208,7 @@ export {
     addTeamDamage,
     deleteAllStats,
     deleteAllSessionStats,
-    resetSessionStats
+    resetSessionStats,
+    deleteStatsBySteamId,
+    deleteSessionStatsBySteamId
 };
