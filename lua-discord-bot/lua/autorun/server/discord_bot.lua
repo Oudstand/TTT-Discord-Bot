@@ -28,19 +28,36 @@ local function GetTeamId(ply)
     return t or (TEAM_NONE or -1)
 end
 
-local function IsLastAliveInTeam(victim)
-    local teamId = GetTeamId(victim)
-    if teamId == (TEAM_NONE or -1) then
+local function ShouldMuteOnDeath(victim)
+    local victimTeam = GetTeamId(victim)
+    if victimTeam == (TEAM_NONE or -1) then
         return false
     end
+
+    local aliveTeams = {}
+    local teammateAlive = false
+
     for _, ply in player.Iterator() do
-        if IsValidPlayer(ply) and ply ~= victim and ply:Alive() and ply:IsTerror()
-                and GetTeamId(ply) == teamId
-        then
-            return false
+        if IsValidPlayer(ply) and ply ~= victim and ply:Alive() and ply:IsTerror() then
+            local team = GetTeamId(ply)
+            if team ~= (TEAM_NONE or -1) then
+                aliveTeams[team] = true
+                if team == victimTeam then
+                    teammateAlive = true
+                end
+            end
         end
     end
-    return true
+
+    -- Count how many different teams are still alive
+    local aliveTeamCount = 0
+    for _ in pairs(aliveTeams) do
+        aliveTeamCount = aliveTeamCount + 1
+    end
+
+    -- Mute if: there are still teammates alive, OR multiple teams are competing
+    -- This ensures solo-team players (like Jackal) get muted when the game continues
+    return teammateAlive or aliveTeamCount >= 2
 end
 
 local function GetEHP(ply)
@@ -162,7 +179,7 @@ hook.Add("PlayerDeath", "TTTDiscordDeath", function(victim, inflictor, attacker)
         if not IsActiveRound() or not IsValidPlayer(victim) then
             return
         end
-        if not victim:Alive() and not IsLastAliveInTeam(victim) then
+        if not victim:Alive() and ShouldMuteOnDeath(victim) then
             http.Post(ApiBase .. "/dead", { steamId = victim:SteamID64() }, nil, nil)
             DeadPlayers[victim:SteamID64()] = true
         end
