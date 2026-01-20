@@ -22,6 +22,38 @@ local function setName(p, n)
     end
 end
 
+-- Override Nick() on server to support round end screen (TTT2 events)
+local meta = FindMetaTable("Player")
+if meta and not meta._CN_OriginalNick then
+    local origNick = meta.Nick
+    
+    function meta:Nick()
+        local name = (self.GetNW2String and self:GetNW2String("DisplayName", "") or self:GetNWString("DisplayName", ""))
+        return (name ~= "" and name) or origNick(self)
+    end
+    
+    meta._CN_OriginalNick = origNick
+    
+    -- Also override Name() and GetName() for completeness
+    if meta.Name then
+        local origName = meta.Name
+        function meta:Name()
+            local name = (self.GetNW2String and self:GetNW2String("DisplayName", "") or self:GetNWString("DisplayName", ""))
+            return (name ~= "" and name) or origName(self)
+        end
+        meta._CN_OriginalName = origName
+    end
+    
+    if meta.GetName then
+        local origGetName = meta.GetName
+        function meta:GetName()
+            local name = (self.GetNW2String and self:GetNW2String("DisplayName", "") or self:GetNWString("DisplayName", ""))
+            return (name ~= "" and name) or origGetName(self)
+        end
+        meta._CN_OriginalGetName = origGetName
+    end
+end
+
 local function fetch(ply, tries)
     if not IsValid(ply) or ply:IsBot() or ply._cn_done or ply._cn_fetching or getName(ply) ~= "" then
         return
