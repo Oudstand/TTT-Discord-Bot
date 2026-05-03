@@ -5,5 +5,5 @@ export default {
     guildId: process.env.GUILD_ID,
     commandChannelId: process.env.COMMAND_CHANNEL_ID,
     statsChannelId: process.env.STATS_CHANNEL_ID,
-    language: process.env.LANGUAGE || 'en'
+    language: process.env.BOT_LANGUAGE || process.env.LANGUAGE || 'en'
 };

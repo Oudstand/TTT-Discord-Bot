@@ -1,16 +1,17 @@
 // app.ts (Main entry point)
-import express, {Request, Response} from 'express';
+import './utils/logger';
+import express, { Request, Response } from 'express';
 import http from 'http';
-import {WebSocketServer} from "ws";
-import {Client} from "discord.js";
+import { WebSocketServer } from "ws";
+import { Client } from "discord.js";
 
 import config from './config';
-import {setWebSocketServer} from './websocket-service';
+import { setWebSocketServer } from './websocket-service';
 
-import {client, loadGuild} from './discord/client';
-import {createUnmuteButton, setupButtonInteraction} from './discord/button-handlers';
-import {updateStatsMessage} from './discord/stats-announcer';
-import {resetSessionStats} from './storage/stats-store';
+import { client, loadGuild } from './discord/client';
+import { createUnmuteButton, setupButtonInteraction } from './discord/button-handlers';
+import { updateStatsMessage } from './discord/stats-announcer';
+import { resetSessionStats } from './storage/stats-store';
 
 import bindingsRoutes from './routes/bindings';
 import statsRoutes from './routes/stats';
@@ -22,27 +23,22 @@ import openBrowser from "./utils/open-browser";
 
 import indexHtml from "./public/index.html" with {type: "text"};
 import dashboardJs from "./public/js/dashboard.js" with {type: "text"};
-import {faviconBase64} from './favicon-embedded';
-import {cacheAvatars} from "./utils/player";
-import {t, Language} from './i18n/translations';
+import { faviconBase64 } from './favicon-embedded';
+import { cacheAvatars } from "./utils/player";
+import { t, Language } from './i18n/translations';
 
 const app = express();
 const port = 3000;
 
 const server = http.createServer(app);
-const wss = new WebSocketServer({server});
-
-if (process.platform === 'win32') {
-    process.title = 'TTT Discord Bot';
-    import('child_process').then(cp => cp.exec('title TTT Discord Bot'));
-}
+const wss = new WebSocketServer({ server });
 
 app.set('wss', wss);
 setWebSocketServer(wss);
 
 // Middleware
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 // API-Routen
 app.use('/api', bindingsRoutes);
@@ -82,8 +78,8 @@ client.once('ready', async (readyClient: Client) => {
     console.log(`✅ ${t('console.botReady', lang)} ${readyClient.user.tag}`);
 
     server.listen(port, () => {
-        console.log(`🌐 ${t('console.dashboardRunning', lang)} http://localhost:${port}`)
-        openBrowser(`http://localhost:3000?lang=${lang}`);
+        console.log(`🌐 ${t('console.dashboardRunning', lang)} http://localhost:${port}?lang=${lang}`)
+        openBrowser(`http://localhost:${port}?lang=${lang}`);
     });
 
     resetSessionStats();

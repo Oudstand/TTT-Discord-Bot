@@ -27,13 +27,14 @@ jobs:
         run: bun install
 
       - name: Build executable
-        run: bun run build
+        run: bun run build:ci
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             TTT Discord Bot.exe
+            ttt-discord-bot-linux
             .env.example
           body: |
             ## 🎮 TTT Discord Bot ${{ github.ref_name }}
@@ -41,13 +42,13 @@ jobs:
             Automatic muting/unmuting for Trouble in Terrorist Town with Discord integration.
 
             ### 📥 Installation
-            1. Download `TTT Discord Bot.exe` and `default.env.example` (appears with "default" prefix due to GitHub)
+            1. Download `TTT Discord Bot.exe` (Windows) or `ttt-discord-bot-linux` (Linux) and `default.env.example`
             2. Rename `default.env.example` to `.env` and fill in your configuration
             3. Install Lua addon from Steam Workshop
             4. Run `TTT Discord Bot.exe`
 
             ### 📋 Requirements
-            - Windows 10/11
+            - Windows 10/11 or Linux
             - Discord Bot Token
             - Steam API Key
             - Garry's Mod Server with TTT

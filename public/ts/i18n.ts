@@ -14,6 +14,7 @@ class I18n {
         const urlParams = new URLSearchParams(window.location.search);
         const urlLang = urlParams.get('lang');
         if (urlLang === 'de' || urlLang === 'en') {
+            localStorage.setItem('language', urlLang);
             return urlLang;
         }
 

@@ -83,7 +83,7 @@ DISCORD_TOKEN=your-bot-token
 GUILD_ID=1234567890
 COMMAND_CHANNEL_ID=1234567890
 STATS_CHANNEL_ID=1234567890
-LANGUAGE=en
+BOT_LANGUAGE=en
 ```
 
 **Configuration values:**
@@ -92,7 +92,7 @@ LANGUAGE=en
 - `GUILD_ID`: Your Discord server ID
 - `COMMAND_CHANNEL_ID`: Channel ID for the unmute button
 - `STATS_CHANNEL_ID`: Channel ID for statistics messages
-- `LANGUAGE`: Language for bot and dashboard (`en` for English, `de` for German)
+- `BOT_LANGUAGE`: Language for bot and dashboard (`en` for English, `de` for German)
 
 ### 3. Local Network Setup for GMod
 
@@ -145,7 +145,7 @@ The easiest way to use the bot is to download the pre-built executable from GitH
    - The dashboard will open automatically at http://localhost:3000
 
 **Language Selection:**
-The dashboard opens in the language specified in your `.env` file (`LANGUAGE`). You can also manually change the language by adding `?lang=en` or `?lang=de` to the URL.
+The dashboard opens in the language specified in your `.env` file (`BOT_LANGUAGE`). You can also manually change the language by adding `?lang=en` or `?lang=de` to the URL.
 
 **Note:** The `.exe` is fully standalone and portable. On first start, Chrome Headless Shell (~60-80 MB) will be automatically downloaded for screenshot generation. This download only happens once.
 

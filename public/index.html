@@ -34,9 +34,14 @@
 </head>
 <body class="bg-slate-900 text-white min-h-screen font-sans">
 <div class="container mx-auto px-2 py-6">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
         <h1 class="text-3xl font-bold" data-i18n="header.title">TTT Dashboard</h1>
-        <span id="status" class="text-sm text-gray-300" data-i18n="header.loading">🔄 Loading...</span>
+        <div class="flex items-center gap-4">
+            <span id="status" class="text-sm text-gray-300" data-i18n="header.loading">🔄 Loading...</span>
+            <button id="shutdownBtn" class="bg-red-600/80 hover:bg-red-600 text-white text-sm px-3 py-1.5 rounded-lg shadow-md flex items-center gap-1.5 transition-colors">
+                <i data-lucide="power" class="w-4 h-4"></i> <span data-i18n="header.shutdown">Shutdown Bot</span>
+            </button>
+        </div>
     </div>
 
     <div class="mb-4">
@@ -128,7 +133,18 @@
                 <input id="search" data-i18n-placeholder="bindings.search" placeholder="🔍 Search..." class="w-full bg-slate-800 p-2 rounded-lg text-white"/>
             </div>
 
-            <div id="bindingsList" class="space-y-2 mb-8 pb-16">
+            <div id="bindingsList" class="space-y-2 mb-8">
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-8 pb-16">
+        <h2 class="collapsible-header text-xl font-semibold mb-2 cursor-pointer flex items-center gap-2 p-2 rounded-lg hover:bg-slate-800">
+            <i data-lucide="chevron-right" class="chevron-icon w-5 h-5"></i>
+            <span data-i18n="console.title">🖥️ Live Console</span>
+        </h2>
+        <div class="collapsible-content">
+            <div id="consoleLog" class="bg-black/50 rounded-xl p-4 font-mono text-sm h-64 overflow-y-auto space-y-1 shadow-inner border border-slate-700/50 text-slate-300 break-all whitespace-pre-wrap">
             </div>
         </div>
     </div>

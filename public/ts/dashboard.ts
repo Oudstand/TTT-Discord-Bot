@@ -17,12 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsBodyAllEl = $<HTMLTableSectionElement>('#statsBodyAll');
     const searchInput = $<HTMLInputElement>('#search');
     const bindingForm = $<HTMLFormElement>('#bindingForm');
+    const shutdownBtn = $<HTMLButtonElement>('#shutdownBtn');
+    const consoleLogEl = $<HTMLDivElement>('#consoleLog');
     const nameInput = bindingForm?.querySelector<HTMLInputElement>('[name="name"]');
     const steamIdInput = bindingForm?.querySelector<HTMLInputElement>('[name="steamId"]');
     const discordIdInput = bindingForm?.querySelector<HTMLInputElement>('[name="discordId"]');
     const confirmBtn = $<HTMLButtonElement>('#modal-confirm');
     const cancelBtn = $<HTMLButtonElement>('#modal-cancel');
     const overlay = $<HTMLDivElement>('#modal-overlay');
+    const overlayTitle = overlay?.querySelector('h2');
     const overlayText = overlay?.querySelector('p');
 
     // --- API Helper ---
@@ -263,11 +266,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Confirm Dialog ---
-    function showConfirmDialog(text = i18n.t('modal.confirmText')): Promise<boolean> {
+    function showConfirmDialog(
+        text = i18n.t('modal.confirmText'),
+        title = i18n.t('modal.confirmDelete'),
+        confirmLabel = i18n.t('modal.deleteButton')
+    ): Promise<boolean> {
         return new Promise(resolve => {
-            if (!overlay || !overlayText || !confirmBtn || !cancelBtn) return resolve(false);
+            if (!overlay || !overlayText || !confirmBtn || !cancelBtn || !overlayTitle) return resolve(false);
 
+            overlayTitle.textContent = title;
             overlayText.textContent = text;
+            confirmBtn.textContent = confirmLabel;
+
             overlay.classList.remove('hidden');
 
             const onConfirm = () => {
@@ -393,6 +403,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchInput?.addEventListener('input', loadBindings);
 
+    function appendLog(level: string, message: string) {
+        if (!consoleLogEl) return;
+        const line = document.createElement('div');
+        if (level === 'error') line.className = 'text-red-400';
+        line.textContent = `> ${message}`;
+        consoleLogEl.appendChild(line);
+        // Auto-scroll to bottom
+        if (consoleLogEl.scrollHeight - consoleLogEl.scrollTop < 400) {
+            consoleLogEl.scrollTop = consoleLogEl.scrollHeight;
+        }
+    }
+
+    async function loadLogs(): Promise<void> {
+        try {
+            const res = await fetch('/api/logs');
+            const logs = await res.json();
+            if (consoleLogEl) consoleLogEl.innerHTML = '';
+            logs.forEach((msg: any) => appendLog(msg.level, msg.message));
+        } catch (err) { }
+    }
+
     function createWebSocket(): void {
         const ws = new WebSocket(`ws://${window.location.host}`);
         ws.addEventListener('open', () => console.log(i18n.t('ws.connected')));
@@ -404,11 +435,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     void loadAllStats();
                 } else if (msg.type === 'voiceUpdate') {
                     void loadVoiceList();
+                } else if (msg.type === 'log') {
+                    appendLog(msg.level, msg.message);
                 }
             } catch (err) {
             }
         });
     }
+
+    shutdownBtn?.addEventListener('click', async () => {
+        if (await showConfirmDialog(i18n.t('modal.confirmShutdown'), i18n.t('header.shutdown'), i18n.t('modal.shutdownButton'))) {
+            try {
+                await fetch('/api/shutdown', { method: 'POST' });
+            } catch {
+                // Ignore disconnect error
+            }
+            if (statusEl) statusEl.innerHTML = `🔴 Offline`;
+        }
+    });
 
     // --- Initialisierung ---
     async function initialize(): Promise<void> {
@@ -428,6 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
         void loadVoiceList();
         void loadSessionStats();
         void loadAllStats();
+        void loadLogs();
         lucide.createIcons();
     }
 

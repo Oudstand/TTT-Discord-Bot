@@ -12,8 +12,12 @@
     "build:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --minify",
     "watch:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --watch --minify",
     "build:favicon": "node -e \"const fs = require('fs'); const data = fs.readFileSync('public/favicon.ico', 'base64'); fs.writeFileSync('favicon-embedded.ts', 'export const faviconBase64 = \\\"' + data + '\\\";');\"",
-    "build:exe": "bun build ./app.ts --compile --windows-icon=icon.ico --external electron --outfile \"TTT Discord Bot.exe\"",
-    "build": "bun run build:frontend && bun run build:favicon && bun run build:exe"
+    "build:exe:win": "bun build ./app.ts --compile --target=bun-windows-x64 --external electron --outfile \"TTT Discord Bot.exe\"",
+    "build:exe:win-ci": "bun build ./app.ts --compile --target=bun-windows-x64 --windows-icon=icon.ico --windows-hide-console --external electron --outfile \"TTT Discord Bot.exe\"",
+    "build:exe:linux": "bun build ./app.ts --compile --target=bun-linux-x64 --external electron --outfile \"ttt-discord-bot-linux\"",
+    "build:exe": "bun run build:exe:win && bun run build:exe:linux",
+    "build": "bun run build:frontend && bun run build:favicon && bun run build:exe",
+    "build:ci": "bun run build:frontend && bun run build:favicon && bun run build:exe:win-ci && bun run build:exe:linux"
   },
   "dependencies": {
     "@puppeteer/browsers": "^2.10.13",

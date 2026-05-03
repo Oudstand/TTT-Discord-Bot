@@ -11,6 +11,7 @@ export const translations: Record<Language, Translations> = {
         // Dashboard - Header
         'header.title': 'TTT Dashboard',
         'header.loading': 'Lade...',
+        'header.shutdown': 'Bot beenden',
 
         // Dashboard - Stats sections
         'stats.session': 'Session-Statistik',
@@ -37,6 +38,7 @@ export const translations: Record<Language, Translations> = {
         'ws.connected': 'WebSocket verbunden',
 
         // Dashboard - Voice section
+        'console.title': '🖥️ Live Konsole',
         'voice.title': 'Spieler im Discord',
         'voice.mute': 'Muten',
         'voice.unmute': 'Entmuten',
@@ -59,7 +61,9 @@ export const translations: Record<Language, Translations> = {
         'modal.confirmText': 'Soll der Eintrag wirklich gelöscht werden?',
         'modal.confirmDeleteStats': 'Sollen die Statistiken von "{name}" wirklich gelöscht werden?',
         'modal.confirmDeleteStatsSession': 'Sollen die Session-Statistiken von "{name}" wirklich gelöscht werden?',
+        'modal.confirmShutdown': 'Soll der Bot wirklich heruntergefahren werden? (Das Dashboard erfordert danach einen manuellen Neustart im System)',
         'modal.deleteButton': 'Löschen',
+        'modal.shutdownButton': 'Herunterfahren',
         'modal.cancelButton': 'Abbrechen',
 
         // Discord - Stats announcer
@@ -161,6 +165,7 @@ export const translations: Record<Language, Translations> = {
         // Dashboard - Header
         'header.title': 'TTT Dashboard',
         'header.loading': 'Loading...',
+        'header.shutdown': 'Shutdown Bot',
 
         // Dashboard - Stats sections
         'stats.session': 'Session Statistics',
@@ -187,6 +192,7 @@ export const translations: Record<Language, Translations> = {
         'ws.connected': 'WebSocket connected',
 
         // Dashboard - Voice section
+        'console.title': '🖥️ Live Console',
         'voice.title': 'Players in Discord',
         'voice.mute': 'Mute',
         'voice.unmute': 'Unmute',
@@ -209,7 +215,9 @@ export const translations: Record<Language, Translations> = {
         'modal.confirmText': 'Do you really want to delete this entry?',
         'modal.confirmDeleteStats': 'Do you really want to delete the statistics for "{name}"?',
         'modal.confirmDeleteStatsSession': 'Do you really want to delete the session statistics for "{name}"?',
+        'modal.confirmShutdown': 'Do you really want to shut down the bot? (The dashboard will require a manual restart in your system afterwards)',
         'modal.deleteButton': 'Delete',
+        'modal.shutdownButton': 'Shutdown',
         'modal.cancelButton': 'Cancel',
 
         // Discord - Stats announcer

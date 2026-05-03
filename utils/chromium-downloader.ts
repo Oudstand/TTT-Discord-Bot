@@ -1,8 +1,8 @@
 // utils/chromium-downloader.ts
-import {install, canDownload, Browser, BrowserPlatform} from '@puppeteer/browsers';
-import {existsSync, readdirSync} from 'fs';
-import {join} from 'path';
-import {t, Language} from '../i18n/translations';
+import { install, canDownload, Browser, BrowserPlatform } from '@puppeteer/browsers';
+import { existsSync, readdirSync } from 'fs';
+import { join } from 'path';
+import { t, Language } from '../i18n/translations';
 import config from '../config';
 
 function lang(): Language {
@@ -11,7 +11,9 @@ function lang(): Language {
 
 const BROWSER_DIR = join(process.cwd(), 'browser');
 const BROWSER_TYPE = Browser.CHROMEHEADLESSSHELL; // Smallest version (~60-80 MB)
-const PLATFORM = BrowserPlatform.WIN64;
+const PLATFORM = process.platform === 'win32' ? BrowserPlatform.WIN64 :
+    process.platform === 'darwin' ? (process.arch === 'arm64' ? BrowserPlatform.MAC_ARM : BrowserPlatform.MAC) :
+        BrowserPlatform.LINUX;
 // NOTE: Update this to the latest stable version periodically
 // Check https://googlechromelabs.github.io/chrome-for-testing/ for versions
 const BUILD_ID = '131.0.6778.108';
@@ -36,9 +38,14 @@ function findInstalledHeadlessShell(): string | null {
             return null;
         }
 
-        // Take the first (and should be only) version
         const versionDir = versions[0];
-        const execPath = join(browserTypeDir, versionDir, 'chrome-headless-shell-win64', 'chrome-headless-shell.exe');
+
+        const execName = process.platform === 'win32' ? 'chrome-headless-shell.exe' : 'chrome-headless-shell';
+        const platformDirName = process.platform === 'win32' ? 'chrome-headless-shell-win64' :
+            process.platform === 'darwin' ? (process.arch === 'arm64' ? 'chrome-headless-shell-mac-arm64' : 'chrome-headless-shell-mac-x64') :
+                'chrome-headless-shell-linux64';
+
+        const execPath = join(browserTypeDir, versionDir, platformDirName, execName);
 
         if (existsSync(execPath)) {
             return execPath;
