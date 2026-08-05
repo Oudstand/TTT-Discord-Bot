@@ -162,11 +162,11 @@ The easiest way to use the bot is to download the pre-built executable from GitH
 
 1. **Download:**
    - Go to [Releases](https://github.com/Oudstand/TTT-Discord-Bot/releases)
-   - Windows: Download `TTT Discord Bot.exe` and `.env.example`
-   - Linux: Download `ttt-discord-bot-linux` and `.env.example`
+   - Windows: Download `TTT Discord Bot.exe` and `default.env.example`
+   - Linux: Download `ttt-discord-bot-linux` and `default.env.example`
 
 2. **Setup:**
-   - Rename `.env.example` to `.env`
+   - Rename `default.env.example` to `.env`
    - Fill in your configuration (Discord token, Steam API key, etc.)
    - Place the `.env` file in the same folder as the executable
 

@@ -83,8 +83,8 @@ jobs:
             Automatic muting/unmuting for Trouble in Terrorist Town with Discord integration.
 
             ### 📥 Installation
-            1. Download `TTT Discord Bot.exe` (Windows) or `ttt-discord-bot-linux` (Linux) and `.env.example`
-            2. Rename `.env.example` to `.env` and fill in your configuration
+            1. Download `TTT Discord Bot.exe` (Windows) or `ttt-discord-bot-linux` (Linux) and `default.env.example`
+            2. Rename `default.env.example` to `.env` and fill in your configuration
             3. Install Lua addon from Steam Workshop
             4. Start `TTT Discord Bot.exe` on Windows or run `chmod +x ttt-discord-bot-linux && ./ttt-discord-bot-linux` on Linux
 
