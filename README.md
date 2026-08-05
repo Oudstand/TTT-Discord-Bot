@@ -227,6 +227,58 @@ bun run build
 
 This creates `TTT Discord Bot.exe` and `ttt-discord-bot-linux` in the project folder. To build only one platform, use `bun run build:exe:win` or `bun run build:exe:linux`.
 
+### Updating the Steam Workshop Addons
+
+The Workshop addons are published separately from the GitHub release. Update an addon whenever files in its source directory change:
+
+| Workshop addon | ID | Source directory | Update when |
+| --- | --- | --- | --- |
+| TTT Discord Bot | `3601367840` | `lua-discord-bot/` | The GMod-to-bot integration changes |
+| TTT Custom Names | `3601388257` | `lua-custom-names/` | Custom display-name handling changes |
+
+The Custom Names addon is optional for users, but its Workshop item must still be updated when its source files change. If both directories changed since the previous release, update both Workshop items.
+
+#### Linux
+
+Make sure Steam is running and logged in with the account that owns the Workshop items. From the repository root, create both GMA packages:
+
+```bash
+GMOD_BIN="$HOME/.local/share/Steam/steamapps/common/GarrysMod/bin"
+
+"$GMOD_BIN/gmad_linux" create \
+  -folder "$PWD/lua-discord-bot" \
+  -out "/tmp/ttt-discord-bot.gma"
+
+"$GMOD_BIN/gmad_linux" create \
+  -folder "$PWD/lua-custom-names" \
+  -out "/tmp/ttt-custom-names.gma"
+```
+
+Upload the packages to the existing Workshop items:
+
+```bash
+"$GMOD_BIN/gmpublish_linux" update \
+  -id 3601367840 \
+  -addon "/tmp/ttt-discord-bot.gma" \
+  -changes "Describe the Discord Bot addon changes"
+
+"$GMOD_BIN/gmpublish_linux" update \
+  -id 3601388257 \
+  -addon "/tmp/ttt-custom-names.gma" \
+  -changes "Describe the Custom Names addon changes"
+```
+
+Use short US-ASCII change notes to avoid encoding problems. On Windows, use `gmad.exe` and `gmpublish.exe` from the Garry's Mod `bin` directory with the same arguments.
+
+After uploading:
+
+1. Open both Workshop pages and verify their update timestamps and change notes.
+2. Keep the existing Workshop IDs; do not use `create` for an update.
+3. Restart or update the GMod server so it downloads the new Workshop versions.
+4. Test round start, player death/spawn, round end, and custom names in the scoreboard and round-end screen.
+
+See the official Garry's Mod documentation for [creating GMA packages](https://wiki.facepunch.com/gmod/Workshop_Addon_Creation) and [updating Workshop addons](https://wiki.facepunch.com/gmod/Workshop_Addon_Updating).
+
 ## ☕ Support this project
 
 This project is developed and maintained in my free time.  
