@@ -7,29 +7,75 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            artifact-name: release-windows
+            build-script: build:exe:win-ci
+            output: TTT Discord Bot.exe
+          - os: ubuntu-latest
+            artifact-name: release-linux
+            build-script: build:exe:linux
+            output: ttt-discord-bot-linux
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
       - name: Install dependencies
         run: bun install
 
+      - name: Build frontend
+        run: bun run build:frontend
+
+      - name: Embed favicon
+        run: bun run build:favicon
+
       - name: Build executable
-        run: bun run build:ci
+        run: bun run ${{ matrix.build-script }}
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.output }}
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Download Windows executable
+        uses: actions/download-artifact@v4
+        with:
+          name: release-windows
+          path: release
+
+      - name: Download Linux executable
+        uses: actions/download-artifact@v4
+        with:
+          name: release-linux
+          path: release
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
-            TTT Discord Bot.exe
-            ttt-discord-bot-linux
+            release/TTT Discord Bot.exe
+            release/ttt-discord-bot-linux
             .env.example
           body: |
             ## 🎮 TTT Discord Bot ${{ github.ref_name }}
@@ -37,8 +83,8 @@ jobs:
             Automatic muting/unmuting for Trouble in Terrorist Town with Discord integration.
 
             ### 📥 Installation
-            1. Download `TTT Discord Bot.exe` (Windows) or `ttt-discord-bot-linux` (Linux) and `default.env.example`
-            2. Rename `default.env.example` to `.env` and fill in your configuration
+            1. Download `TTT Discord Bot.exe` (Windows) or `ttt-discord-bot-linux` (Linux) and `.env.example`
+            2. Rename `.env.example` to `.env` and fill in your configuration
             3. Install Lua addon from Steam Workshop
             4. Start `TTT Discord Bot.exe` on Windows or run `chmod +x ttt-discord-bot-linux && ./ttt-discord-bot-linux` on Linux
 
