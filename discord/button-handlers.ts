@@ -1,11 +1,9 @@
 // discord/button-handlers.ts
 import {ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, Client, Guild, GuildMember, Interaction, Message, MessageFlags, TextChannel} from 'discord.js';
 import {get, set} from '../storage/meta-store';
-import config from '../config';
+import config, {lang} from '../config';
 import {getClient, getGuild} from './client';
-import {t, Language} from '../i18n/translations';
-
-const lang = () => (config.language || 'en') as Language;
+import {t} from '../i18n/translations';
 
 // Send button message once
 async function createUnmuteButton(): Promise<void> {

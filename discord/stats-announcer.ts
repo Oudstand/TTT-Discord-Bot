@@ -18,7 +18,7 @@ class StatsAnnouncer {
 
     constructor(type: StatsType) {
         this.type = type;
-        this.lang = (config.language || 'en') as Language;
+        this.lang = config.language;
         this.messageName = type === 'all' ? t('discord.stats.total', this.lang) : t('discord.stats.session', this.lang);
         this.metaKey = type === 'all' ? 'statsMessageIdAll' : 'statsMessageIdSession';
         this.content = type === 'all' ? `\u200B**🏆 TTT ${this.messageName}**` : `\u200B**📊 TTT ${this.messageName}**`;
@@ -56,7 +56,7 @@ class StatsAnnouncer {
         if (this.message) return;
 
         if (!config.statsChannelId) {
-            console.error(`❌ ${t('config.statsChannelNotSet', lang())}`);
+            console.error(`❌ ${t('config.statsChannelNotSet', this.lang)}`);
             return;
         }
 

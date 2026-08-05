@@ -1,8 +1,33 @@
 // utils/logger.ts
-import { getWebSocketServer } from '../websocket-service';
+import { appendFileSync } from 'fs';
+import { join } from 'path';
+import { broadcast } from '../websocket-service';
 
 const originalConsoleLog = console.log;
 const originalConsoleError = console.error;
+
+// The Windows exe is built with --windows-hide-console, so fatal errors would
+// otherwise disappear without a trace — keep them in a file next to the executable.
+const errorLogPath = join(process.cwd(), 'error.log');
+
+export function logErrorToFile(message: string): void {
+    try {
+        appendFileSync(errorLogPath, `[${new Date().toISOString()}] ${message}\n`);
+    } catch {
+        // Nowhere left to report to
+    }
+}
+
+process.on('uncaughtException', error => {
+    originalConsoleError(error);
+    logErrorToFile(`Uncaught exception: ${error?.stack ?? error}`);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', reason => {
+    console.error('Unhandled rejection:', reason);
+    logErrorToFile(`Unhandled rejection: ${(reason as Error)?.stack ?? reason}`);
+});
 
 function safelyStringify(arg: any): string {
     if (typeof arg === 'string') return arg;
@@ -25,17 +50,9 @@ function broadcastLog(type: 'info' | 'error', args: any[]) {
     logHistory.push({ level: type, message });
     if (logHistory.length > 200) logHistory.shift();
 
-    // Only fetch socket server if available, avoid crashing during init
     try {
-        const wss = getWebSocketServer();
-        if (wss) {
-            wss.clients.forEach(client => {
-                if (client.readyState === 1) { // WebSocket.OPEN
-                    client.send(JSON.stringify({ type: 'log', level: type, message }));
-                }
-            });
-        }
-    } catch (e) {
+        broadcast({ type: 'log', level: type, message });
+    } catch {
         // Ignoriert, falls WebSocket noch nicht bereit ist
     }
 }

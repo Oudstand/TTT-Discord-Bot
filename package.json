@@ -11,7 +11,7 @@
     "dev": "bun run --watch app.ts",
     "build:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --minify",
     "watch:frontend": "bun build ./public/ts/dashboard.ts --outdir ./public/js --watch --minify",
-    "build:favicon": "node -e \"const fs = require('fs'); const data = fs.readFileSync('public/favicon.ico', 'base64'); fs.writeFileSync('favicon-embedded.ts', 'export const faviconBase64 = \\\"' + data + '\\\";');\"",
+    "build:favicon": "bun -e \"const fs = require('fs'); const data = fs.readFileSync('public/favicon.ico', 'base64'); fs.writeFileSync('favicon-embedded.ts', 'export const faviconBase64 = \\\"' + data + '\\\";');\"",
     "build:exe:win": "bun build ./app.ts --compile --target=bun-windows-x64 --external electron --outfile \"TTT Discord Bot.exe\"",
     "build:exe:win-ci": "bun build ./app.ts --compile --target=bun-windows-x64 --windows-icon=icon.ico --windows-hide-console --external electron --outfile \"TTT Discord Bot.exe\"",
     "build:exe:linux": "bun build ./app.ts --compile --target=bun-linux-x64 --external electron --outfile \"ttt-discord-bot-linux\"",

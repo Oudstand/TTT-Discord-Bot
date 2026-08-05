@@ -1,11 +1,8 @@
 // discord/client.ts
 import {Client, GatewayIntentBits, Guild, Partials, VoiceState} from 'discord.js';
-import {getWebSocketServer} from '../websocket-service';
-import WebSocket, {WebSocketServer} from 'ws';
-import config from '../config';
-import {t, Language} from '../i18n/translations';
-
-const lang = () => (config.language || 'en') as Language;
+import {broadcast} from '../websocket-service';
+import config, {lang} from '../config';
+import {t} from '../i18n/translations';
 
 const client: Client = new Client({
     intents: [
@@ -19,14 +16,7 @@ const client: Client = new Client({
 
 client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState): void => {
     if (oldState.channelId !== newState.channelId || oldState.selfMute !== newState.selfMute || oldState.serverMute !== newState.serverMute) {
-        const wss: WebSocketServer | null = getWebSocketServer();
-        if (wss) {
-            wss.clients.forEach(ws => {
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({type: 'voiceUpdate'}));
-                }
-            });
-        }
+        broadcast({type: 'voiceUpdate'});
     }
 });
 

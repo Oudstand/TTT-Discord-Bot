@@ -2,12 +2,8 @@
 import { install, canDownload, Browser, BrowserPlatform } from '@puppeteer/browsers';
 import { existsSync, readdirSync } from 'fs';
 import { join } from 'path';
-import { t, Language } from '../i18n/translations';
-import config from '../config';
-
-function lang(): Language {
-    return (config.language || 'en') as Language;
-}
+import { t } from '../i18n/translations';
+import { lang } from '../config';
 
 const BROWSER_DIR = join(process.cwd(), 'browser');
 const BROWSER_TYPE = Browser.CHROMEHEADLESSSHELL; // Smallest version (~60-80 MB)

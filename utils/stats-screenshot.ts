@@ -1,13 +1,9 @@
 // utils/stats-screenshot.ts
 import puppeteer, {Browser, Page} from 'puppeteer-core';
 import {ScreenshotPath, StatsType} from '../types';
-import config from '../config';
-import {t, Language} from '../i18n/translations';
+import config, {lang} from '../config';
+import {t} from '../i18n/translations';
 import {ensureChromiumInstalled} from './chromium-downloader';
-
-function lang(): Language {
-    return (config.language || 'en') as Language;
-}
 
 let portableChromium: { executablePath: string } | null = null;
 let browserInstance: Browser | null = null;
@@ -38,13 +34,6 @@ async function getBrowser(): Promise<Browser | null> {
             ]
         });
 
-        // Ensure browser is closed when process exits
-        process.on('exit', async () => {
-            if (browserInstance) {
-                await browserInstance.close();
-            }
-        });
-
         return browserInstance;
     } catch (error: any) {
         console.error(`❌ ${t('screenshot.launchFailed', lang())}`, error.message);
@@ -65,8 +54,7 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
         await page.setViewport({width: 1600, height: 900});
 
         const tableId = type === 'session' ? '#statsTableSession' : '#statsTableAll';
-        const language = config.language || 'en';
-        const url = `http://localhost:3000/?lang=${language}`;
+        const url = `http://localhost:${config.port}/?lang=${config.language}`;
 
         await page.goto(url, {waitUntil: 'networkidle0'});
         await page.waitForSelector(`${tableId} tr`);
@@ -103,4 +91,11 @@ async function screenshotStats(type: StatsType = 'all', filename: ScreenshotPath
     }
 }
 
-export {screenshotStats};
+async function closeBrowser(): Promise<void> {
+    if (browserInstance) {
+        await browserInstance.close();
+        browserInstance = null;
+    }
+}
+
+export {screenshotStats, closeBrowser};

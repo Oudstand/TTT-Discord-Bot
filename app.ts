@@ -1,11 +1,11 @@
 // app.ts (Main entry point)
-import './utils/logger';
+import { logErrorToFile } from './utils/logger';
 import express, { Request, Response } from 'express';
 import http from 'http';
 import { WebSocketServer } from "ws";
 import { Client } from "discord.js";
 
-import config from './config';
+import config, { lang } from './config';
 import { setWebSocketServer } from './websocket-service';
 
 import { client, loadGuild } from './discord/client';
@@ -20,15 +20,15 @@ import discordRoutes from './routes/discord';
 import gameRoutes from './routes/game';
 
 import openBrowser from "./utils/open-browser";
+import { shutdownGracefully } from "./utils/shutdown";
 
 import indexHtml from "./public/index.html" with {type: "text"};
 import dashboardJs from "./public/js/dashboard.js" with {type: "text"};
 import { faviconBase64 } from './favicon-embedded';
 import { cacheAvatars } from "./utils/player";
-import { t, Language } from './i18n/translations';
+import { t } from './i18n/translations';
 
 const app = express();
-const port = 3000;
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
@@ -67,24 +67,24 @@ app.get('/favicon.ico', (_req: Request, res: Response): void => {
 // Discord Login & Bot Start
 client.once('ready', async (readyClient: Client) => {
     if (!readyClient.user) {
-        console.error(`❌ ${t('config.clientUserNotDetermined', (config.language || 'en') as Language)}`);
+        console.error(`❌ ${t('config.clientUserNotDetermined', lang())}`);
         return;
     }
 
     await loadGuild();
     await cacheAvatars();
 
-    const lang = (config.language || 'en') as Language;
-    console.log(`✅ ${t('console.botReady', lang)} ${readyClient.user.tag}`);
+    console.log(`✅ ${t('console.botReady', lang())} ${readyClient.user.tag}`);
 
-    server.listen(port, () => {
-        console.log(`🌐 ${t('console.dashboardRunning', lang)} http://localhost:${port}?lang=${lang}`)
-        openBrowser(`http://localhost:${port}?lang=${lang}`);
+    server.listen(config.port, () => {
+        const dashboardUrl = `http://localhost:${config.port}?lang=${lang()}`;
+        console.log(`🌐 ${t('console.dashboardRunning', lang())} ${dashboardUrl}`)
+        openBrowser(dashboardUrl);
     });
 
     resetSessionStats();
 
-    // Small delay to let Edge initialize properly on first launch
+    // Small delay so the first screenshots run after everything has settled
     setTimeout(async () => {
         await updateStatsMessage('all');
         await updateStatsMessage('session');
@@ -94,8 +94,18 @@ client.once('ready', async (readyClient: Client) => {
     setupButtonInteraction();
 });
 
+process.on('SIGINT', () => void shutdownGracefully());
+process.on('SIGTERM', () => void shutdownGracefully());
+
 if (!config.token) {
-    throw new Error('❌ Discord bot token (DISCORD_TOKEN) is missing from configuration. Bot cannot start.');
+    const message = '❌ Discord bot token (DISCORD_TOKEN) is missing from configuration. Bot cannot start.';
+    console.error(message);
+    logErrorToFile(message);
+    process.exit(1);
 }
 
-void client.login(config.token);
+client.login(config.token).catch(error => {
+    console.error('❌ Discord login failed:', error);
+    logErrorToFile(`Discord login failed: ${error?.message ?? error}\n${error?.stack ?? ''}`);
+    process.exit(1);
+});

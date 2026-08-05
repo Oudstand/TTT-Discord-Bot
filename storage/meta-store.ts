@@ -1,11 +1,10 @@
 // storage/meta-store.ts
 import fs from 'fs';
 import path from 'path';
-import {t, Language} from '../i18n/translations';
-import config from '../config';
+import {t} from '../i18n/translations';
+import {lang} from '../config';
 
 const metaPath = path.join(process.cwd(), 'meta.json');
-const lang = () => (config.language || 'en') as Language;
 
 let meta: Record<string, any> = {};
 

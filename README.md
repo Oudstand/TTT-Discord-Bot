@@ -50,7 +50,7 @@ This project uses `bun:sqlite`:
 
 ## 📋 Requirements
 
-- **Windows 10/11**
+- **Windows 10/11** or **Linux x86_64** (for example CachyOS)
 - **Garry's Mod** with **Trouble in Terrorist Town**
 - **Discord Bot** (create one in the [Discord Developer Portal](https://discord.com/developers/applications))
 - **Steam API Key** from [steamcommunity.com/dev/apikey](https://steamcommunity.com/dev/apikey)
@@ -84,6 +84,7 @@ GUILD_ID=1234567890
 COMMAND_CHANNEL_ID=1234567890
 STATS_CHANNEL_ID=1234567890
 BOT_LANGUAGE=en
+PORT=3000
 ```
 
 **Configuration values:**
@@ -93,19 +94,47 @@ BOT_LANGUAGE=en
 - `COMMAND_CHANNEL_ID`: Channel ID for the unmute button
 - `STATS_CHANNEL_ID`: Channel ID for statistics messages
 - `BOT_LANGUAGE`: Language for bot and dashboard (`en` for English, `de` for German)
+- `PORT`: Port for the dashboard and API (default: `3000`). The same value must be configured in Garry's Mod.
 
 ### 3. Local Network Setup for GMod
 
-To allow Garry's Mod to communicate with the bot, a special loopback address must be configured.
+To allow Garry's Mod to communicate with the bot, configure the `192.178.0.1` loopback address and the `ttthost` hostname on the machine running both applications.
 
-1. **Add IP address:** Open Command Prompt as Administrator and run:
+#### Windows
+
+1. **Add the loopback address:** Open Command Prompt as Administrator and run:
    ```bash
    netsh interface ipv4 add address "Loopback Pseudo-Interface 1" 192.178.0.1 255.255.255.255
    ```
-2. **Edit hosts file:** Add the following line at the end of your hosts file (`C:\Windows\System32\drivers\etc\hosts`):
+2. **Edit the hosts file:** Add the following line to `C:\Windows\System32\drivers\etc\hosts`:
    ```
    192.178.0.1    ttthost
    ```
+
+#### Linux
+
+1. **Add the loopback address:** Run:
+   ```bash
+   sudo ip addr add 192.178.0.1/32 dev lo
+   ```
+   This command applies until the next reboot unless the address is also added to your distribution's persistent network configuration.
+2. **Edit the hosts file:** Add the following line to `/etc/hosts`:
+   ```
+   192.178.0.1    ttthost
+   ```
+3. **Verify the setup:** Run:
+   ```bash
+   ip addr show dev lo
+   getent hosts ttthost
+   ```
+
+#### API Port
+
+Add the following line to the Garry's Mod server configuration (`garrysmod/cfg/server.cfg`):
+   ```cfg
+   ttt_discord_bot_port 3000
+   ```
+This value must match `PORT` in the bot's `.env` file. Existing installations can keep the default port `3000` on both sides.
 
 ### 4. Install GMod Addons
 
@@ -133,21 +162,27 @@ The easiest way to use the bot is to download the pre-built executable from GitH
 
 1. **Download:**
    - Go to [Releases](https://github.com/Oudstand/TTT-Discord-Bot/releases)
-   - Download the latest `TTT Discord Bot.exe` and `.env.example`
+   - Windows: Download `TTT Discord Bot.exe` and `.env.example`
+   - Linux: Download `ttt-discord-bot-linux` and `.env.example`
 
 2. **Setup:**
    - Rename `.env.example` to `.env`
    - Fill in your configuration (Discord token, Steam API key, etc.)
-   - Place the `.env` file in the same folder as the `.exe`
+   - Place the `.env` file in the same folder as the executable
 
 3. **Run:**
-   - Double-click `TTT Discord Bot.exe`
-   - The dashboard will open automatically at http://localhost:3000
+   - Windows: Double-click `TTT Discord Bot.exe`
+   - Linux:
+     ```bash
+     chmod +x ttt-discord-bot-linux
+     ./ttt-discord-bot-linux
+     ```
+   - The dashboard will open automatically at `http://localhost:<PORT>` (by default http://localhost:3000)
 
 **Language Selection:**
 The dashboard opens in the language specified in your `.env` file (`BOT_LANGUAGE`). You can also manually change the language by adding `?lang=en` or `?lang=de` to the URL.
 
-**Note:** The `.exe` is fully standalone and portable. On first start, Chrome Headless Shell (~60-80 MB) will be automatically downloaded for screenshot generation. This download only happens once.
+**Note:** Both executables are standalone and portable. On first start, Chrome Headless Shell (~60-80 MB) will be automatically downloaded for screenshot generation. This download only happens once.
 
 ---
 
@@ -180,17 +215,17 @@ Run the bot from source:
 bun start
 ```
 
-The dashboard will be available at http://localhost:3000.
+The dashboard will be available at `http://localhost:<PORT>` (by default http://localhost:3000).
 
-#### Build Standalone .exe
+#### Build Standalone Executables
 
-To create your own portable `.exe` file:
+To create the portable Windows and Linux executables:
 
 ```bash
 bun run build
 ```
 
-This creates `TTT Discord Bot.exe` in the project folder.
+This creates `TTT Discord Bot.exe` and `ttt-discord-bot-linux` in the project folder. To build only one platform, use `bun run build:exe:win` or `bun run build:exe:linux`.
 
 ## ☕ Support this project
 

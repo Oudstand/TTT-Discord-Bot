@@ -1,7 +1,6 @@
 // routes/stats.ts
 import express, { Request, Response, Router } from 'express';
-import WebSocket from 'ws';
-import { getWebSocketServer } from '../websocket-service';
+import { broadcast } from '../websocket-service';
 import { updateStatsMessage } from '../discord/stats-announcer';
 import {
     addDamage,
@@ -19,26 +18,17 @@ import {
 } from '../storage/stats-store';
 import { getNameBySteamId } from '../utils/player';
 import { DamageBody, SteamIdBody, WinLossBody } from "../types";
-import { t, Language } from '../i18n/translations';
-import config from '../config';
+import { t } from '../i18n/translations';
+import { lang } from '../config';
 
 const router: Router = express.Router();
-const lang = () => (config.language || 'en') as Language;
 
 function notifyClientsAndDiscord(): void {
     console.log(`📊 ${t('console.statsUpdate', lang())}`);
     void updateStatsMessage('all');
     void updateStatsMessage('session');
 
-    const wss = getWebSocketServer();
-    if (wss) {
-        const message = JSON.stringify({ type: 'statsUpdate' });
-        wss.clients.forEach(ws => {
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.send(message);
-            }
-        });
-    }
+    broadcast({ type: 'statsUpdate' });
 }
 
 // Alle Statistiken abrufen

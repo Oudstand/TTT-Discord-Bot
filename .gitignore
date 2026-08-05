@@ -5,6 +5,7 @@ database.sqlite
 meta.json
 stats_all.png
 stats_session.png
+error.log
 .idea
 TTT Discord Bot.exe
 ttt-discord-bot-linux

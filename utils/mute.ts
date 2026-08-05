@@ -3,10 +3,8 @@ import {getGuild} from "../discord/client";
 import {getNameByDiscordId} from "./player";
 import {Guild, GuildMember} from "discord.js";
 import {MuteResult, MuteResultCode} from "../types";
-import {t, Language} from '../i18n/translations';
-import config from '../config';
-
-const lang = () => (config.language || 'en') as Language;
+import {t} from '../i18n/translations';
+import {lang} from '../config';
 
 function ok(message?: string): MuteResult {
     return {code: MuteResultCode.OK, success: true, message};

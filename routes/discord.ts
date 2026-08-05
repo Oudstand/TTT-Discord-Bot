@@ -6,10 +6,8 @@ import {fallBackAvatarUrl, getNameBySteamId} from "../utils/player";
 import {setMute, toHttpStatus, unmuteAll} from "../utils/mute";
 import {Guild, GuildMember, VoiceState} from "discord.js";
 import {DiscordIdParams, MuteResult, VoiceUser} from "../types";
-import config from "../config";
-import {t, Language} from "../i18n/translations";
-
-const lang = () => (config.language || 'en') as Language;
+import {lang} from "../config";
+import {t} from "../i18n/translations";
 
 const router: Router = express.Router();
 

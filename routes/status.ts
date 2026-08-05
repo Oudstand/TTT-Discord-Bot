@@ -3,6 +3,7 @@ import express, { Request, Response, Router } from 'express';
 import { getClient } from '../discord/client';
 import { Client } from "discord.js";
 import { getLogHistory } from "../utils/logger";
+import { shutdownGracefully } from "../utils/shutdown";
 
 const router: Router = express.Router();
 
@@ -17,9 +18,8 @@ router.get('/status', (req: Request, res: Response): void => {
 
 router.post('/shutdown', (req: Request, res: Response): void => {
     res.status(200).send('Shutting down...');
-    setTimeout(() => {
-        process.exit(0);
-    }, 1000);
+    // Short delay so the response reaches the dashboard before cleanup starts
+    setTimeout(() => void shutdownGracefully(), 1000);
 });
 
 router.get('/logs', (req: Request, res: Response): void => {

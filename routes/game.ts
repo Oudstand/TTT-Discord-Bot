@@ -3,13 +3,12 @@ import express, {NextFunction, Request, Response, Router} from 'express';
 import {updateStats} from '../storage/stats-store';
 import {setMute, toHttpStatus, unmuteAll} from "../utils/mute";
 import {updateStatsMessage} from "../discord/stats-announcer";
-import WebSocket, {WebSocketServer} from "ws";
-import {getWebSocketServer} from "../websocket-service";
+import {broadcast} from "../websocket-service";
 import {Binding, MuteResult, RoundEndBody, SteamIdBody} from "../types";
 import {getBinding} from "../storage/bindings-store";
 import {get, set} from "../storage/meta-store";
-import {t, Language} from '../i18n/translations';
-import config from '../config';
+import {t} from '../i18n/translations';
+import {lang} from '../config';
 
 const router: Router = express.Router();
 const isActiveRoundMetaKey = 'isActiveRound';
@@ -73,23 +72,14 @@ router.post('/roundEnd', async (req: Request<{}, {}, RoundEndBody>, res: Respons
             return;
         }
 
-        const lang = (config.language || 'en') as Language;
-        console.log(`📊 ${t('console.roundEnd', lang)}`);
+        console.log(`📊 ${t('console.roundEnd', lang())}`);
 
         updateStats(players);
 
         void updateStatsMessage('all');
         void updateStatsMessage('session');
 
-        const wss: WebSocketServer | null = getWebSocketServer();
-        if (wss) {
-            const message: string = JSON.stringify({type: 'statsUpdate'});
-            wss.clients.forEach(ws => {
-                if (ws.readyState === WebSocket.OPEN) {
-                    ws.send(message);
-                }
-            });
-        }
+        broadcast({type: 'statsUpdate'});
 
         res.status(200).send('Round end processed successfully.');
     } catch (error) {

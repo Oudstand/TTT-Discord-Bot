@@ -1,14 +1,10 @@
 // utils/player.ts
 import {getBinding, getBindingByDiscordId, getBindings} from '../storage/bindings-store';
-import config from "../config";
+import config, {lang} from "../config";
 import {Binding, SteamPlayer} from "../types";
 import {Collection, Guild, GuildMember} from "discord.js";
 import {getGuild} from "../discord/client";
-import {t, Language} from "../i18n/translations";
-
-function lang(): Language {
-    return (config.language || 'en') as Language;
-}
+import {t} from "../i18n/translations";
 
 const steamAvatarMap: Map<string, string> = new Map<string, string>();
 const discordAvatarMap: Map<string, string> = new Map<string, string>();

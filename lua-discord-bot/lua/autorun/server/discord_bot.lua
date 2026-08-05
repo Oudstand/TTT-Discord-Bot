@@ -4,7 +4,18 @@ end
 
 print("[TTTDiscordBot] Server-side script loaded")
 
-local ApiBase = "http://ttthost:3000/api"
+local ApiPort = CreateConVar(
+    "ttt_discord_bot_port",
+    "3000",
+    FCVAR_ARCHIVE,
+    "Port used by the TTT Discord Bot API",
+    1,
+    65535
+)
+
+local function GetApiBase()
+    return "http://ttthost:" .. ApiPort:GetInt() .. "/api"
+end
 
 -- ========= State =========
 local DeadPlayers = {}
@@ -154,7 +165,7 @@ end
 
 -- ========= Hooks =========
 hook.Add("TTTBeginRound", "TTTDiscordRoundStart", function()
-    http.Post(ApiBase .. "/roundStart", {}, nil, nil)
+    http.Post(GetApiBase() .. "/roundStart", {}, nil, nil)
     table.Empty(preEHP)
 end)
 
@@ -180,7 +191,7 @@ hook.Add("PlayerDeath", "TTTDiscordDeath", function(victim, inflictor, attacker)
             return
         end
         if not victim:Alive() and ShouldMuteOnDeath(victim) then
-            http.Post(ApiBase .. "/dead", { steamId = victim:SteamID64() }, nil, nil)
+            http.Post(GetApiBase() .. "/dead", { steamId = victim:SteamID64() }, nil, nil)
             DeadPlayers[victim:SteamID64()] = true
         end
     end)
@@ -190,7 +201,7 @@ hook.Add("PlayerSpawn", "TTTDiscordSpawn", function(ply)
     if not IsValidPlayer(ply) or not DeadPlayers[ply:SteamID64()] then
         return
     end
-    http.Post(ApiBase .. "/spawn", { steamId = ply:SteamID64() }, nil, nil)
+    http.Post(GetApiBase() .. "/spawn", { steamId = ply:SteamID64() }, nil, nil)
     DeadPlayers[ply:SteamID64()] = nil
 end)
 
@@ -259,7 +270,7 @@ hook.Add("TTTEndRound", "TTTDiscordRoundEnd", function(result)
     end
 
     HTTP({
-        url = ApiBase .. "/roundEnd",
+        url = GetApiBase() .. "/roundEnd",
         method = "POST",
         type = "application/json",
         body = util.TableToJSON({ players = finalPayload })

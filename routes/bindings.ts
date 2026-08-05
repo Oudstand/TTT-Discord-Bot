@@ -6,10 +6,8 @@ import {Guild, GuildMember} from "discord.js";
 import {Binding, BindingWithAvatar} from "../types";
 import {fallBackAvatarUrl, getSteamAvatarUrl} from "../utils/player";
 import {updateNameInStats} from "../storage/stats-store";
-import config from "../config";
-import {t, Language} from "../i18n/translations";
-
-const lang = () => (config.language || 'en') as Language;
+import {lang} from "../config";
+import {t} from "../i18n/translations";
 
 const router: Router = express.Router();
 
