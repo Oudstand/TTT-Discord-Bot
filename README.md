@@ -113,7 +113,7 @@ To allow Garry's Mod to communicate with the bot, configure the `192.178.0.1` lo
 
 #### Linux
 
-1. **Add the loopback address:** Run:
+1. **Add the loopback address.** Use the [optional Linux starter](#optional-linux-starter) or run this command manually.
    ```bash
    sudo ip addr add 192.178.0.1/32 dev lo
    ```
@@ -183,6 +183,17 @@ The easiest way to use the bot is to download the pre-built executable from GitH
 The dashboard opens in the language specified in your `.env` file (`BOT_LANGUAGE`). You can also manually change the language by adding `?lang=en` or `?lang=de` to the URL.
 
 **Note:** Both executables are standalone and portable. On first start, Chrome Headless Shell (~60-80 MB) will be automatically downloaded for screenshot generation. This download only happens once.
+
+#### Optional Linux starter
+
+If Garry's Mod and the bot run on the same Linux machine, set up the [`ttthost` entry in `/etc/hosts`](#linux). Copy [`start-bot.sh`](start-bot.sh) from this repository into the folder containing `ttt-discord-bot-linux` and `.env`. Run the following commands in that folder.
+
+```bash
+chmod +x start-bot.sh ttt-discord-bot-linux
+./start-bot.sh
+```
+
+The script adds `192.178.0.1/32` to the loopback interface if the address is missing, then starts the bot as your user. When the address needs to be added, `sudo` may prompt for your password.
 
 ---
 
